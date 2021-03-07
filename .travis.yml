@@ -5,10 +5,12 @@ services:
 
 before_install:
   - docker pull atlasamglab/stats
-  - docker run --rm -it atlasamglab/stats
+  - docker run --name atlasroot -d atlasamglab/stats
+  - docker ps -a
 
 script:
-  - pwd
+  - pwd && ls
+  - docker run atlasroot /bin/bash
   - mkdir build
   - cd build
   - cmake ../ && make -j
