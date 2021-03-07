@@ -3,13 +3,12 @@ language: cpp
 services:
   - docker
 
-before_install:
+script:
   - docker pull atlasamglab/stats
   - docker run -d atlasamglab/stats /bin/bash
   - docker ps -a
   - docker run atlasamglab/stats /bin/bash
-
-script:
+  - which root
   - pwd && ls
   - mkdir build
   - cd build
