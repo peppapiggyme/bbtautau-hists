@@ -4,8 +4,8 @@ services:
   - docker
 
 before_install:
-  - docker pull rootproject/root
-  - docker run --rm -it rootproject/root
+  - docker pull atlasamglab/stats
+  - docker run --rm -it atlasamglab/stats
 
 script:
   - pwd
