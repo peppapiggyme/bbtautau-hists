@@ -10,7 +10,7 @@ before_install:
 
 script:
   - pwd && ls
-  - docker run atlasroot /bin/bash
+  - docker exec -it atlasroot /bin/bash
   - mkdir build
   - cd build
   - cmake ../ && make -j
