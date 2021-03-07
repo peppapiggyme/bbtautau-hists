@@ -5,7 +5,7 @@ language: cpp
 services:
   - docker
   
-env: SH="docker exec -t atlasroot /bin/bash -c"
+env: SH="docker run -t atlasroot /bin/bash -c"
 
 before_install:
   - docker run -d --name atlasroot -v $(pwd):/travis -w /travis atlasamglab/stats:latest tail -f /dev/null
