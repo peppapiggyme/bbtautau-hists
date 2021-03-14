@@ -1,0 +1,65 @@
+// C++
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <map>
+
+// Root
+#include "TFile.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TStyle.h"
+#include "TLatex.h"
+#include "TCanvas.h"
+#include "TList.h"
+#include "TMath.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TF1.h"
+#include "TGaxis.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TLeaf.h"
+#include "TMarker.h"
+#include "TDecompLU.h"
+#include "TPRegexp.h"
+#include "TObjArray.h"
+// RooFit
+#include "RooWorkspace.h"
+#include "RooRealVar.h"
+#include "RooPlot.h"
+#include "RooAbsData.h"
+#include "RooHist.h"
+#include "RooSimultaneous.h"
+#include "RooCategory.h"
+#include "RooFitResult.h"
+#include "RooAbsPdf.h"
+#include "RooExtendPdf.h"
+#include "RooRealSumPdf.h"
+#include "Roo1DTable.h"
+#include "RooConstVar.h"
+#include "RooProduct.h"
+#include "RooRandom.h"
+#include "TStopwatch.h"
+#include "RooNLLVar.h"
+#include "RooMsgService.h"
+#include "TMatrixDSymEigen.h"
+
+// RooStat
+#include "RooStats/ModelConfig.h"
+#include "RooStats/ProfileInspector.h"
+#include "RooStats/ProfileLikelihoodCalculator.h"
+#include "RooStats/LikelihoodInterval.h"
+#include "RooStats/LikelihoodIntervalPlot.h"
+#include "RooStats/ProfileLikelihoodTestStat.h"
+#include "RooStats/SamplingDistribution.h"
+#include "RooStats/SamplingDistPlot.h"
+#include "RooStats/ToyMCSampler.h"
+#include "RooStats/RooStatsUtils.h"
+#include "RooStats/MinNLLTestStat.h"
+#include "RooStats/AsymptoticCalculator.h"
+
+using namespace RooFit;
+using namespace RooStats;
