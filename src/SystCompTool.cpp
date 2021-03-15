@@ -1,4 +1,4 @@
-#include "CompTool.h"
+#include "SystCompTool.h"
 #include "CommonInclude.h"
 
 #include <sstream>
@@ -8,71 +8,71 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-CompTool::CompTool(const CompInfo* info)
-    : HistTool(), m_info(info)
-{
-
-}
-
-CompTool::~CompTool()
-{
-
-}
-
-bool CompTool::check(const Config* c) const
+bool SystCompTool::check(const Config* c) const
 {
     if (!HistTool::check(c))
         return false;
 
     vector<ProcessInfo*>* ps = c->processes->content();
 
-    return ps->size() > 1;
+    if (ps->size() != 1) {
+        return false; // one process and its systematic uncertainties
+    }
+
+    auto& systs = ps->front()->systematic_histograms;
+
+    return systs.size() >= 1;
 }
 
-void CompTool::paint(const Config* c) const
+void SystCompTool::paint(const Config* c) const
 {
     vector<ProcessInfo*>* ps = c->processes->content();
-    for_each(ps->begin(), ps->end(), [&c](ProcessInfo* p) {
-        if (c->current_variable->binning) {
-            TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, p->histogram->GetName(), c->current_variable->binning);
-            p->histogram = (TH1*)rebinned->Clone();
-            for (auto& pp : p->systematic_histograms)
-            {
-                TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, pp.second->GetName(), c->current_variable->binning);
-                pp.second = (TH1*)rebinned_pp->Clone();
-            }
-        } else {
-            p->histogram->Rebin(c->current_variable->n_rebin);
-            for (auto& pp : p->systematic_histograms)
-            {
-                pp.second->Rebin(c->current_variable->n_rebin);
-            }
-        }
-        p->histogram->SetLineWidth(2);
-        p->histogram->SetLineStyle(1);
-        p->histogram->SetMarkerSize(0);
-        p->histogram->SetMarkerColor(p->color);
-        p->histogram->SetLineColor(p->color);
+    auto &p = ps->front();
+
+    /// @todo: isolate this part
+    if (c->current_variable->binning) {
+        TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, p->histogram->GetName(), c->current_variable->binning);
+        p->histogram = (TH1*)rebinned->Clone();
         for (auto& pp : p->systematic_histograms)
         {
-            pp.second->SetLineWidth(2);
-            pp.second->SetLineStyle(2);
-            pp.second->SetMarkerSize(0);
-            if (pp.first.find("1up") != std::string::npos)
-            {
-                pp.second->SetMarkerColor(kViolet);
-                pp.second->SetLineColor(kViolet);
-            }
-            else if (pp.first.find("1down") != std::string::npos)
-            {
-                pp.second->SetMarkerColor(kAzure);
-                pp.second->SetLineColor(kAzure);
-            }
-        } 
-    });
+            TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, pp.second->GetName(), c->current_variable->binning);
+            pp.second = (TH1*)rebinned_pp->Clone();
+        }
+    } else {
+        p->histogram->Rebin(c->current_variable->n_rebin);
+        for (auto& pp : p->systematic_histograms)
+        {
+            pp.second->Rebin(c->current_variable->n_rebin);
+        }
+    }
+
+    p->histogram->SetLineWidth(2);
+    p->histogram->SetLineStyle(1);
+    p->histogram->SetMarkerSize(0);
+    p->histogram->SetMarkerColor(p->color);
+    p->histogram->SetLineColor(p->color);
+
+    size_t idx = 0;
+    for (auto& pp : p->systematic_histograms)
+    {
+        pp.second->SetLineWidth(2);
+        pp.second->SetLineStyle(2);
+        pp.second->SetMarkerSize(0);
+        idx %= Utils::paletteSysts.size();
+        if (pp.first.find("1up") != std::string::npos)
+        {
+            pp.second->SetMarkerColor(Utils::paletteSysts[idx].first);
+            pp.second->SetLineColor(Utils::paletteSysts[idx].first);
+        }
+        else if (pp.first.find("1down") != std::string::npos)
+        {
+            pp.second->SetMarkerColor(Utils::paletteSysts[idx].second);
+            pp.second->SetLineColor(Utils::paletteSysts[idx].second);
+        }
+    }
 }
 
-void CompTool::run(const Config* c) const
+void SystCompTool::run(const Config* c) const
 {
     if (!fs::exists(fs::path(output_path)))
     {
@@ -106,19 +106,6 @@ void CompTool::run(const Config* c) const
 
     upper_pad->cd();
 
-    if (m_info->shape_only) {
-        ps->front()->histogram->Scale(1.0 / ps->front()->histogram->Integral());
-        for (auto &pp : ps->front()->systematic_histograms)
-        {
-            pp.second->Scale(1.0 / pp.second->Integral());
-        }
-    } else {
-        ps->front()->histogram->Scale(ps->front()->norm_factor);
-        for (auto &pp : ps->front()->systematic_histograms)
-        {
-            pp.second->Scale(ps->front()->norm_factor);
-        }
-    }
     TH1* base = ps->front()->histogram;
     base->Draw("HIST E1");
     base->GetXaxis()->SetLabelSize(0);
@@ -135,14 +122,6 @@ void CompTool::run(const Config* c) const
         pp.second->Draw("HIST E1 SAME");
     }
 
-    for_each(ps->begin()+1, ps->end(), [this](const ProcessInfo* p) {
-        if (m_info->shape_only) {
-            p->histogram->Scale(1.0 / p->histogram->Integral());
-        } else {
-            p->histogram->Scale(p->norm_factor);
-        }
-        p->histogram->Draw("HIST E1 SAME"); });
-
     double y = 0.92 - 0.05 * (ps->size() + ps->front()->systematic_histograms.size() + 1);
     TLegend* legend = new TLegend(0.60, y, 0.90, 0.92);
     legend->SetTextFont(42);
@@ -153,17 +132,9 @@ void CompTool::run(const Config* c) const
 
     for_each(ps->begin(), ps->end(), [&legend, &ps](const ProcessInfo* p) {
         legend->AddEntry(p->histogram, p->name_tex.c_str(), "lep");
-        if (p == ps->front()) { 
-            for (auto& pp : p->systematic_histograms)
-            {
-                std::string updown;
-                if (pp.first.find("1up") != std::string::npos)
-                { updown = "(1 up)"; }
-                else if (pp.first.find("1down") != std::string::npos)
-                { updown = "(1 down)"; }
-                legend->AddEntry(pp.second, (p->name_tex + " " + updown).c_str(), "lep");
-            }
-        }
+        if (p == ps->front())
+        for (auto& pp : p->systematic_histograms)
+            legend->AddEntry(pp.second, pp.first.c_str(), "lep");
     });
 
     legend->Draw("SAME");
@@ -177,11 +148,6 @@ void CompTool::run(const Config* c) const
         text->SetTextFont(42);
         text->DrawLatex(0.20 + 0.12, 0.86, m_info->atlas_label);
         text->SetTextSize(0.045);
-        if (c->systematics)
-        {
-            vector<SystematicInfo*>* ss = c->systematics->content();
-            text->DrawLatex(0.60, 0.60, ss->front()->name.c_str());
-        }
     }
     ostringstream oss{c->basic->ecm};
     text->DrawLatex(0.20, 0.80, oss.str().c_str());
@@ -215,7 +181,7 @@ void CompTool::run(const Config* c) const
     err->SetMinimum(m_info->ratio_low);
     err->SetMaximum(m_info->ratio_high);
     err->Draw("E2");
-
+    
     /// @todo: other tool might also need this!
     {
         TLegend* legend = new TLegend(0.60, 0.88, 0.90, 0.98);
@@ -228,17 +194,11 @@ void CompTool::run(const Config* c) const
         legend->Draw("SAME");
     }
 
-    for_each(ps->begin()+1, ps->end(), [&base_scale](const ProcessInfo* p) {
-        TH1* rat = (TH1*)p->histogram->Clone();
-        rat->Divide(base_scale);
-        // rat->Fit("pol1", "", "", 0, 250);
-        rat->Draw("E0 SAME"); });
-    
     for (auto& pp : ps->front()->systematic_histograms)
     {
         TH1* rat_pp = (TH1*)pp.second->Clone();
         rat_pp->Divide(base_scale);
-        rat_pp->Draw("HIST SAME");
+        rat_pp->Draw("HIST E1 SAME");
     }
 
     ostringstream oss_out;
@@ -254,4 +214,34 @@ void CompTool::run(const Config* c) const
     delete legend;
     delete text;
     delete c1;
+}
+
+void SystCompTool::uncHessianPDF4LHC(const Config* c) const
+{
+    vector<ProcessInfo*>* ps = c->processes->content();
+    auto& nom = ps->front()->histogram;
+    auto& systs = ps->front()->systematic_histograms;
+    TH1F* pdf_up = (TH1F*)nom->Clone("PDF4LHC__1up");
+    TH1F* pdf_down = (TH1F*)nom->Clone("PDF4LHC__1down");
+
+    for (int i = 1; i <= nom->GetNbinsX(); ++i) {
+        float uncSquared{0.f};
+        pdf_up->SetBinError(i, 0.f);
+        pdf_down->SetBinError(i, 0.f);
+        for (auto& pp : systs) {
+            if (i == 1 && pp.first.find("PDF4LHC") == std::string::npos) {
+                clog << pp.first << " is not PDF4LHC uncertainty (skip it)\n";
+                continue;
+            }
+            float diff = pp.second->GetBinContent(i) - nom->GetBinContent(i);
+            uncSquared += diff * diff;
+        }
+        float unc = std::sqrt(uncSquared);
+        pdf_up->SetBinContent(i, nom->GetBinContent(i) + unc);
+        pdf_down->SetBinContent(i, nom->GetBinContent(i) - unc);
+    }
+
+    systs.clear(); // delete ?
+    Utils::histAssignSyst(pdf_up, ps->front(), "PDF4LHC__1up");
+    Utils::histAssignSyst(pdf_down, ps->front(), "PDF4LHC__1down");
 }

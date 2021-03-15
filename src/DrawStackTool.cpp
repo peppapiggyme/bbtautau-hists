@@ -219,6 +219,7 @@ void DrawStackTool::run(const Config* c) const
         bkg_scale->SetBinError(i, 0.0);
     }
     err->Divide(bkg_scale);
+    err->SetLineWidth(0);
     err->SetFillStyle(3254);
     err->SetFillColor(kGray + 3);
     err->SetMarkerSize(0);
@@ -235,6 +236,19 @@ void DrawStackTool::run(const Config* c) const
     err->SetMinimum(m_info->ratio_low);
     err->SetMaximum(m_info->ratio_high);
     err->Draw("E2");
+
+    /// @todo: other tool might also need this!
+    {
+        TLegend* legend = new TLegend(0.60, 0.88, 0.90, 0.98);
+        legend->SetTextFont(42);
+        legend->SetFillStyle(0);
+        legend->SetBorderSize(0);
+        legend->SetTextSize(0.035);
+        legend->SetTextAlign(12);
+        legend->AddEntry(err, "Stat. Unc.", "f");
+        legend->Draw("SAME");
+    }
+
     TH1* rat = (TH1*)data->Clone();
     rat->Divide(bkg_scale);
     rat->SetTitle("lower_pad");

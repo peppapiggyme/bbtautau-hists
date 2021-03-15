@@ -19,6 +19,12 @@ int main(/*int argc, char *argv[]*/)
 
     // test_hadhad_ZtautauMG("/scratchfs/atlas/zhangbw/CxAODReaderSemiBoosted/run/hist-Ztautau-v1.root");
 
+    // test_hadhad_WtDS("/scratchfs/atlas/zhangbw/CxAODReaderForSystStudy/run/hist-top-v1.root");
+
+    // test_hadhad_WtGen("/scratchfs/atlas/zhangbw/CxAODReaderForSystStudy/run/hist-top-v1.root");
+
+    // test_hadhad_WtOTF("/scratchfs/atlas/zhangbw/CxAODReaderForSystStudy/run/hist-top-v1.root");
+    
     // test_hadhad_NonRes("/scratchfs/atlas/zhangbw/CxAODReaderSemiBoosted/run/hist-NonRes-v0.root");
 
     // hadhadsr_v15("/scratchfs/atlas/zhangbw/CxAODReaderSemiBoosted/run/hist-HadHad-v1.root");

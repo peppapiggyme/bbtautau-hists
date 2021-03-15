@@ -33,7 +33,8 @@ add_library(ConfigLib SHARED
 add_library(HistToolLib SHARED 
     src/HistTool.cpp
     src/DrawStackTool.cpp
-    src/CompTool.cpp)
+    src/CompTool.cpp
+    src/SystCompTool.cpp)
 
 add_library(WorkspaceToolLib SHARED
     src/WorkspaceTool.cpp

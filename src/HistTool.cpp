@@ -12,8 +12,14 @@
 
 using namespace std;
 
+# define FOUR_COLUMN_TABLE(A, B, C, D) \
+       std::left << setw(36) << A \
+    << std::left << setw(15) << B \
+    << std::left << setw(30) << C \
+    << std::left << setw(15) << D << endl
+
 # define FIVE_COLUMN_TABLE(A, B, C, D, E) \
-       std::left << setw(30) << A \
+       std::left << setw(40) << A \
     << std::left << setw(15) << B \
     << std::left << setw(15) << C \
     << std::left << setw(15) << D \
@@ -118,6 +124,12 @@ void HistTool::makeYield(const Config* c) const
         double integral = p->histogram->IntegralAndError(from, to, error, "");
         double eOverI = *(long*)(&integral) ? error / integral : 0.;
         fout << FIVE_COLUMN_TABLE(p->name, nentries, integral * p->norm_factor, error * p->norm_factor, eOverI);
+
+        for (auto& pp : p->systematic_histograms) {
+            auto systEntries = pp.second->GetEntries();
+            auto systInt = pp.second->Integral();
+            fout << " |- " << FOUR_COLUMN_TABLE(pp.first, systEntries, systInt, systInt / integral - 1.f);
+        }
 
         if (p->type == eProcessType::BKG)
         {

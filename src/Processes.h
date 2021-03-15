@@ -23,6 +23,8 @@ enum class eProcess {
     DATA, OTHERS, BKG, 
     TTBAR, TTBARTRUE, TTBARFAKE, TTBARTT, TTBARTF, TTBARFT, TTBARFF,
     STOP, STOPT, STOPS, STOPWT,
+    STOPT_AMC, STOPT_HW7, 
+    STOPWT_AMC, STOPWT_HW7, STOPWT_DS, 
     ZJETS, ZtautauJETS, ZtautauHF, ZtautauLF, ZllJETS, ZllLF, ZllHF,
     WJETS, WtauvJETS, WtauvHF, WtauvLF, WlvJETS, WlvLF, WlvHF, ttV,
     H, VH, WH, ZH, ttH, ggH, VBFH,

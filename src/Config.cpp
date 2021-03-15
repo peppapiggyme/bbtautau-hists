@@ -96,7 +96,8 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
                 const std::string& fullnameWithSystDown = Utils::histStringSyst(p, r, v, s) + "__1down";
                 TDirectory* d_syst = nullptr;
                 d_syst = (TDirectory*)d->Get("Systematics");
-                if (d_syst->GetListOfKeys()->Contains(fullnameWithSystUp.c_str()) &&
+                if (s->type == eSystematicType::TwoSide &&
+                    d_syst->GetListOfKeys()->Contains(fullnameWithSystUp.c_str()) &&
                     d_syst->GetListOfKeys()->Contains(fullnameWithSystDown.c_str()))
                 {
                     TH1* hUp = (TH1*)d_syst->Get(fullnameWithSystUp.c_str());
@@ -104,10 +105,15 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
                     Utils::histAssignSyst(hUp, p, Utils::systString(s) + "__1up");
                     Utils::histAssignSyst(hDown, p, Utils::systString(s) + "__1down");
                 }
+                else if (s->type == eSystematicType::OneSide && 
+                         d_syst->GetListOfKeys()->Contains(fullnameWithSystUp.c_str()))
+                {
+                    TH1* hUp = (TH1*)d_syst->Get(fullnameWithSystUp.c_str());
+                    Utils::histAssignSyst(hUp, p, Utils::systString(s) + "__1up");
+                }
                 else
                 {
-                    clog << "INFO: " << fullnameWithSystUp << " is not in " << m_dir << " (skip it)\n";
-                    clog << "INFO: " << fullnameWithSystDown << " is not in " << m_dir << " (skip it)\n";
+                    clog << "INFO: Can not add systematic uncertainty [" << s->name << "] (skip it)\n";
                 }
             }
         }

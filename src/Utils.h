@@ -12,8 +12,11 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using std::string;
+using std::vector;
+using std::pair;
 
 namespace Utils {
 
@@ -26,6 +29,18 @@ namespace Utils {
     string histString(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v);
     string systString(const SystematicInfo* s);
     string histStringSyst(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const SystematicInfo* s);
+
+    static vector<pair<unsigned, unsigned>> paletteSysts = {         
+        {kViolet, kAzure},
+        {kViolet-1, kAzure-1},
+        {kViolet-2, kAzure-2},
+        {kViolet-3, kAzure-3},
+        {kViolet-4, kAzure-4},
+        {kViolet+1, kAzure+1},
+        {kViolet+2, kAzure+2},
+        {kViolet+3, kAzure+3},
+        {kViolet+4, kAzure+4},
+    };
 }
 
 #endif // UTILS_H
