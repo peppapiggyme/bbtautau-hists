@@ -11,4 +11,7 @@
 #include "HadHadSR_v15_yield.h"
 
 #include "Example_ws.h"
+<<<<<<< HEAD
 #include "Example_Ranking.h"
+=======
+>>>>>>> a58ac304acc53a92151cf4acbed31112c2c096dc

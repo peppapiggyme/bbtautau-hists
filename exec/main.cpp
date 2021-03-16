@@ -40,7 +40,7 @@ int main(/*int argc, char *argv[]*/)
     // test_ws_info("/scratchfs/atlas/zhangbw/ResolvedStatAna/WSMaker_Group/output/Bowen_HadHadWSI_v2.ZgenTtbarNorm_HH_13TeV_ZgenTtbarNorm_Systs_hadhad_2HDM_MVA_500/workspaces/combined/500.root");
     // test_ws_info("/scratchfs/atlas/zhangbw/ResolvedStatAna/WSMaker_Group_BackUp/output/Bowen_HadHadWSI_v1.ZgenTtbarNorm_HH_13TeV_ZgenTtbarNorm_Systs_hadhad_2HDM_BDT_500/workspaces/combined/500.root");
 
-    test_ranking();
+    // test_ranking();
 
     cout << "Ciao!" << endl;
 
