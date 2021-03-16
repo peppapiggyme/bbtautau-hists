@@ -10,6 +10,10 @@
 #include <map>
 #include <set>
 #include <tuple>
+#include <thread>
+#include <mutex>
+#include <algorithm>
+#include <atomic>
 
 #include "CommonInclude_WS.h"
 #include "Utils.h"
@@ -23,6 +27,10 @@ using std::cout;
 using std::clog;
 using std::cerr;
 using std::endl;
+using std::for_each;
+using std::thread;
+using std::mutex;
+using std::lock_guard;
 
 using std::chrono::steady_clock;
 using std::chrono::milliseconds;
@@ -293,7 +301,19 @@ public:
 public:
     virtual void RunRanking()
     {
-        ///@todo multithreading is required here
+        vector<thread> vThr;
+
+        auto run = [this](const std::string& sNP, const float nMode) 
+        {
+            Tools::println("- % with %", sNP, nMode);
+            string sPostFix = nMode > 0 ? "_Hi" : "_Lo";
+            lock_guard<mutex> lg(this->m);
+            m_fits[sNP + sPostFix] = new FitResult(m_sFileName, m_sWorkspaceName);
+            m_fits[sNP + sPostFix]->FitWithFixedPara(sNP, m_fits["base"]->GetFittedNPs(), nMode, -1);
+            m_fits[sNP + sPostFix]->Check();
+            m_mapAltPOIs[sNP + sPostFix] = m_fits[sNP + sPostFix]->GetCache(m_fits[sNP + sPostFix]->NameOfPOI());
+        };
+
         m_fits["base"] = new FitResult(m_sFileName, m_sWorkspaceName);
         Tools::println(">> All: ");
         m_fits["base"]->FitAll(-1);
@@ -304,14 +324,10 @@ public:
         {
             for (float nMode : {1.0f, -1.0f})
             {
-                Tools::println("- % with %", sNP, nMode);
-                string sPostFix = nMode > 0 ? "_Hi" : "_Lo";
-                m_fits[sNP + sPostFix] = new FitResult(m_sFileName, m_sWorkspaceName);
-                m_fits[sNP + sPostFix]->FitWithFixedPara(sNP, m_fits["base"]->GetFittedNPs(), nMode, -1);
-                m_fits[sNP + sPostFix]->Check();
-                m_mapAltPOIs[sNP + sPostFix] = m_fits[sNP + sPostFix]->GetCache(m_fits[sNP + sPostFix]->NameOfPOI());
+                vThr.emplace_back(run, sNP, nMode);
             }
         }
+        for_each(vThr.begin(), vThr.end(), [](thread& t){ t.join(); });
     }
 
     map<FitResult::ePOI, float> GetFittedPOI()
@@ -330,6 +346,9 @@ protected:
     std::string m_sWorkspaceName = "combined";
     map<FitResult::ePOI, float> m_nPOI;
     map<string, map<FitResult::ePOI, float>> m_mapAltPOIs;
+
+private:
+    mutex m;
 };
 
 #endif // RANKINGTOOL_H

@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.2)
 project(bbtautau-hists LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,6 +18,8 @@ SET(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARG
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist Tree RIO Net 
     Matrix Physics MathCore HistFactory RooFit RooFitCore RooFitMore RooStats)
+
+find_package(Threads REQUIRED)
 
 include_directories(SYSTEM ${ROOT_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/examples)
 
@@ -44,7 +48,7 @@ add_library(WorkspaceToolLib SHARED
 target_link_libraries(UtilsLib PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ConfigLib PUBLIC stdc++fs ${ROOT_LIBRARIES})
 target_link_libraries(HistToolLib PUBLIC stdc++fs ${ROOT_LIBRARIES})
-target_link_libraries(WorkspaceToolLib PUBLIC stdc++fs ${ROOT_LIBRARIES})
+target_link_libraries(WorkspaceToolLib PUBLIC stdc++fs Threads::Threads ${ROOT_LIBRARIES})
 
 add_executable(bbtautau-hists exec/main.cpp 
     examples/ExamplesInclude.h)
