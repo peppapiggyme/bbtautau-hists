@@ -26,8 +26,13 @@
 #include "TDecompLU.h"
 #include "TPRegexp.h"
 #include "TObjArray.h"
+#include "Math/Minimizer.h"
+#include "Math/MinimizerOptions.h"
+
 // RooFit
 #include "RooWorkspace.h"
+#include "RooWorkspaceHandle.h"
+#include "RooArgSet.h"
 #include "RooRealVar.h"
 #include "RooPlot.h"
 #include "RooAbsData.h"
@@ -36,6 +41,7 @@
 #include "RooCategory.h"
 #include "RooFitResult.h"
 #include "RooAbsPdf.h"
+#include "RooDataSet.h"
 #include "RooExtendPdf.h"
 #include "RooRealSumPdf.h"
 #include "Roo1DTable.h"

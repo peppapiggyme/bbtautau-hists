@@ -43,4 +43,42 @@ namespace Utils {
     };
 }
 
+class Tools
+{
+
+public:
+    static void print(const char* fmt)
+    {
+        std::cout << fmt;
+    }
+
+    static void println(const char* fmt)
+    {
+        Tools::print(fmt);
+        Tools::print("\n");
+    }
+
+    template<typename T, typename ... Targs>
+    static void print(const char* fmt, T value, Targs ... args)
+    {
+        for(; *fmt != '\0'; fmt++)
+        {
+            if (*fmt == '%') {
+                std::cout << value;
+                Tools::print(fmt+1, args...);
+                return;
+            }
+            std::cout << *fmt;
+        }
+    }
+
+    template<typename T, typename ... Targs>
+    static void println(const char* fmt, T value, Targs ... args)
+    {
+        Tools::print(fmt, value, args...);
+        Tools::print("\n");
+    }
+
+};
+
 #endif // UTILS_H
