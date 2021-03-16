@@ -51,7 +51,7 @@ void test_hadhad_WtDS(const std::string& filename)
     CompInfo* info = new CompInfo();
     info->ratio_high = 1.78;
     info->ratio_low = 0.22;
-    info->shape_only = true;
+    info->shape_only = false;
 
     for (VariableInfo* v : *(vs_presel->content()))
     {
