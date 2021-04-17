@@ -26,18 +26,30 @@ namespace Utils {
     void histAssignSyst(TH1* h, ProcessInfo *p, const std::string& systname);
 
     /**
-     * @note: so far only support CxAODReader like naming
+     * @note so far only support CxAODReader style naming
      */
     string histString(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v);
-    string systString(const SystematicInfo* s);
-    string histStringSyst(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const SystematicInfo* s);
-    string systStringShort(const string& sSyst);
-    string signalTypeName(const string& sSigName);
-
+    
     /**
-     * @note: return automatic binning (using 1/n quantiles)
+     * @note so far only support CxAODReader style naming
      */
-    std::vector<double> binningQuantile(TH1* h, double* x, const std::size_t n); 
+    string systString(const SystematicInfo* s);
+    
+    /**
+     * @note so far only support CxAODReader style naming
+     */
+    string histStringSyst(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const SystematicInfo* s);
+    
+    /**
+     * @brief shorten the names of nuisance parameters 
+     */
+    string systStringShort(const string& sSyst);
+    
+    /**
+     * @brief histogram process name are hhttbb, Hhhbbtautau, ...
+     * In WSMaker, the signal type name are SM, 2HDM, ...
+     */
+    string signalTypeName(const string& sSigName);
 
     static vector<pair<unsigned, unsigned>> paletteSysts = {         
         {kViolet, kAzure},
@@ -104,7 +116,30 @@ public:
         return INT_MIN;
     }
 
-    // NB: pass by value so the print uses a copy
+    /**
+     * @brief pretty print vectors
+     * @note pass by value so the print uses a copy
+     */
+    template<typename T>
+    static void print_vector(const T& v) 
+    {
+        size_t cnt = v.size();
+        for (const auto& x : v)
+        {
+            std::cout << x;
+            if (cnt != 1)
+            {
+                std::cout << ", ";
+            }
+            cnt--;
+        }
+        std::cout << "\n";
+    }
+
+    /**
+     * @brief pretty print queues
+     * @note pass by value so the print uses a copy
+     */
     template<typename T>
     static void print_queue(T q) 
     {

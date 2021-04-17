@@ -95,16 +95,4 @@ string signalTypeName(const string& sSigName)
     return sName;
 }
 
-std::vector<double> binningQuantile(TH1* h, double* x, const std::size_t n)
-{
-    std::vector<double> y(n+1);
-    for (std::size_t i = 0; i < n; ++i)
-    {
-        x[i] = double(i+1) / (double)n;
-    }
-    y[0] = h->GetXaxis()->GetBinLowEdge(1);
-    h->GetQuantiles(n, &y[1], x);
-    return y;
-}
-
 }

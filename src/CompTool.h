@@ -27,7 +27,7 @@ public:
 };
 
 /**
- * @brief: compare with the first entry
+ * @brief compare with the first entry
  */
 class CompTool : public HistTool
 {

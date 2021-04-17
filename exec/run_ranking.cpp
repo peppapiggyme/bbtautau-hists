@@ -1,4 +1,4 @@
-#include "Example_Ranking.h"
+#include "ExamplesInclude_WS.h"
 #include "TROOT.h"
 
 #include <iostream>

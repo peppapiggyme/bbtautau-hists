@@ -54,21 +54,39 @@ add_library(StatsLib SHARED
     ext/LinkDef.h
     ${PROJECT_NAME}Dict.cxx)
 
+add_library(ExamplesLib SHARED
+    examples/Example.cpp
+    examples/Example_klambda.cpp
+    examples/Example_NonRes.cpp
+    examples/Example_Pulls.cpp
+    examples/Example_Ranking.cpp
+    examples/Example_ttbarRew.cpp
+    examples/Example_ttbarSyst.cpp
+    examples/Example_WS.cpp
+    examples/Example_WtDS.cpp
+    examples/Example_WtGen.cpp
+    examples/Example_WtOTF.cpp
+    examples/Example_yield.cpp
+    examples/Example_ZtautauMG.cpp
+    examples/HadHadSR_v15_binning.cpp
+    examples/HadHadSR_v15.cpp
+    examples/HadHadSR_v15_yield.cpp)
+
 target_link_libraries(UtilsLib PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ConfigLib PUBLIC stdc++fs ${ROOT_LIBRARIES})
 target_link_libraries(HistToolLib PUBLIC stdc++fs ${ROOT_LIBRARIES})
 target_link_libraries(StatsLib PUBLIC stdc++fs Threads::Threads ${ROOT_LIBRARIES})
-
+target_link_libraries(ExamplesLib PUBLIC UtilsLib ConfigLib HistToolLib StatsLib ${ROOT_LIBRARIES})
 
 add_executable(run-test exec/test.cpp)
 add_executable(run-main exec/main.cpp)
 add_executable(run-pulls exec/run_pulls.cpp)
 add_executable(run-ranking exec/run_ranking.cpp)
 
-target_link_libraries(run-test ConfigLib HistToolLib UtilsLib StatsLib)
-target_link_libraries(run-main ConfigLib HistToolLib UtilsLib StatsLib)
-target_link_libraries(run-pulls UtilsLib StatsLib)
-target_link_libraries(run-ranking UtilsLib StatsLib)
+target_link_libraries(run-test ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
+target_link_libraries(run-main ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
+target_link_libraries(run-pulls UtilsLib StatsLib ExamplesLib)
+target_link_libraries(run-ranking UtilsLib StatsLib ExamplesLib)
 
 add_custom_target(link_target ALL
     COMMAND ${CMAKE_COMMAND} -E create_symlink run-main bbtautau-hists)

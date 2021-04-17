@@ -15,10 +15,6 @@ using std::vector;
 class AutoBinningInfo
 {
 public:
-    bool logx = false;
-    bool logy = false;
-    bool atlas = true;
-    bool shape_only = false;
     unsigned n_bins = 8;
     double min_bkg = 5; // all bkg
     double min_mcstats = 0.2; // all bkg
@@ -64,7 +60,7 @@ public:
 
 public:
     /**
-     * @note 
+     * @brief 
      * Case 1 : 
      * from right to left, scan for bin edges that satisfy:
      * - # Bkg > MinBkg (typically _5_) 
@@ -78,7 +74,7 @@ public:
      */
     bool passCaseOneFromXtoY(double fBkg, double fBkgErr, double fReqFactor, std::size_t x, std::size_t y) const;
     /**
-     * @note
+     * @brief
      * Case 2 : 
      * from right to left, scan for bin edges that satisfy:
      * - # Bkg > MinBkg (typically _5_) 
@@ -107,6 +103,7 @@ private:
 // ---------------------------------------------------------------------------
 enum class BinningCriteria 
 {
+    None,
     CaseOne,
     CaseTwo
 };
@@ -118,29 +115,33 @@ enum class BinningCriteria
 class AutoBinningTool : public HistTool
 {
 public:
-    AutoBinningTool(const AutoBinningInfo* info, BinningCriteria bc);
+    AutoBinningTool(const AutoBinningInfo* info);
     virtual ~AutoBinningTool() override { delete m_binEdges; }
 
 public:
-    virtual bool check(const Config* c) const override;
-    // colorful
-    // usually rebinning is done here, but for auto-binning it's not the case!
-    virtual void paint(const Config* c) const override;
-    // drawing
-    virtual void run(const Config* c) const override { (void)c; }
     inline vector<double> binning() const { return *m_binEdges; }
+    /**
+     * @brief re-bin based on `m_binEdges`
+     */
+    virtual void rebin(const Config* c) const override;
+    /**
+     * @brief this function just for completeness, will always use Self option not matter which is provided
+     * i.e. still re-bin based on `m_binEdges`
+     */
+    virtual void rebin(const Config* c, eRebinOption opt) const override { opt = eRebinOption::Self; HistTool::rebin(c, opt); }
+    /**
+     * @brief binning tool does not do the art
+     */
+    virtual void paint(const Config* c) const override { (void)c; }
 
 protected:
     const AutoBinningInfo* m_info;
     vector<double>* m_binEdges;
-    BinningCriteria m_bc;
 };
 
 /**
  * @brief
- * v1: conservative binning for MVA score
- * always require certain MC stat unc. on all components at right most bins
- * until all bins satisfy this criteria
+ * v1: binning for MVA score, optimise sensitivity
  * testing with hadhad PNNs and BDT
  */
 class AutoBinningTool_v1 : public AutoBinningTool
@@ -149,9 +150,35 @@ public:
     AutoBinningTool_v1(const AutoBinningInfo* info, BinningCriteria bc);
 
 public: 
+    virtual bool check(const Config* c) const override;
     virtual void run(const Config* c) const override;
+
+private:
+    BinningCriteria m_bc;
 };
 
+/**
+ * @brief
+ * v2: binning for MVA score or kinematics
+ * flatten the distribution by splitting into equal quantiles
+ * 
+ * @note
+ * The bin edges may not fit the original binning
+ * in that case ROOT will complain, but it should automatically round to the nearest valid edge
+ * So the final binning not perfectly flat  
+ */
+class AutoBinningTool_v2 : public AutoBinningTool
+{
+public:
+    AutoBinningTool_v2(const AutoBinningInfo* info, eProcess proc);
+
+public:
+    virtual void run(const Config* c) const override;
+
+private:
+    eProcess m_proc;
+
+};
 
 
 #endif

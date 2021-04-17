@@ -2,6 +2,8 @@
 #include "Utils.h"
 #include "CompTool.h"
 
+#include "ExamplesInclude.h"
+
 #include "TFile.h"
 #include "TH1.h"
 
@@ -82,6 +84,7 @@ void test_hadhad_NonRes(const std::string& filename)
         if (ct->check(c))
         {
             ct->makeYield(c, info->parameter);
+            ct->rebin(c, eRebinOption::Array);
             ct->paint(c);
             ct->run(c);
         }
@@ -116,6 +119,7 @@ void test_hadhad_NonRes(const std::string& filename)
         if (ct->check(c))
         {
             ct->makeYield(c, info->parameter);
+            ct->rebin(c, eRebinOption::Array);
             ct->paint(c);
             ct->run(c);
         }

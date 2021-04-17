@@ -2,6 +2,8 @@
  * This is for lephad channel
  */
 
+#include "ExamplesInclude.h"
+
 #include "Config.h"
 #include "Utils.h"
 #include "SystCompTool.h"
@@ -64,6 +66,7 @@ void test_lephad_ttbarRew(const std::string& filename)
         if (ct->check(c))
         {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);
@@ -174,6 +177,7 @@ void test_hadhad_ttbarRew(const std::string& filename)
         
         if (HistToolHelper::check(c)) {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
         }
 
         if (ct->check(c))
@@ -211,6 +215,7 @@ void test_hadhad_ttbarRew(const std::string& filename)
         
         if (HistToolHelper::check(c)) {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
         }
 
         if (ct->check(c))
@@ -246,6 +251,7 @@ void test_hadhad_ttbarRew(const std::string& filename)
         
         if (HistToolHelper::check(c)) {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
         }
 
         if (ct->check(c))

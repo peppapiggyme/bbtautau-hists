@@ -1,3 +1,5 @@
+#include "ExamplesInclude.h"
+
 #include "Config.h"
 #include "Utils.h"
 #include "CompTool.h"
@@ -73,6 +75,7 @@ void test_hadhad_klambda(const std::string& filename)
             ct->output_path = "/tmp/bowenzhang/hhttbbKL10p0from1p0";
             if (ct->check(c))
             {
+                ct->rebin(c, eRebinOption::N_Rebin);
                 ct->paint(c);
                 ct->run(c);
             }
@@ -100,6 +103,7 @@ void test_hadhad_klambda(const std::string& filename)
             ct->output_path = "/tmp/bowenzhang/hhttbbKL1p0from10p0";
             if (ct->check(c))
             {
+                ct->rebin(c, eRebinOption::N_Rebin);
                 ct->paint(c);
                 ct->run(c);
             }
@@ -141,6 +145,7 @@ void test_hadhad_klambda(const std::string& filename)
                 ct->output_path = "/tmp/bowenzhang/hhttbbKLxfrom1and10";
                 if (ct->check(c))
                 {
+                    ct->rebin(c, eRebinOption::N_Rebin);
                     ct->paint(c);
                     ct->run(c);
                 }

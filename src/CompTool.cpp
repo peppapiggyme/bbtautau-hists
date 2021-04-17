@@ -33,21 +33,6 @@ void CompTool::paint(const Config* c) const
 {
     vector<ProcessInfo*>* ps = c->processes->content();
     for_each(ps->begin(), ps->end(), [&c](ProcessInfo* p) {
-        if (c->current_variable->binning) {
-            TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, p->histogram->GetName(), c->current_variable->binning);
-            p->histogram = (TH1*)rebinned->Clone();
-            for (auto& pp : p->systematic_histograms)
-            {
-                TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, pp.second->GetName(), c->current_variable->binning);
-                pp.second = (TH1*)rebinned_pp->Clone();
-            }
-        } else {
-            p->histogram->Rebin(c->current_variable->n_rebin);
-            for (auto& pp : p->systematic_histograms)
-            {
-                pp.second->Rebin(c->current_variable->n_rebin);
-            }
-        }
         p->histogram->SetLineWidth(2);
         p->histogram->SetLineStyle(1);
         p->histogram->SetMarkerSize(0);
@@ -135,6 +120,7 @@ void CompTool::run(const Config* c) const
     base->GetYaxis()->SetLabelSize(0.04);
     base->GetYaxis()->SetTitleSize(0.045);
     base->SetMaximum(base->GetMaximum() * 1.4);
+    base->SetMinimum(0);
     base->GetYaxis()->ChangeLabel(1, -1, 0);
 
     for (auto& pp : ps->front()->systematic_histograms)

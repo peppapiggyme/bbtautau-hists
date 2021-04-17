@@ -98,6 +98,25 @@ void HistTool::manipulate(Config* c)
     // if do draw stack, the bkg and sig must be sorted!
 }
 
+void HistTool::rebin(const Config* c, eRebinOption opt) const
+{
+    switch (opt)
+    {
+    case eRebinOption::Self:
+        rebin(c);
+        break;
+    case eRebinOption::N_Rebin:
+        HistToolHelper::rebinByNRebin(c);
+        break;
+    case eRebinOption::Array:
+        HistToolHelper::rebinByArray(c);
+        break;
+    default:
+        /* never happen */
+        break;
+    }
+}
+
 void HistTool::makeYield(const Config* c, const std::string& tag) const
 {   
     ostringstream oss;
@@ -163,4 +182,39 @@ bool HistToolHelper::check(const Config* c)
     }
 
     return true;
+}
+
+void HistToolHelper::rebinByNRebin(const Config* c)
+{
+    vector<ProcessInfo*>* ps = c->processes->content();
+    for_each(ps->begin(), ps->end(), [&c](ProcessInfo* p) {
+        p->histogram->Rebin(c->current_variable->n_rebin);
+        for (auto& pp : p->systematic_histograms)
+        {
+            pp.second->Rebin(c->current_variable->n_bins);
+        }
+    });
+}
+
+void HistToolHelper::rebinByArray(const Config* c)
+{
+    /// @todo refactor this if statement
+    vector<ProcessInfo*>* ps = c->processes->content();
+    if (c->current_variable->binning)
+    {
+        for_each(ps->begin(), ps->end(), [&c](ProcessInfo* p) {
+            TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, p->histogram->GetName(), c->current_variable->binning);
+            p->histogram = (TH1*)rebinned->Clone();
+            for (auto& pp : p->systematic_histograms)
+            {
+                TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, pp.second->GetName(), c->current_variable->binning);
+                pp.second = (TH1*)rebinned_pp->Clone();
+            }
+        });
+    }
+    else
+    {
+        clog << "WARN: Binning not given, will rebin based on rebinByNRebin(c) instead\n";
+        HistToolHelper::rebinByNRebin(c);
+    }
 }

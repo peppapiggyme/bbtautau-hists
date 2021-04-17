@@ -1,3 +1,5 @@
+#include "ExamplesInclude.h"
+
 #include "Config.h"
 #include "Utils.h"
 #include "LephadTTBarCompTool.h"
@@ -72,6 +74,7 @@ void test_lephad_ttbarSys(const std::string& filename)
         {
             ct->manipulate(c);
             ct->combineReweightSysts(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);

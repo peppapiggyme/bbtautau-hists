@@ -1,3 +1,5 @@
+#include "ExamplesInclude.h"
+
 #include "Config.h"
 #include "Utils.h"
 #include "CompTool.h"
@@ -11,7 +13,7 @@ using std::cout;
 using std::endl;
 using std::clog;
 
-void test_hadhad_WtDS(const std::string& filename)
+void test_hadhad_WtGen(const std::string& filename)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
 
@@ -56,18 +58,20 @@ void test_hadhad_WtDS(const std::string& filename)
     for (VariableInfo* v : *(vs_presel->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
-        ps->add("stopWtDS",     "s-top Wt DS",       eProcessType::BKG,  eProcess::STOPWT_DS,   "s-top Wt DS",       kGreen+1);
+        ps->add("stopWtAF2",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("stopWtaMCAF2",    "s-top Wt aMC@NLO",  eProcessType::BKG,  eProcess::STOPWT_AMC,  "s-top Wt aMC@NLO",  kRed+1);
+        ps->add("stopWtHw7AF2",    "s-top Wt Herwig7",  eProcessType::BKG,  eProcess::STOPWT_HW7,  "s-top Wt Herwig7",  kViolet+1);
 
         Config* c = new Config(b, ps, rs, vs_presel);
         c->load(filename, "Preselection");
-        info->parameter = "Wt_DS_Presel";
+        info->parameter = "Wt_Gen_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Stop";
+        ct->output_path = "/tmp/bowenzhang/Stop";
         if (ct->check(c))
         {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);
@@ -87,18 +91,20 @@ void test_hadhad_WtDS(const std::string& filename)
     for (VariableInfo* v : *(vs_pnn->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
-        ps->add("stopWtDS",     "s-top Wt DS",       eProcessType::BKG,  eProcess::STOPWT_DS,   "s-top Wt DS",       kGreen+1);
+        ps->add("stopWtAF2",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("stopWtaMCAF2",    "s-top Wt aMC@NLO",  eProcessType::BKG,  eProcess::STOPWT_AMC,  "s-top Wt aMC@NLO",  kRed+1);
+        ps->add("stopWtHw7AF2",    "s-top Wt Herwig7",  eProcessType::BKG,  eProcess::STOPWT_HW7,  "s-top Wt Herwig7",  kViolet+1);
 
         Config* c = new Config(b, ps, rs, vs_pnn);
         c->load(filename, "PNNScorePreselection");
-        info->parameter = "Wt_DS_PNN";
+        info->parameter = "Wt_Gen_PNN";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Stop";
+        ct->output_path = "/tmp/bowenzhang/Stop";
         if (ct->check(c))
         {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);
@@ -116,18 +122,20 @@ void test_hadhad_WtDS(const std::string& filename)
         for (VariableInfo* v : *(vs_bdt->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
-        ps->add("stopWtDS",     "s-top Wt DS",       eProcessType::BKG,  eProcess::STOPWT_DS,   "s-top Wt DS",       kGreen+1);
+        ps->add("stopWtAF2",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("stopWtaMCAF2",    "s-top Wt aMC@NLO",  eProcessType::BKG,  eProcess::STOPWT_AMC,  "s-top Wt aMC@NLO",  kRed+1);
+        ps->add("stopWtHw7AF2",    "s-top Wt Herwig7",  eProcessType::BKG,  eProcess::STOPWT_HW7,  "s-top Wt Herwig7",  kViolet+1);
 
         Config* c = new Config(b, ps, rs, vs_bdt);
         c->load(filename, "BDTScorePreselection");
-        info->parameter = "Wt_DS_BDT";
+        info->parameter = "Wt_Gen_BDT";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Stop";
+        ct->output_path = "/tmp/bowenzhang/Stop";
         if (ct->check(c))
         {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);

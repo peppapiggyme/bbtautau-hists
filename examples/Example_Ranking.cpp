@@ -1,9 +1,11 @@
-#include "PullsTool.h"
+#include "ExamplesInclude_WS.h"
+
+#include "RankingTool.h"
 #include <iostream>
 
 using namespace std;
 
-int test_pulls(const std::string& filename, const std::string& outname)
+int test_ranking(const std::string& filename, const std::string& outname)
 {
     WorkspaceInfo* info = new WorkspaceInfo();
     info->path = filename;
@@ -11,11 +13,10 @@ int test_pulls(const std::string& filename, const std::string& outname)
     // info->workspace_name = "combWS";
     // info->data_name = "asimovData_SB_SM";
     info->use_asimov = false;
-    info->use_oneline_fit = false;
 
     auto timeStart = steady_clock::now();
 
-    PullsEngine* egn = new PullsEngine(info);
+    RankingEngine* egn = new RankingEngine(info);
     egn->Execute();
     egn->WriteToTxt(outname);
 
@@ -28,9 +29,9 @@ int test_pulls(const std::string& filename, const std::string& outname)
     return EXIT_SUCCESS;
 }
 
-int test_pulls_plot(const std::string& in, const std::string& out)
+int test_ranking_plot(const std::string& in, const std::string& out)
 {
-    PullsPlotter* plt = new PullsPlotter();
+    RankingPlotter* plt = new RankingPlotter();
     plt->LoadFromTxt(in.c_str());
     plt->Draw(out.c_str());
 

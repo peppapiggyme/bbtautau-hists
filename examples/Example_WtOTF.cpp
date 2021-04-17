@@ -1,3 +1,5 @@
+#include "ExamplesInclude.h"
+
 #include "Config.h"
 #include "Utils.h"
 #include "CompTool.h"
@@ -78,6 +80,7 @@ void test_hadhad_WtOTF(const std::string& filename)
         if (ct->check(c))
         {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);
@@ -111,6 +114,7 @@ void test_hadhad_WtOTF(const std::string& filename)
         if (ct->check(c))
         {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);
@@ -142,6 +146,7 @@ void test_hadhad_WtOTF(const std::string& filename)
         if (ct->check(c))
         {
             ct->manipulate(c);
+            ct->rebin(c, eRebinOption::N_Rebin);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);

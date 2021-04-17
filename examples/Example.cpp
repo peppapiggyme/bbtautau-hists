@@ -1,3 +1,5 @@
+#include "ExamplesInclude.h"
+
 #include "Config.h"
 #include "Utils.h"
 #include "DrawStackTool.h"
@@ -11,7 +13,7 @@ using std::cout;
 using std::endl;
 using std::clog;
 
-void hadhadsr_v15(const std::string& filename)
+void test_hadhad(const std::string& filename)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
 
@@ -60,7 +62,7 @@ void hadhadsr_v15(const std::string& filename)
     info->blind = false;
     info->ratio_high = 1.38;
     info->ratio_low = 0.62;
-    info->signal_scale = 100;
+    info->signal_scale = 500;
 
     for (VariableInfo* v : *(vs->content()))
     {
@@ -91,7 +93,6 @@ void hadhadsr_v15(const std::string& filename)
         ps->add("Wtt",                  "W+jets",                       eProcessType::BKG,      eProcess::WJETS,        "W+jets",                       kGreen-10);
         ps->add("W",                    "W+jets",                       eProcessType::BKG,      eProcess::WJETS,        "W+jets",                       kGreen-10);
         ps->add("Fake",                 "Multi-jet",                    eProcessType::BKG,      eProcess::FAKE,         "Multi-jet",                    kMagenta-10);
-        ps->add("ttV",                  "ttV",                          eProcessType::BKG,      eProcess::ttV,          "ttV",                          kYellow+3);
         ps->add("ttH",                  "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("WHbb",                 "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("ZHbb",                 "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
@@ -99,10 +100,12 @@ void hadhadsr_v15(const std::string& filename)
         ps->add("ZHtautau",             "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("ggFHtautau",           "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("VBFHtautau",           "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
-        // ps->add("hhttbb",               "Non-res HH",                   eProcessType::SIG,      eProcess::SMHH,         "Non-res HH",                   kMagenta+2);
+        ps->add("hhttbbKL0p0from1p0",   "HH (#kappa_{#lambda}=0)",      eProcessType::SIG,      eProcess::HHKL0FROM1,   "HH (#kappa_{#lambda}=0)",      kMagenta);
+        ps->add("hhttbbKL1p0",          "HH (#kappa_{#lambda}=1)",      eProcessType::SIG,      eProcess::HHKL1,        "HH (#kappa_{#lambda}=1)",      kRed);
+        ps->add("hhttbbKL3p0from1p0",   "HH (#kappa_{#lambda}=3)",      eProcessType::SIG,      eProcess::HHKL3FROM1,   "HH (#kappa_{#lambda}=3)",      kBlue);
 
         Config* c = new Config(b, ps, rs, vs);
-        c->load(filename, "ZVR");
+        c->load(filename, "Preselection");
 
         c->updateHistogramPtr(rs->content()->front(), v);
         DrawStackTool* ds = new DrawStackTool(info);
@@ -110,6 +113,7 @@ void hadhadsr_v15(const std::string& filename)
         if (ds->check(c))
         {
             ds->manipulate(c);
+            ds->rebin(c, eRebinOption::Array);
             ds->paint(c);
             ds->makeYield(c);
             ds->run(c);

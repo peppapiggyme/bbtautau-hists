@@ -1,3 +1,5 @@
+#include "ExamplesInclude_WS.h"
+
 #include "WorkSpace.h"
 
 void test_ws_info(const std::string& filename) {

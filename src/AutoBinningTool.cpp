@@ -7,6 +7,10 @@ using namespace std;
 
 #define BKGBKG (std::make_pair(eProcessType::BKG, eProcess::BKG))
 
+// ----------------------------------------------------------------------------
+// BinContent
+// ----------------------------------------------------------------------------
+
 std::size_t BinContent::size() const noexcept
 {
     return m_size;
@@ -263,12 +267,45 @@ bool BinContent::passCaseTwoFromXtoY(double fBkg, double fBkgErr, double fEffErr
     return true;
 }
 
-AutoBinningTool::AutoBinningTool(const AutoBinningInfo* info, BinningCriteria bc)
-    : m_info(info), m_binEdges(new std::vector<double>(m_info->n_bins + 1, 0.)), m_bc(BinningCriteria::CaseTwo)
+// ----------------------------------------------------------------------------
+// AutoBinningTool
+// ----------------------------------------------------------------------------
+
+AutoBinningTool::AutoBinningTool(const AutoBinningInfo* info)
+    : m_info(info), m_binEdges(new std::vector<double>(m_info->n_bins + 1, 0.))
 {
 }
 
-bool AutoBinningTool::check(const Config* c) const
+void AutoBinningTool::rebin(const Config* c) const 
+{
+    vector<double> y = *m_binEdges;
+    vector<ProcessInfo*>* ps = c->processes->content();
+    if (ps->front()->histogram->GetNbinsX() < (int)m_info->n_bins)
+    {
+        return;
+    }
+
+    for_each(ps->begin(), ps->end(), [this, &y, &c](ProcessInfo* p) {
+        TH1* rebinned = p->histogram->Rebin(m_info->n_bins, p->histogram->GetName(), &y[0]);
+        p->histogram = (TH1*)rebinned->Clone();
+        for (auto& pp : p->systematic_histograms)
+        {
+            TH1* rebinned_pp = pp.second->Rebin(m_info->n_bins, p->histogram->GetName(), &y[0]);
+            pp.second = (TH1*)rebinned_pp->Clone();
+        } 
+    });
+}
+
+// ----------------------------------------------------------------------------
+// AutoBinningTool_v1
+// ----------------------------------------------------------------------------
+
+AutoBinningTool_v1::AutoBinningTool_v1(const AutoBinningInfo* info, BinningCriteria bc)
+    : AutoBinningTool(info), m_bc(bc)
+{
+}
+
+bool AutoBinningTool_v1::check(const Config* c) const
 {
     if (!HistTool::check(c))
     {
@@ -277,20 +314,11 @@ bool AutoBinningTool::check(const Config* c) const
 
     vector<ProcessInfo*>* ps = c->processes->content();
 
-    int n_data_check = count_if(ps->begin(), ps->end(), [](const ProcessInfo* p) {
-        return p->type == eProcessType::DATA; });
-
     int n_bkg_check = count_if(ps->begin(), ps->end(), [](const ProcessInfo* p) {
         return p->type == eProcessType::BKG; });
 
     int n_sig_check = count_if(ps->begin(), ps->end(), [](const ProcessInfo* p) {
         return p->type == eProcessType::SIG; });
-
-    if (n_data_check > 0)
-    {
-        cerr << "FAIL: for auto binning only bkg and sig!\n";
-        return false;
-    }    
 
     if (n_bkg_check < 1)
     {
@@ -306,47 +334,12 @@ bool AutoBinningTool::check(const Config* c) const
     return true;
 }
 
-void AutoBinningTool::paint(const Config* c) const
-{
-    vector<ProcessInfo*>* ps = c->processes->content();
-    for_each(ps->begin(), ps->end(), [&c](ProcessInfo* p) {
-        switch (p->type)
-        {
-        case eProcessType::BKG:
-            p->histogram->SetLineColor(kBlack);
-            p->histogram->SetLineWidth(1);
-            p->histogram->SetFillColor(p->color);
-            break;
-        case eProcessType::SIG:
-            p->histogram->SetLineWidth(2);
-            p->histogram->SetLineStyle(1);
-            p->histogram->SetLineColor(p->color);
-            break;
-        default:
-            throw runtime_error("for auto binning only bkg and sig");
-            break;
-        }
-    });
-}
-
-// ----------------------------------------------------------------------------
-// v1
-// ----------------------------------------------------------------------------
-
-AutoBinningTool_v1::AutoBinningTool_v1(const AutoBinningInfo* info, BinningCriteria bc)
-    : AutoBinningTool(info, bc)
-{
-}
-
-
 void AutoBinningTool_v1::run(const Config* c) const
 {
     m_binEdges->at(m_info->n_bins) = 1.;
     m_binEdges->at(0) = -1.;
 
     vector<std::size_t> curXs;
-
-    // size_t i = m_info->n_bins - 1;
 
     BinContent* bc = new BinContent(c);
 
@@ -369,7 +362,7 @@ void AutoBinningTool_v1::run(const Config* c) const
         case BinningCriteria::CaseTwo:
             bPass = bc->passCaseTwoFromXtoY(m_info->min_bkg, m_info->min_mcstats, m_info->eff_factor, m_info->required_mcstats, bc->curX, bc->curY);
             break;
-        default:
+        default: // e.g. None
             bPass = bc->passCaseTwoFromXtoY(m_info->min_bkg, m_info->min_mcstats, m_info->eff_factor, m_info->required_mcstats, bc->curX, bc->curY);
             break;
         }
@@ -485,5 +478,46 @@ void AutoBinningTool_v1::run(const Config* c) const
         pq_bin.pop();
     }
 
-    clog << "INFO: Binning saved in " << oss.str() << '\n';
+    clog << "INFO: Binning saved in " << oss.str() << " for WSMaker" << '\n';
+}
+
+// ----------------------------------------------------------------------------
+// AutoBinningTool_v2
+// ----------------------------------------------------------------------------
+
+AutoBinningTool_v2::AutoBinningTool_v2(const AutoBinningInfo* info, eProcess proc)
+    : AutoBinningTool(info), m_proc(proc)
+{
+}
+
+void AutoBinningTool_v2::run(const Config* c) const
+{
+    BinContent* bc = new BinContent(c);
+    bc->showData();
+
+    double* x = new double[m_info->n_bins];
+    std::vector<double> y(m_info->n_bins + 1);
+
+    for (size_t i = 0; i < m_info->n_bins; ++i)
+    {
+        x[i] = double(i+1) / (double)m_info->n_bins;
+    }
+
+    vector<ProcessInfo*>* ps = c->processes->content();
+    auto it = std::find_if(ps->begin(), ps->end(), [this](ProcessInfo* p) { return p->process == m_proc; });
+    TH1* h = (*it)->histogram;
+    if (!h)
+    {
+        clog << "WARN: reference process not found, will use front\n";
+        h = ps->front()->histogram;
+    }
+    else 
+    {
+        clog << "INFO: flattening based on " << static_cast<int>(m_proc) << '\n';
+    }
+
+    y[0] = h->GetXaxis()->GetBinLowEdge(1);
+    h->GetQuantiles(m_info->n_bins, &y[1], x);
+    *m_binEdges = std::move(y);
+    delete x;
 }

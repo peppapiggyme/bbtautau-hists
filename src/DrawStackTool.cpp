@@ -49,21 +49,6 @@ void DrawStackTool::paint(const Config* c) const
 {
     vector<ProcessInfo*>* ps = c->processes->content();
     for_each(ps->begin(), ps->end(), [&c](ProcessInfo* p) {
-        if (c->current_variable->binning) {
-            TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, p->histogram->GetName(), c->current_variable->binning);
-            p->histogram = (TH1*)rebinned->Clone();
-            for (auto& pp : p->systematic_histograms)
-            {
-                TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, pp.second->GetName(), c->current_variable->binning);
-                pp.second = (TH1*)rebinned_pp->Clone();
-            }
-        } else {
-            p->histogram->Rebin(c->current_variable->n_rebin);
-            for (auto& pp : p->systematic_histograms)
-            {
-                pp.second->Rebin(c->current_variable->n_rebin);
-            }
-        }
         switch (p->type)
         {
         case eProcessType::DATA:
