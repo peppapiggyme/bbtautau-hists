@@ -13,6 +13,7 @@
 using std::cout; 
 using std::endl;
 using std::clog;
+using BU = BinningUtils;
 
 void test_hadhad_WtDS(const std::string& filename)
 {
@@ -57,29 +58,52 @@ void test_hadhad_WtDS(const std::string& filename)
     vs_presel->add("dPhiTauTau",           "#Delta #phi (#tau_{had},#tau_{had})",               1);
 
     Variables* vs_pnn = new Variables();
-    vector<double> binning_low =  {0, 0.1, 0.2, 0.3, 0.6, 1.0};
-    vector<double> binning_high = {0, 0.1, 0.2, 0.5, 1.0};
-    vs_pnn->add("PNN260",                  "PNN260",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN280",                  "PNN280",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN300",                  "PNN300",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN325",                  "PNN325",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN350",                  "PNN350",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN400",                  "PNN400",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN450",                  "PNN450",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN500",                  "PNN500",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN550",                  "PNN550",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN600",                  "PNN600",                    1, &binning_low[0], binning_low.size()-1);
-    vs_pnn->add("PNN700",                  "PNN700",                    1, &binning_high[0], binning_high.size()-1);
-    vs_pnn->add("PNN800",                  "PNN800",                    1, &binning_high[0], binning_high.size()-1);
-    vs_pnn->add("PNN900",                  "PNN900",                    1, &binning_high[0], binning_high.size()-1);
-    vs_pnn->add("PNN1000",                 "PNN1000",                   1, &binning_high[0], binning_high.size()-1);
-    vs_pnn->add("PNN1100",                 "PNN1100",                   1, &binning_high[0], binning_high.size()-1);
-    vs_pnn->add("PNN1200",                 "PNN1200",                   1, &binning_high[0], binning_high.size()-1);
-    vs_pnn->add("PNN1400",                 "PNN1400",                   1, &binning_high[0], binning_high.size()-1);
-    vs_pnn->add("PNN1600",                 "PNN1600",                   1, &binning_high[0], binning_high.size()-1);
+    auto binningFromFile = [](const std::string& fn)
+    { 
+        return BU::intToDoubleBinEdgesForMVAInverse(BU::readBinningFromFile<int>(fn));
+    };
+
+    vector<double> binning2HDM260   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM260.txt");
+    vector<double> binning2HDM280   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM280.txt");
+    vector<double> binning2HDM300   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM300.txt");
+    vector<double> binning2HDM325   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM325.txt");
+    vector<double> binning2HDM350   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM350.txt");
+    vector<double> binning2HDM400   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM400.txt");
+    vector<double> binning2HDM450   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM450.txt");
+    vector<double> binning2HDM500   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM500.txt");
+    vector<double> binning2HDM550   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM550.txt");
+    vector<double> binning2HDM600   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM600.txt");
+    vector<double> binning2HDM700   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM700.txt");
+    vector<double> binning2HDM800   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM800.txt");
+    vector<double> binning2HDM900   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM900.txt");
+    vector<double> binning2HDM1000  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1000.txt");
+    vector<double> binning2HDM1100  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1100.txt");
+    vector<double> binning2HDM1200  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1200.txt");
+    vector<double> binning2HDM1400  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1400.txt");
+    vector<double> binning2HDM1600  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1600.txt");
+    vector<double> binningSMHH      =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_SMBDT.txt");
+
+    vs_pnn->add("PNN260",       "PNN260",       1,      &binning2HDM260[0],     binning2HDM260.size()-1);
+    vs_pnn->add("PNN280",       "PNN280",       1,      &binning2HDM280[0],     binning2HDM280.size()-1);
+    vs_pnn->add("PNN300",       "PNN300",       1,      &binning2HDM300[0],     binning2HDM300.size()-1);
+    vs_pnn->add("PNN325",       "PNN325",       1,      &binning2HDM325[0],     binning2HDM325.size()-1);
+    vs_pnn->add("PNN350",       "PNN350",       1,      &binning2HDM350[0],     binning2HDM350.size()-1);
+    vs_pnn->add("PNN400",       "PNN400",       1,      &binning2HDM400[0],     binning2HDM400.size()-1);
+    vs_pnn->add("PNN450",       "PNN450",       1,      &binning2HDM450[0],     binning2HDM450.size()-1);
+    vs_pnn->add("PNN500",       "PNN500",       1,      &binning2HDM500[0],     binning2HDM500.size()-1);
+    vs_pnn->add("PNN550",       "PNN550",       1,      &binning2HDM550[0],     binning2HDM550.size()-1);
+    vs_pnn->add("PNN600",       "PNN600",       1,      &binning2HDM600[0],     binning2HDM600.size()-1);
+    vs_pnn->add("PNN700",       "PNN700",       1,      &binning2HDM700[0],     binning2HDM700.size()-1);
+    vs_pnn->add("PNN800",       "PNN800",       1,      &binning2HDM800[0],     binning2HDM800.size()-1);
+    vs_pnn->add("PNN900",       "PNN900",       1,      &binning2HDM900[0],     binning2HDM900.size()-1);
+    vs_pnn->add("PNN1000",      "PNN1000",      1,      &binning2HDM1000[0],    binning2HDM1000.size()-1);
+    vs_pnn->add("PNN1100",      "PNN1100",      1,      &binning2HDM1100[0],    binning2HDM1100.size()-1);
+    vs_pnn->add("PNN1200",      "PNN1200",      1,      &binning2HDM1200[0],    binning2HDM1200.size()-1);
+    vs_pnn->add("PNN1400",      "PNN1400",      1,      &binning2HDM1400[0],    binning2HDM1400.size()-1);
+    vs_pnn->add("PNN1600",      "PNN1600",      1,      &binning2HDM1600[0],    binning2HDM1600.size()-1);
 
     Variables* vs_bdt = new Variables();
-    vs_bdt->add("SMBDT",                   "SM BDT",                                            250);
+    vs_bdt->add("SMBDT",        "SM BDT",       1,      &binningSMHH[0],        binningSMHH.size()-1);
 
     Systematics* ss = new Systematics();
     // ss->add("SingleTop_DS_mHH", "SingleTop_DS_mHH", eSystematicType::TwoSide);
@@ -145,7 +169,7 @@ void test_hadhad_WtDS(const std::string& filename)
         if (ct->check(c))
         {
             ct->manipulate(c);
-            ct->rebin(c, eRebinOption::Array);
+            ct->rebin(c, eRebinOption::Array, "using array and transformed", true);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);
@@ -160,7 +184,7 @@ void test_hadhad_WtDS(const std::string& filename)
         delete c;
     }
 
-        for (VariableInfo* v : *(vs_bdt->content()))
+    for (VariableInfo* v : *(vs_bdt->content()))
     {
         Processes* ps = new Processes();
         ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
@@ -172,10 +196,11 @@ void test_hadhad_WtDS(const std::string& filename)
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
         ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Stop";
+        Tools::printVector(binningSMHH);
         if (ct->check(c))
         {
             ct->manipulate(c);
-            ct->rebin(c, eRebinOption::Array);
+            ct->rebin(c, eRebinOption::Array, "using array and transformed", true);
             ct->makeYield(c, info->parameter);
             ct->paint(c);
             ct->run(c);

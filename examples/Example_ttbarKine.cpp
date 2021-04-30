@@ -30,6 +30,8 @@ void test_ttbarKine(const std::string& filename)
     vs_presel->add("pTB1",                 "Sub-leading b-jet p_{T} [GeV]",                     5);
     vs_presel->add("Tau0Pt",               "Leading #tau_{had} p_{T} [GeV]",                    5);
     vs_presel->add("Tau1Pt",               "Sub-leading #tau_{had} p_{T} [GeV]",                5);
+    vs_presel->add("HT",                   "Sum of pT (jet) [GeV]",                             2);
+    vs_presel->add("sT",                   "Sum of pT (all) [GeV]",                             2);
 
     CompInfo* info = new CompInfo();
     info->ratio_high = 2;
