@@ -98,8 +98,9 @@ void HistTool::manipulate(Config* c)
     // if do draw stack, the bkg and sig must be sorted!
 }
 
-void HistTool::rebin(const Config* c, eRebinOption opt) const
+void HistTool::rebin(const Config* c, eRebinOption opt, const std::string& info, bool transform) const
 {
+    Tools::println("INFO: from HistTool::rebin(): %", info);
     switch (opt)
     {
     case eRebinOption::Self:
@@ -109,7 +110,7 @@ void HistTool::rebin(const Config* c, eRebinOption opt) const
         HistToolHelper::rebinByNRebin(c);
         break;
     case eRebinOption::Array:
-        HistToolHelper::rebinByArray(c);
+        HistToolHelper::rebinByArray(c, transform);
         break;
     default:
         /* never happen */
@@ -196,20 +197,52 @@ void HistToolHelper::rebinByNRebin(const Config* c)
     });
 }
 
-void HistToolHelper::rebinByArray(const Config* c)
+void HistToolHelper::rebinByArray(const Config* c, bool transform)
 {
-    /// @todo refactor this if statement
     vector<ProcessInfo*>* ps = c->processes->content();
     if (c->current_variable->binning)
     {
-        for_each(ps->begin(), ps->end(), [&c](ProcessInfo* p) {
-            TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, p->histogram->GetName(), c->current_variable->binning);
-            p->histogram = (TH1*)rebinned->Clone();
+        for_each(ps->begin(), ps->end(), [&c, &transform](ProcessInfo* p) {
+            std::string name = p->histogram->GetName();
+            TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, (name + "rebinned").c_str(), c->current_variable->binning);
+            TH1* transformed = new TH1D((name + "transformed").c_str(), (name + "transformed").c_str(), rebinned->GetNbinsX(), -1., 1.);
+            for (int i = 1; i <= rebinned->GetNbinsX(); ++i)
+            {
+                transformed->SetBinContent(i, rebinned->GetBinContent(i));
+                transformed->SetBinError(i, rebinned->GetBinError(i));
+            }
+            if (transform)
+            {
+                p->histogram = (TH1*)transformed->Clone();
+            }
+            else
+            {
+                p->histogram = (TH1*)rebinned->Clone();
+            }
             for (auto& pp : p->systematic_histograms)
             {
-                TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, pp.second->GetName(), c->current_variable->binning);
+                name = pp.second->GetName();
+                TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, (name + "rebinned").c_str(), c->current_variable->binning);
+                TH1* transformed_pp = new TH1D((name + "transformed").c_str(), (name + "transformed").c_str(), rebinned->GetNbinsX(), -1., 1.);
                 pp.second = (TH1*)rebinned_pp->Clone();
+                for (int i = 1; i <= rebinned_pp->GetNbinsX(); ++i)
+                {
+                    transformed_pp->SetBinContent(i, rebinned_pp->GetBinContent(i));
+                    transformed_pp->SetBinError(i, rebinned_pp->GetBinError(i));
+                }
+                if (transform)
+                {
+                    pp.second = (TH1*)transformed_pp->Clone();
+                }
+                else
+                {
+                    pp.second = (TH1*)rebinned_pp->Clone();
+                }
+                delete rebinned_pp;
+                delete transformed_pp;
             }
+            delete rebinned;
+            delete transformed;
         });
     }
     else

@@ -10,7 +10,8 @@ enum class eRebinOption
 {
     Self,       /// By running the re-implementation of `rebin(c)` function, e.g. self is AutoBinningTool
     N_Rebin,    /// By n_rebin of current_variable
-    Array       /// By a given binning array that describes the bin edges
+    Array,      /// By a given binning array that describes the bin edges
+    File        /// By a given file, content need to be one line with numbers splitted by space
 };
 
 // Use histograms
@@ -24,8 +25,9 @@ public:
     virtual bool check(const Config* c) const;
     /// @todo const
     virtual void manipulate(Config* c);
-    virtual void rebin(const Config* c) const { (void)c; }
-    virtual void rebin(const Config* c, eRebinOption opt) const;
+    virtual inline void rebin(const Config* c) const { (void)c; }
+    virtual inline void rebin(const Config* c, eRebinOption opt) const { rebin(c, opt, "", false); }
+    virtual void rebin(const Config* c, eRebinOption opt, const std::string& info, bool transform=false) const;
     virtual void makeYield(const Config* c, const std::string& tag="TAG") const;
 
 public:
@@ -44,7 +46,7 @@ class HistToolHelper
 public:
     static bool check(const Config* c);
     static void rebinByNRebin(const Config* c);
-    static void rebinByArray(const Config* c);
+    static void rebinByArray(const Config* c, bool transform);
 };
 
 #endif // HISTTOOL_H

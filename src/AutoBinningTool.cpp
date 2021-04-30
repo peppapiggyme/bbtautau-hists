@@ -337,7 +337,7 @@ bool AutoBinningTool_v1::check(const Config* c) const
 void AutoBinningTool_v1::run(const Config* c) const
 {
     m_binEdges->at(m_info->n_bins) = 1.;
-    m_binEdges->at(0) = -1.;
+    m_binEdges->at(0) = 0.; // 0 for PNN, -1 for BDT
 
     vector<std::size_t> curXs;
 
@@ -433,14 +433,15 @@ void AutoBinningTool_v1::run(const Config* c) const
     Tools::println("The optimal here is %", sig_final);
     Tools::println(" -> Difference is %", (sig_max - sig_final) / sig_max);
 
-    // Tools::print_queue(pq);
+    // Tools::printQueue(pq);
 
     size_t i = 1;
     auto pq_forBinEdges = pq;
     pq_forBinEdges.pop(); // pop 0
     while(!pq_forBinEdges.empty() && i < m_info->n_bins)
     {
-        m_binEdges->at(i++) = -1. + 0.002 * (pq_forBinEdges.top() + 1);
+        m_binEdges->at(i++) = 0. + 0.001 * (pq_forBinEdges.top() + 1); // for PNN
+        // m_binEdges->at(i++) = -1. + 0.002 * (pq_forBinEdges.top() + 1); // for BDT
         pq_forBinEdges.pop();
     }
 
@@ -469,7 +470,7 @@ void AutoBinningTool_v1::run(const Config* c) const
         pq_forBin.pop();
     }
 
-    Tools::print_queue(pq_bin);
+    Tools::printQueue(pq_bin);
 
     while(!pq_bin.empty())
     {

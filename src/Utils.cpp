@@ -44,7 +44,8 @@ string systStringShort(const string& sSyst)
     const string mcStatHadHadSR("Y2015_DLLOS_T2_SpcTauHH");
     /// @todo not tested
     /// maybe this is SLT, LTT
-    const string mcStatLepHadSR("Y2015_DLLOS_T2_SpcTauLH");
+    const string mcStatLepHadSLTSR("Y2015_DLLOS_T2_SpcTauLH_Y2015_LTT0");
+    const string mcStatLepHadLTTSR("Y2015_DLLOS_T2_SpcTauLH_Y2015_LTT1");
     const string mcStatZCR("Y2015_DZllbbCR_T2_L2");
 
     if (sSyst.find(gamma) != std::string::npos)
@@ -53,11 +54,15 @@ string systStringShort(const string& sSyst)
         string sBin = sShort.substr(sShort.find("_bin_"));
         if (sShort.find(mcStatHadHadSR) != std::string::npos)
         {
-            return "HadHadSR_MVAScore" + sBin;
+            return "HadHad_SR_MVAScore" + sBin;
         }
-        else if (sShort.find(mcStatLepHadSR) != std::string::npos)
+        else if (sShort.find(mcStatLepHadSLTSR) != std::string::npos)
         {
-            return "LepHadSR_MVAScore" + sBin;
+            return "LepHad_SLT_SR_MVAScore" + sBin;
+        }
+        else if (sShort.find(mcStatLepHadLTTSR) != std::string::npos)
+        {
+            return "LepHad_LTT_SR_MVAScore" + sBin;
         }
         else if (sShort.find(mcStatZCR) != std::string::npos)
         {

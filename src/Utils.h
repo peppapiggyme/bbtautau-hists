@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <climits>
@@ -59,6 +60,61 @@ namespace Utils {
         {kMagenta+4, kBlue+4},
     };
 }
+
+class BinningUtils
+{
+public:
+
+    template<typename T>
+    static std::vector<T> readBinningFromFile(const std::string& fn)
+    {
+        std::vector<T> binEdges;
+
+        std::ifstream f(fn);
+        std::string line;
+        
+        getline(f, line);
+        
+        std::istringstream iss(line);
+        T x;
+        while (iss >> x)
+        {
+            binEdges.push_back(x);
+        }
+
+        return binEdges;
+    }
+
+    static std::vector<double> intToDoubleBinEdgesForMVA(const std::vector<int>& ii, int nbins=1000)
+    {
+        std::vector<double> ret(ii.size()+1);
+        ret.at(0) = 0.;
+
+        for (size_t i = 1; i <= ii.size(); ++i)
+        {
+            ret.at(i) = 0. + (double)ii[i]/(double)nbins;
+        }
+        
+        return ret;
+    }
+
+    static std::vector<double> intToDoubleBinEdgesForMVAInverse(const std::vector<int>& ii, int nbins=1000)
+    {
+        std::vector<double> ret(ii.size());
+        // ret.at(0) = -1.;
+        ret.at(0) = 0.;
+        ret.at(ret.size()-1) = 1.;
+
+        for (size_t i = 1; i < ret.size()-1; ++i)
+        {
+            // ret.at(i) = -1. + 2. * (double)ii[ret.size()-1-i]/(double)nbins;
+            ret.at(i) = 0. + (double)ii[ret.size()-1-i]/(double)nbins;
+        }
+        
+        return ret;
+    }
+
+};
 
 class Tools
 {
@@ -121,7 +177,7 @@ public:
      * @note pass by value so the print uses a copy
      */
     template<typename T>
-    static void print_vector(const T& v) 
+    static void printVector(const T& v) 
     {
         size_t cnt = v.size();
         for (const auto& x : v)
@@ -141,7 +197,7 @@ public:
      * @note pass by value so the print uses a copy
      */
     template<typename T>
-    static void print_queue(T q) 
+    static void printQueue(T q) 
     {
         while(!q.empty()) 
         {
@@ -154,7 +210,6 @@ public:
         }
         std::cout << "\n";
     }
-
 };
 
 #endif // UTILS_H
