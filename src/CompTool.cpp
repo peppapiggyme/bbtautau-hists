@@ -123,7 +123,7 @@ void CompTool::run(const Config* c) const
     }
     base->GetYaxis()->SetLabelSize(0.04);
     base->GetYaxis()->SetTitleSize(0.045);
-    base->SetMaximum(base->GetMaximum() * 1.4);
+    base->SetMaximum(base->GetMaximum() * 1.6);
     if (!m_info->logy)
     {
         base->SetMinimum(0);

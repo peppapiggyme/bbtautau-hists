@@ -46,7 +46,8 @@ void test_ttbarKine(const std::string& filename)
     for (VariableInfo* v : *(vs_presel->content()))
     {
         Processes* ps = new Processes();
-        ps->add("ttbarFromLH",      "ttbar (lephad)",   eProcessType::BKG,   eProcess::TTBARLH,     "ttbar (lephad)",      kRed+1);
+        ps->add("ttbarFromSLT",      "ttbar (lephad SLT)",   eProcessType::BKG,   eProcess::TTBARLH,     "ttbar (lephad)",      kRed+1);
+        ps->add("ttbarFromLTT",      "ttbar (lephad LTT)",   eProcessType::BKG,   eProcess::TTBARLH,     "ttbar (lephad)",      kOrange+1);
         ps->add("ttbar",            "ttbar (hadhad)",   eProcessType::BKG,   eProcess::TTBARHH,     "ttbar (hadhad)",      kBlue);
         ps->add("ttbarFromZCR",     "ttbar (ZCR)",      eProcessType::BKG,   eProcess::TTBARZCR,    "ttbar (ZCR)",         kBlack);
 
