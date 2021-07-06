@@ -206,14 +206,23 @@ public:
             }
         }
 
-        std::sort(m_vData.begin(), m_vData.end(), [](RankingData& a, RankingData& b) {
+        double fSumSQ = 0.;
+        for (const RankingData& data : m_vData)
+        {
+            fSumSQ += 0.25 * (std::fabs(data.deltaMuByHi - data.deltaMuByLo) * std::fabs(data.deltaMuByHi - data.deltaMuByLo));
+        }
+        fSumSQ = std::sqrt(fSumSQ);
+
+        std::sort(m_vData.begin(), m_vData.end(), [&fSumSQ](RankingData& a, RankingData& b) {
             return std::fabs(a.deltaMuByHi - a.deltaMuByLo) > std::fabs(b.deltaMuByHi - b.deltaMuByLo);
         });
-
+        
+        unsigned i = 1;
         for (auto& info : m_vData)
         {
-            Tools::println("% % %", info.fixedNP, info.deltaMuByHi, info.deltaMuByLo);
+            Tools::println("% % % %", i++, info.fixedNP, info.deltaMuByHi, info.deltaMuByLo);
         }
+        Tools::println("Sum in quadrature = %", fSumSQ);
     }
 
     void Draw(const string output, uint8_t nNPs=15)
