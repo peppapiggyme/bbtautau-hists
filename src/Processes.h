@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 using std::string;
 using std::vector;
@@ -35,7 +35,8 @@ enum class eProcess {
     SIG, SMHH, HH, XtoHH, StoHH, // 59
     HHKL1, HHKL3FROM1, HHKL0FROM1, HHKL10, HHKL10FROM1, // 64
     HHKLXFROM1, HHKLXFROM10, //66
-    TTBARHH, TTBARLH, TTBARZCR // 69
+    TTBARHH, TTBARLH, TTBARZCR, // 69
+    X800, X900, X1000, X1100
 };
 
 // ENTRY
@@ -56,7 +57,7 @@ public:
     int rbg = 0xFFFFFF; // TODO: master of color platte
     double norm_factor = 1.0; // fitted norm
     TH1* histogram = nullptr; // depends on region and variable (will be set in Config)
-    std::unordered_map<std::string, TH1*> systematic_histograms;
+    std::map<std::string, TH1*> systematic_histograms;
     bool isMerged = false;
     RegionInfo* current_region = nullptr;
     VariableInfo* current_variable = nullptr;
