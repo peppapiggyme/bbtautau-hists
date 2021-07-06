@@ -71,7 +71,10 @@ void HistTool::manipulate(Config* c)
                 for_each(pair.second.begin() + 1, pair.second.end(), [&merged, &pp](const ProcessInfo* p) {
                     std::cout << p->name << std::endl;
                     if (!p->systematic_histograms.empty()) {
-                        merged->systematic_histograms[pp.first]->Add(p->systematic_histograms.at(pp.first));
+                        if (p->systematic_histograms.find(pp.first) != p->systematic_histograms.end())
+                            merged->systematic_histograms[pp.first]->Add(p->systematic_histograms.at(pp.first));
+                        else
+                            merged->systematic_histograms[pp.first]->Add(p->histogram);
                     }
                 });
             }
@@ -145,6 +148,8 @@ void HistTool::makeYield(const Config* c, const std::string& tag) const
         double integral = p->histogram->IntegralAndError(from, to, error, "");
         double eOverI = integral > (double)0. ? error / integral : 0.;
         fout << FIVE_COLUMN_TABLE(p->name, nentries, integral * p->norm_factor, error * p->norm_factor, eOverI);
+        // cout << FIVE_COLUMN_TABLE(p->name, nentries, integral * p->norm_factor, error * p->norm_factor, eOverI);
+        // cout << integral << ", " << p->norm_factor << endl;
 
         for (auto& pp : p->systematic_histograms) {
             auto systEntries = pp.second->GetEntries();
@@ -205,7 +210,8 @@ void HistToolHelper::rebinByArray(const Config* c, bool transform)
         for_each(ps->begin(), ps->end(), [&c, &transform](ProcessInfo* p) {
             std::string name = p->histogram->GetName();
             TH1* rebinned = p->histogram->Rebin(c->current_variable->n_bins, (name + "rebinned").c_str(), c->current_variable->binning);
-            TH1* transformed = new TH1D((name + "transformed").c_str(), (name + "transformed").c_str(), rebinned->GetNbinsX(), -1., 1.);
+            TH1* transformed = new TH1D((name + "transformed").c_str(), (name + "transformed").c_str(), rebinned->GetNbinsX(), 0., 1.);
+            Utils::properties_copy(transformed, rebinned);
             for (int i = 1; i <= rebinned->GetNbinsX(); ++i)
             {
                 transformed->SetBinContent(i, rebinned->GetBinContent(i));
@@ -223,7 +229,8 @@ void HistToolHelper::rebinByArray(const Config* c, bool transform)
             {
                 name = pp.second->GetName();
                 TH1* rebinned_pp = pp.second->Rebin(c->current_variable->n_bins, (name + "rebinned").c_str(), c->current_variable->binning);
-                TH1* transformed_pp = new TH1D((name + "transformed").c_str(), (name + "transformed").c_str(), rebinned->GetNbinsX(), -1., 1.);
+                TH1* transformed_pp = new TH1D((name + "transformed").c_str(), (name + "transformed").c_str(), rebinned->GetNbinsX(), 0., 1.);
+                Utils::properties_copy(transformed_pp, rebinned_pp);
                 pp.second = (TH1*)rebinned_pp->Clone();
                 for (int i = 1; i <= rebinned_pp->GetNbinsX(); ++i)
                 {
