@@ -17,13 +17,14 @@ enum class eSystematicType { TwoSide, OneSide };
 class SystematicInfo
 {
 public:
-    SystematicInfo(const string& nm, const string& nmtex, eSystematicType tp) noexcept
-        : name(nm), name_tex(nmtex), type(tp) {}
+    SystematicInfo(const string& nm, const string& nmtex, eSystematicType tp, int col=2) noexcept
+        : name(nm), name_tex(nmtex), type(tp), color(col) {}
 
 public:
     string name;
     string name_tex;
     eSystematicType type;
+    int color;
 };
 
 
@@ -37,7 +38,7 @@ public:
     Systematics& operator=(Systematics& rs) = delete;
 
 public:
-    void add(const string& nm, const string& nmtex, eSystematicType tp) const;
+    void add(const string& nm, const string& nmtex, eSystematicType tp, int col=2) const;
     inline vector<SystematicInfo*>* content() const { return m_systs.get(); }
 
 private:
