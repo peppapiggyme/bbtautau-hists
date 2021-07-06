@@ -280,17 +280,17 @@ void AutoBinningTool::rebin(const Config* c) const
 {
     vector<double> y = *m_binEdges;
     vector<ProcessInfo*>* ps = c->processes->content();
-    if (ps->front()->histogram->GetNbinsX() < (int)m_info->n_bins)
+    if (ps->front()->histogram->GetNbinsX() < (int)y.size()-1)
     {
         return;
     }
 
     for_each(ps->begin(), ps->end(), [this, &y, &c](ProcessInfo* p) {
-        TH1* rebinned = p->histogram->Rebin(m_info->n_bins, p->histogram->GetName(), &y[0]);
+        TH1* rebinned = p->histogram->Rebin(y.size()-1, p->histogram->GetName(), &y[0]);
         p->histogram = (TH1*)rebinned->Clone();
         for (auto& pp : p->systematic_histograms)
         {
-            TH1* rebinned_pp = pp.second->Rebin(m_info->n_bins, p->histogram->GetName(), &y[0]);
+            TH1* rebinned_pp = pp.second->Rebin(y.size()-1, p->histogram->GetName(), &y[0]);
             pp.second = (TH1*)rebinned_pp->Clone();
         } 
     });
@@ -519,6 +519,28 @@ void AutoBinningTool_v2::run(const Config* c) const
 
     y[0] = h->GetXaxis()->GetBinLowEdge(1);
     h->GetQuantiles(m_info->n_bins, &y[1], x);
-    *m_binEdges = std::move(y);
+    y[m_info->n_bins] = h->GetXaxis()->GetBinLowEdge(h->GetNbinsX()) + h->GetXaxis()->GetBinWidth(h->GetNbinsX());
+
+    // To avoid empty bins
+    double width = h->GetXaxis()->GetBinWidth(1); // Assuming h is binned equally, TODO add a check there...
+    Tools::println("[AutoBinningTool] width = %", width);
+    Tools::printVector(y);
+    vector<double> y_copy;
+    y_copy.push_back(y[0]);
+    for (size_t i = 1; i < y.size(); ++i)
+    {
+        if (y[i] - y[0] < width)
+        {
+            // nothing, no new bin edges
+        }
+        else
+        {   
+            y_copy.push_back(y[i]);
+        }
+    }
+
+    *m_binEdges = std::move(y_copy);
+    Tools::println("m_binEdges");
+    Tools::printVector(*m_binEdges);
     delete x;
 }
