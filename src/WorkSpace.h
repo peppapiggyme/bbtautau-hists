@@ -77,6 +77,7 @@ struct WorkspaceInfo
     string config_name = "ModelConfig";
     string data_name = "obsData";
     double mu_asimov = 1.0;
+    double tolerance = 1e-5;
     int8_t logLevel = -1;
     bool use_asimov = true;
     bool use_oneline_fit = true;
@@ -328,7 +329,7 @@ private:
         const int nStrategy = ROOT::Math::MinimizerOptions::DefaultStrategy();
         cMinimizer.setStrategy(nStrategy);
         // double fTolerance = ROOT::Math::MinimizerOptions::DefaultTolerance();
-        double fTolerance = 1e-5 * cNLL->getVal();
+        double fTolerance = m_cInfo->tolerance * cNLL->getVal();
         cMinimizer.setEps(fTolerance);
         int nStatus = -1;
         constexpr int nOptConstFlag = 2; // ?
@@ -452,6 +453,10 @@ public:
         UpdateMapPOIsFitted(m_cPOIs);
     }
 
+    /**
+     * @param nMode
+     * 1 corresponds to original up side, while -1 is the down side
+     */
     void FitWithFixedPara(const string& sPara, 
                           const map<string, tuple<double, double, double>>& mapNPsFromFitAll,
                           double nMode)
@@ -464,6 +469,29 @@ public:
         RooRealVar* cNP = (RooRealVar*)m_cNPs->find(sPara.c_str());
         cNP->setVal(fFixedVal);
         cNP->setConstant(true);
+        Fit();
+        UpdateMapNPsFinal(m_cNPs);
+        UpdateMapPOIsFitted(m_cPOIs);
+    }
+
+    /**
+     * @param nDirection
+     * 1 corresponds to all going positive, while -1 is all going negative
+     */
+    void FitWithAllParaFixed(const map<string, tuple<double, double, double>>& mapNPsFromFitAll,
+                             double nDirection)
+    {
+        for (const auto& pp : mapNPsFromFitAll)
+        {
+            const auto& tupleVal = pp.second;
+            double fFixedVal = std::get<0>(tupleVal);
+            double fPos = std::get<1>(tupleVal) > 0 ? std::get<1>(tupleVal) : std::get<2>(tupleVal);
+            double fNeg = std::get<1>(tupleVal) < 0 ? std::get<1>(tupleVal) : std::get<2>(tupleVal);
+            fFixedVal += nDirection > 0 ? fPos : fNeg;
+            RooRealVar* cNP = (RooRealVar*)m_cNPs->find(pp.first.c_str());
+            cNP->setVal(fFixedVal);
+            cNP->setConstant(true);
+        }
         Fit();
         UpdateMapNPsFinal(m_cNPs);
         UpdateMapPOIsFitted(m_cPOIs);
