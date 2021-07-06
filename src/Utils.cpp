@@ -100,4 +100,17 @@ string signalTypeName(const string& sSigName)
     return sName;
 }
 
+void properties_copy(TH1* h1, TH1* h2)
+{
+    h1->SetLineColor(h2->GetLineColor());
+    h1->SetLineWidth(h2->GetLineWidth());
+    h1->SetLineStyle(h2->GetLineStyle());
+    h1->SetFillColor(h2->GetFillColor());
+    h1->SetFillStyle(h2->GetFillStyle());
+    h1->SetFillColor(h2->GetFillColor());
+    h1->SetMarkerColor(h2->GetMarkerColor());
+    h1->SetMarkerStyle(h2->GetMarkerStyle());
+    h1->SetMarkerSize(h2->GetMarkerSize());
+}
+
 }

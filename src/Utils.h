@@ -52,13 +52,8 @@ namespace Utils {
      */
     string signalTypeName(const string& sSigName);
 
-    static vector<pair<unsigned, unsigned>> paletteSysts = {         
-        {kViolet, kAzure},
-        {kViolet+2, kAzure+2},
-        {kViolet+4, kAzure+4},
-        {kMagenta+2, kBlue+2},
-        {kMagenta+4, kBlue+4},
-    };
+
+    void properties_copy(TH1* h1, TH1* h2);
 }
 
 class BinningUtils
@@ -98,17 +93,29 @@ public:
         return ret;
     }
 
-    static std::vector<double> intToDoubleBinEdgesForMVAInverse(const std::vector<int>& ii, int nbins=1000)
+    static std::vector<double> intToDoubleBinEdgesForMVAInverse(const std::vector<int>& ii, int nbins=1000, bool isBDT=false)
     {
         std::vector<double> ret(ii.size());
-        // ret.at(0) = -1.;
-        ret.at(0) = 0.;
+        if (isBDT) 
+        {
+            ret.at(0) = -1.;
+        } 
+        else
+        {
+            ret.at(0) = 0.;
+        }
         ret.at(ret.size()-1) = 1.;
 
         for (size_t i = 1; i < ret.size()-1; ++i)
         {
-            // ret.at(i) = -1. + 2. * (double)ii[ret.size()-1-i]/(double)nbins;
-            ret.at(i) = 0. + (double)ii[ret.size()-1-i]/(double)nbins;
+            if (isBDT)
+            {
+                ret.at(i) = -1. + 2. * (double)ii[ret.size()-1-i]/(double)nbins;
+            }
+            else
+            {
+                ret.at(i) = 0. + (double)ii[ret.size()-1-i]/(double)nbins;
+            }
         }
         
         return ret;
