@@ -130,12 +130,47 @@ void DrawStackTool::run(const Config* c) const
     upper_pad->cd();
 
     TH1* data = (*m_it_data)->histogram;
+    // data->SetBinErrorOption(TH1::kPoisson);
     THStack* stack = new THStack();
-    for_each(m_it_bkg, m_it_sig, [&stack](const ProcessInfo* p) {
+    map<string, THStack*> stacks;
+    set<string> systs;
+    for_each(m_it_bkg, m_it_sig, [&systs, &stacks](const ProcessInfo* p) {
+        for (auto &pp : p->systematic_histograms)
+        {
+            systs.insert(pp.first);
+            stacks[pp.first] = new THStack();
+        }
+    });
+    for_each(m_it_bkg, m_it_sig, [&stack, &stacks](const ProcessInfo* p) {
         p->histogram->Scale(p->norm_factor);
-        stack->Add(p->histogram); });
+        stack->Add(p->histogram); 
+        set<string> systs_here;
+        for (auto &pp : p->systematic_histograms)
+        {
+            systs_here.insert(pp.first);
+            pp.second->Scale(p->norm_factor);
+        }
+        for (auto &pp : stacks)
+        {
+            if (systs_here.find(pp.first) == systs_here.end())
+            {
+                stacks[pp.first]->Add(p->histogram);
+            }
+            else
+            {
+                stacks[pp.first]->Add(p->systematic_histograms.at(pp.first));
+            }
+        }
+    });
 
     TH1* bkg = (TH1*)stack->GetStack()->Last()->Clone();
+    Tools::println("bkg nominal = %", bkg->Integral());
+    map<string, TH1*> bkgs;
+    for (auto &pp : stacks)
+    {
+        bkgs[pp.first] = (TH1*)pp.second->GetStack()->Last()->Clone();
+        Tools::println("bkg % = %", pp.first, bkgs[pp.first]->Integral());
+    }
     stack->Draw("HIST");
     stack->GetXaxis()->SetLabelSize(0);
     stack->GetXaxis()->SetTitleSize(0);
@@ -144,12 +179,39 @@ void DrawStackTool::run(const Config* c) const
     stack->GetYaxis()->SetLabelSize(0.04);
     stack->GetYaxis()->SetTitleSize(0.045);
     stack->SetMaximum(data->GetMaximum() * 1.4);
+    if (m_info->logy)
+    {
+        stack->SetMaximum(data->GetMaximum() * 400);
+        stack->SetMinimum(std::max(data->GetMinimum() * 1e-2, 1e-3));
+    }
     stack->GetYaxis()->ChangeLabel(1, -1, 0);
 
-    bkg->SetFillStyle(3254);
-    bkg->SetFillColor(kGray + 3);
+    for (auto& pp : bkgs)
+    {
+        pp.second->Add(bkg, -1);
+    }
+
+    vector<double> total_errors(bkg->GetNbinsX()+1, 0.);
+    for (int i = 0; i < bkg->GetNbinsX()+1; i++)
+    {
+        double total_error_2 = bkg->GetBinError(i) * bkg->GetBinError(i);
+        for (auto& pp : bkgs)
+        {
+            total_error_2 += pp.second->GetBinContent(i) * pp.second->GetBinContent(i);
+        }
+        total_errors[i] = TMath::Sqrt(total_error_2);
+    }
+
+    TH1* bkg_stat = (TH1*)bkg->Clone();
+    for (int i = 0; i < bkg->GetNbinsX()+1; i++)
+    {
+        bkg->SetBinError(i, total_errors[i]);
+    }
+    
+    // bkg->SetFillStyle(3254);
+    bkg->SetFillColorAlpha(kRed + 3, 0.2);
     bkg->SetMarkerSize(0);
-    bkg->SetName("Unc.");
+    bkg->SetName("Total Unc.");
     bkg->Draw("E2 SAME");
 
     if (!m_info->blind)
@@ -160,8 +222,9 @@ void DrawStackTool::run(const Config* c) const
         p->histogram->Scale(p->norm_factor);
         p->histogram->Draw("HIST SAME"); });
 
-    double y = 0.92 - 0.05 * (ps->size() + 1);
-    TLegend* legend = new TLegend(0.66, y, 0.90, 0.92);
+    double y = 0.92 - 0.05 * (ps->size() / 2 + 1);
+    TLegend* legend = new TLegend(0.62, y, 0.90, 0.92);
+    legend->SetNColumns(2);
     legend->SetTextFont(42);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
@@ -173,8 +236,8 @@ void DrawStackTool::run(const Config* c) const
         legend->AddEntry(p->histogram, p->name_tex.c_str(), "f"); });
     for_each(m_it_sig, m_it_end, [&legend, this](const ProcessInfo* p) {
         legend->AddEntry(p->histogram, 
-                        (to_string((int)(m_info->signal_scale * p->norm_factor)) + " x " + p->name_tex).c_str(), "l"); });
-    legend->AddEntry(bkg, "Unc.", "f");
+                        (to_string((double)(m_info->signal_scale * p->norm_factor)).substr(0, 4) + " x " + p->name_tex).c_str(), "l"); });
+    legend->AddEntry(bkg, "Total Unc.", "f");
 
     legend->Draw("SAME");
 
@@ -205,10 +268,10 @@ void DrawStackTool::run(const Config* c) const
     }
     err->Divide(bkg_scale);
     err->SetLineWidth(0);
-    err->SetFillStyle(3254);
-    err->SetFillColor(kGray + 3);
+    // err->SetFillStyle(3254);
+    err->SetFillColorAlpha(kRed + 3, 0.2);
     err->SetMarkerSize(0);
-    err->SetName("Unc.");
+    err->SetName("Total Unc.");
     err->GetXaxis()->SetTitle((*m_it_data)->current_variable->name_tex.c_str());
     err->GetXaxis()->SetTitleOffset(0.8 * resize);
     err->GetXaxis()->SetTitleSize(0.045 * resize);
@@ -222,19 +285,32 @@ void DrawStackTool::run(const Config* c) const
     err->SetMaximum(m_info->ratio_high);
     err->Draw("E2");
 
+    TH1* err_stat = (TH1*)bkg_stat->Clone();
+    err_stat->Divide(bkg_scale);
+    err_stat->SetLineWidth(0);
+    // err_stat->SetFillStyle(3254);
+    err_stat->SetFillColorAlpha(kGray + 3, 0.2);
+    err_stat->SetMarkerSize(0);
+    err_stat->SetName("Unc. Stat-Only");
+    err_stat->Draw("E2 SAME");
+
     /// @todo: other tool might also need this!
     {
-        TLegend* legend = new TLegend(0.60, 0.88, 0.90, 0.98);
+        TLegend* legend = new TLegend(0.62, 0.88, 0.90, 0.98);
+        legend->SetNColumns(2);
         legend->SetTextFont(42);
         legend->SetFillStyle(0);
         legend->SetBorderSize(0);
-        legend->SetTextSize(0.035);
+        legend->SetTextSize(0.035 * resize);
         legend->SetTextAlign(12);
-        legend->AddEntry(err, "Stat. Unc.", "f");
+        legend->AddEntry(err_stat, "Stat Unc.", "f");
+        legend->AddEntry(err, "Total Unc.", "f");
         legend->Draw("SAME");
     }
 
     TH1* rat = (TH1*)data->Clone();
+    // bkg_scale->SetBinErrorOption(TH1::kPoisson);
+    // rat->SetBinErrorOption(TH1::kPoisson);
     rat->Divide(bkg_scale);
     rat->SetTitle("lower_pad");
     if (!m_info->blind)
@@ -243,14 +319,51 @@ void DrawStackTool::run(const Config* c) const
     ostringstream oss_out;
     oss_out << output_path << "/" 
             << (*m_it_data)->current_region->name << "_"
-            << (*m_it_data)->current_variable->name << ".png";
+            << (*m_it_data)->current_variable->name << "_"
+            << m_info->parameter << ".png";
     c1->Update();
     c1->SaveAs(oss_out.str().c_str());
+
+    // TCanvas* c2 = new TCanvas("c2", "", 900, 900);
+    // TH1* bkg_clone = (TH1*)bkg->Clone();
+    // TH1* datadriven = (TH1*)data->Clone();
+    // datadriven->Add(bkg_clone, -1);
+    // datadriven->Scale((*m_it_sig)->histogram->Integral() / datadriven->Integral());
+    // datadriven->Divide((*m_it_sig)->histogram);
+    // datadriven->SetName((*m_it_data)->current_variable->name.c_str());
+    // datadriven->SetTitle((*m_it_data)->current_variable->name.c_str());
+    // datadriven->GetXaxis()->SetTitle((*m_it_data)->current_variable->name_tex.c_str());
+    // datadriven->GetXaxis()->SetTitleOffset(1.2);
+    // datadriven->GetXaxis()->SetTitleSize(0.045);
+    // datadriven->GetXaxis()->SetLabelSize(0.04);
+    // datadriven->GetYaxis()->SetTitle("Scale Factor");
+    // datadriven->GetYaxis()->SetTitleOffset(1.2);
+    // datadriven->GetYaxis()->SetTitleSize(0.045);
+    // datadriven->GetYaxis()->SetLabelSize(0.04);
+    // datadriven->GetYaxis()->SetNdivisions(505);
+    // datadriven->Draw("E1");
+    // ostringstream oss_out2;
+    // oss_out2 << output_path << "/" << "sf_"
+    //         << (*m_it_data)->current_region->name << "_"
+    //         << (*m_it_data)->current_variable->name << "_"
+    //         << m_info->parameter << ".png";
+    // c2->Update();
+    // c2->SaveAs(oss_out2.str().c_str());
+
+    // oss_out2 << ".root";
+    // TFile *fout = TFile::Open(oss_out2.str().c_str(), "recreate");
+    // datadriven->Write();
+    // fout->Close();
 
     delete upper_pad;
     delete lower_pad;
     delete stack;
+    for (auto& pp : stacks)
+    {
+        delete pp.second;
+    }
     delete legend;
     delete text;
     delete c1;
+    // delete c2;
 }

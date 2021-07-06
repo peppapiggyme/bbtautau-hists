@@ -21,6 +21,7 @@ public:
     double ratio_low = 0.76;
     const char* atlas_label = "Internal";
     double signal_scale = 100.;
+    std::string parameter = "TAG";
     // add new configs here
 };
 
