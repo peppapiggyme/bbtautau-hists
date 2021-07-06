@@ -99,6 +99,17 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
                 {
                     TH1* hUp = (TH1*)d_syst->Get(fullnameWithSystUp.c_str());
                     TH1* hDown = (TH1*)d_syst->Get(fullnameWithSystDown.c_str());
+
+                    // set styles here for simplicity
+                    hUp->SetLineColor(s->color);
+                    // hUp->SetFillColor(s->color);
+                    hUp->SetMarkerColor(s->color);
+                    hUp->SetLineStyle(1);
+                    hDown->SetLineColor(s->color);
+                    // hDown->SetFillColor(s->color);
+                    hDown->SetMarkerColor(s->color);
+                    hDown->SetLineStyle(2);
+
                     if (s->name == s->name_tex)
                     {
                         Utils::histAssignSyst(hUp, p, Utils::systString(s) + "__1up");
