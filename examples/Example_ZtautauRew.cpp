@@ -16,26 +16,30 @@ using std::endl;
 using std::clog;
 using BU = BinningUtils;
 
-void test_hadhad_ZtautauUnc2(const std::string& filename)
+void test_hadhad_ZtautauRew(const std::string& filename)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
 
     Regions* rs = new Regions();
-    rs->add("2tag2pjet_0ptv_LL_SS",     "2 b-tag, 2 loose #tau, SS",        eRegionType::SR);
-    // rs->add("2tag2pjet_0ptv_LL_OS",     "2 b-tag, 2 loose #tau, OS",        eRegionType::SR);
+    rs->add("2tag2pjet_0ptv_LL_OS",     "2 b-tag, 2 loose #tau, OS",        eRegionType::SR);
 
     Variables* vs_presel = new Variables();
     double binning[7] = {0, 50, 100, 150, 200, 300, 500};
     double binning_dR[13] = {0., 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 5.0};
     double binning_pTV[7] = {0., 70., 140., 280., 500., 1000., 2000.};
-    vs_presel->add("mBB",                  "m_{BB} [GeV]",                                      10);
-    vs_presel->add("mMMC",                 "m_{#tau#tau} (MMC) [GeV]",                          12);
-    vs_presel->add("mHH",                  "m_{HH} [GeV]",                                      12);
-    // vs_presel->add("mHHScaled",            "m_{HH} (Scaled) [GeV]",                             12);
-    vs_presel->add("dRBB",                 "#Delta R(B,B)",                                     4 );
-    vs_presel->add("pTBB",                 "p_{T}^{b,b}",                                       10);
-    vs_presel->add("dRTauTau",             "#Delta R(#tau_{had},#tau_{had})",                   4 );
-    vs_presel->add("pTTauTau",             "p_{T}^{#tau,#tau}",                                 10);
+    vector<double> binningMhh{400, 450, 500, 550, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900, 930, 960, 1000, 1050, 1100, 1150, 1200, 1300, 1400};
+    vector<double> binningMbb{0, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200, 220, 240, 280, 320, 400};
+    vector<double> binningMtt{70, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 110};
+    vector<double> binningdRBB{0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.6, 1.7, 1.8, 1.9, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 5.0};
+    Variables* vs = new Variables();
+    vs_presel->add("mBB",                  "m_{BB} [GeV]",                                      1,      &binningMbb[0],     binningMbb.size()-1);
+    vs_presel->add("mMMC",                 "m_{#tau#tau} (MMC) [GeV]",                          1,      &binningMtt[0],     binningMtt.size()-1);
+    vs_presel->add("mHH",                  "m_{HH} [GeV]",                                      1,      &binningMhh[0],     binningMhh.size()-1);
+    vs_presel->add("mHHScaled",            "m_{HH} (Scaled) [GeV]",                             1,      &binningMhh[0],     binningMhh.size()-1);
+    vs_presel->add("dRBB",                 "#Delta R(B,B)",                                     1,      &binningdRBB[0],    binningdRBB.size()-1);
+    vs_presel->add("dRTauTau",             "#Delta R(#tau_{had},#tau_{had})",                   1,      &binningdRBB[0],    binningdRBB.size()-1);
+    // vs_presel->add("pTBB",                 "p_{T}^{b,b}",                                       10);
+    // vs_presel->add("pTTauTau",             "p_{T}^{#tau,#tau}",                                 10);
     // vs_presel->add("dPhiBBTauTau",         "#Delta #phi{bb,#tau#tau}",                          4 );
     // vs_presel->add("dRBBTauTau",           "#Delta R{bb,#tau#tau}",                             5 );
     // vs_presel->add("pTBalance",            "p_{T}^{b,b} / p_{T}^{#tau,#tau}",                   5 );
@@ -61,7 +65,7 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
     // vs_presel->add("Tau0Ntrk",             "Leading #tau_{had} N_{tracks}",                     1 );
     // vs_presel->add("Tau1Ntrk",             "Sub-leading #tau_{had} N_{tracks}",                 1 );
     // vs_presel->add("dPhiTauTau",           "#Delta #phi (#tau_{had},#tau_{had})",               4 );
-    vs_presel->add("SherpapTV",            "Sherpa p_{T}^{Z} [GeV]",                            1 , binning_pTV, 6);
+    // vs_presel->add("SherpapTV",            "Sherpa p_{T}^{Z} [GeV]",                            1 , binning_pTV, 6);
 
     auto binningFromFile = [](const std::string& fn)
     { 
@@ -86,7 +90,7 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
     vector<double> binning2HDM1600  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1600.txt");
     vector<double> binningSMHH      =   BU::intToDoubleBinEdgesForMVAInverse(BU::readBinningFromFile<int>("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_SMBDT.txt"), 1000, true);
 
-    Tools::printVector(binningSMHH);
+    Tools::printVector(binning2HDM1000);
 
     Variables* vs_pnn = new Variables();
     vs_pnn->add("PNN260",                  "PNN260",                       1,   &binning2HDM260[0], binning2HDM260.size()-1);
@@ -107,19 +111,12 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
     vs_pnn->add("PNN1600",                 "PNN1600",                      1,   &binning2HDM1600[0], binning2HDM1600.size()-1);
 
     Variables* vs_bdt = new Variables();
-    vs_bdt->add("SMBDT",                   "SM BDT",                       1,   &binningSMHH[0], binningSMHH.size()-1);
-
-    Systematics* ss = new Systematics();
-    ss->add("ZJETS_CKKW", "ZJETS_CKKW", eSystematicType::TwoSide, kBlue);
-    ss->add("ZJETS_QSF", "ZJETS_QSF", eSystematicType::TwoSide, kRed);
-    ss->add("ZJETS_AS", "ZJETS_ALPHAS", eSystematicType::OneSide, kMagenta);
-    ss->add("ZJETS_MMHT2014", "ZJETS_MMHT2014", eSystematicType::OneSide, kGreen+2);
-    ss->add("ZJETS_CT14", "ZJETS_CT14", eSystematicType::OneSide, kCyan+2);
-
+    // vs_bdt->add("SMBDT",                   "SM BDT",                       1,   &binningSMHH[0], binningSMHH.size()-1);
+ 
     CompInfo* info = new CompInfo();
-    info->ratio_high = 1.38;
-    info->ratio_low = 0.62;
-    info->shape_only = true;
+    info->ratio_high = 1.58;
+    info->ratio_low = 0.42;
+    info->shape_only = false;
     info->save_ratio = true;
 
     AutoBinningInfo* abi = new AutoBinningInfo();
@@ -129,9 +126,14 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
     for (VariableInfo* v : *(vs_presel->content()))
     {
         Processes* ps = new Processes();
-        ps->add("Zttbb",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
-        ps->add("Zttbc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
-        ps->add("Zttcc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
+        ps->add("Zttbb",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+        ps->add("Zttbc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+        ps->add("Zttcc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+
+        Systematics* ss = new Systematics();
+        ss->add("Reweight_bbll", "Rew. by dRbb in bbll", eSystematicType::OneSide, kMagenta-7);
+        ss->add("Reweight_ZVR", "Rew. by dRbb in ZVR", eSystematicType::OneSide, kYellow+2);
+        ss->add("ZJETS_ACC_GENERATOR_MBB", "MG unc.", eSystematicType::TwoSide, kRed+2);
 
         Config* c = new Config(b, ps, rs, vs_presel, ss);
         c->load(filename, "Preselection");
@@ -139,7 +141,7 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
         c->updateHistogramPtr(rs->content()->front(), v);
         // CompTool* ct = new CompTool(info);
         SystCompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Ztautau-SS/CKKWQSFAlphaS/";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/ZtautauRew";
 
         if (HistToolHelper::check(c)) {
             ct->manipulate(c);
@@ -170,9 +172,15 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
     for (VariableInfo* v : *(vs_pnn->content()))
     {
         Processes* ps = new Processes();
-        ps->add("Zttbb",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
-        ps->add("Zttbc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
-        ps->add("Zttcc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
+        ps->add("Zttbb",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+        ps->add("Zttbc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+        ps->add("Zttcc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+
+        Systematics* ss = new Systematics();
+        ss->add("Reweight_bbll", "Rew. by dRbb in bbll", eSystematicType::OneSide, kCyan+3);
+        ss->add("Reweight_ZVR", "Rew. by dRbb in ZVR", eSystematicType::OneSide, kCyan-8);
+        ss->add("ZJETS_ACC_GENERATOR_MBB", "Unc. MG (shape only)", eSystematicType::TwoSide, kRed+3);
+        ss->add("ZJETS_ACC_SCALE_MVA_" + v->name, "Unc. Scale (envelope)", eSystematicType::TwoSide, kRed-8);
 
         Config* c = new Config(b, ps, rs, vs_pnn, ss);
         c->load(filename, "PNNScorePreselection");
@@ -180,7 +188,7 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
         c->updateHistogramPtr(rs->content()->front(), v);
         // CompTool* ct = new CompTool(info);
         SystCompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Ztautau-SS/CKKWQSFAlphaS/";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/ZtautauRew";
 
         if (HistToolHelper::check(c)) {
             ct->manipulate(c);
@@ -204,41 +212,41 @@ void test_hadhad_ZtautauUnc2(const std::string& filename)
         delete c;
     }
 
-    for (VariableInfo* v : *(vs_bdt->content()))
-    {
-        Processes* ps = new Processes();
-        ps->add("Zttbb",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
-        ps->add("Zttbc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
-        ps->add("Zttcc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlue+1);
+    // for (VariableInfo* v : *(vs_bdt->content()))
+    // {
+    //     Processes* ps = new Processes();
+    //     ps->add("Zttbb",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+    //     ps->add("Zttbc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
+    //     ps->add("Zttcc",    "Zhf Nominal",  eProcessType::BKG,  eProcess::ZllHF,    "Zhf Nominal",  kBlack);
 
-        Config* c = new Config(b, ps, rs, vs_bdt, ss);
-        c->load(filename, "BDTScorePreselection");
-        info->parameter = "BDT";
-        c->updateHistogramPtr(rs->content()->front(), v);
-        SystCompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Ztautau-SS/CKKWQSFAlphaS/";
+    //     Config* c = new Config(b, ps, rs, vs_bdt, ss);
+    //     c->load(filename, "BDTScorePreselection");
+    //     info->parameter = "BDT";
+    //     c->updateHistogramPtr(rs->content()->front(), v);
+    //     SystCompTool* ct = new SystCompTool(info);
+    //     ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/ZtautauRew";
 
-        if (HistToolHelper::check(c)) {
-            ct->manipulate(c);
-            // ct->rebin(c, eRebinOption::N_Rebin);
-            ct->rebin(c, eRebinOption::Array, "using array and transformed", true);
-        }
+    //     if (HistToolHelper::check(c)) {
+    //         ct->manipulate(c);
+    //         // ct->rebin(c, eRebinOption::N_Rebin);
+    //         ct->rebin(c, eRebinOption::Array, "using array and transformed", true);
+    //     }
 
-        if (ct->check(c))
-        {
-            ct->makeYield(c);
-            ct->paint(c);
-            ct->run(c);
-        }
-        else 
-        {
-            clog << "Can not draw " << c->current_region->name << " " << c->current_variable->name << '\n';
-        }
+    //     if (ct->check(c))
+    //     {
+    //         ct->makeYield(c);
+    //         ct->paint(c);
+    //         ct->run(c);
+    //     }
+    //     else 
+    //     {
+    //         clog << "Can not draw " << c->current_region->name << " " << c->current_variable->name << '\n';
+    //     }
 
-        delete ps;
-        delete ct;
-        delete c;
-    }
+    //     delete ps;
+    //     delete ct;
+    //     delete c;
+    // }
 
     delete b;
     delete rs;

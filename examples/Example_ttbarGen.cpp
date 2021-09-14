@@ -15,7 +15,7 @@ using std::endl;
 using std::clog;
 using BU = BinningUtils;
 
-void test_hadhad_WtGen(const std::string& filename)
+void test_hadhad_ttbarSys_Gen(const std::string& filename)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
 
@@ -89,16 +89,17 @@ void test_hadhad_WtGen(const std::string& filename)
     for (VariableInfo* v : *(vs_presel->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWtAF2",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
-        ps->add("stopWtaMCAF2",    "s-top Wt aMC@NLO",  eProcessType::BKG,  eProcess::STOPWT_AMC,  "s-top Wt aMC@NLO",  kRed+1);
-        ps->add("stopWtHw7AF2",    "s-top Wt Herwig7",  eProcessType::BKG,  eProcess::STOPWT_HW7,  "s-top Wt Herwig7",  kViolet+1);
+        ps->add("ttbarAF2",       "true-#tau_{h} t#bar{t} Nominal",  eProcessType::BKG,  eProcess::TTBAR_NOM,      "true-#tau_{h} t#bar{t} Wt Nominal",  kBlue+1);
+        ps->add("ttbarAMCP8",     "true-#tau_{h} t#bar{t} aMC@NLO",  eProcessType::BKG,  eProcess::TTBAR_AMC,  "true-#tau_{h} t#bar{t} Wt aMC@NLO",  kRed+1);
+        ps->add("ttbarPH7",       "true-#tau_{h} t#bar{t} Herwig7",  eProcessType::BKG,  eProcess::TTBAR_HW7,  "true-#tau_{h} t#bar{t} Wt Herwig7",  kViolet+1);
+        ps->add("ttbarPP8RadHi",  "true-#tau_{h} t#bar{t} Hdamp",    eProcessType::BKG,  eProcess::TTBAR_HDAMP,  "true-#tau_{h} t#bar{t} Hdamp",       kGreen+1);
 
         Config* c = new Config(b, ps, rs, vs_presel);
         c->load(filename, "Preselection");
-        info->parameter = "Wt_Gen_Presel";
+        info->parameter = "ttbar_Gen_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -122,16 +123,17 @@ void test_hadhad_WtGen(const std::string& filename)
     for (VariableInfo* v : *(vs_pnn->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWtAF2",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
-        ps->add("stopWtaMCAF2",    "s-top Wt aMC@NLO",  eProcessType::BKG,  eProcess::STOPWT_AMC,  "s-top Wt aMC@NLO",  kRed+1);
-        ps->add("stopWtHw7AF2",    "s-top Wt Herwig7",  eProcessType::BKG,  eProcess::STOPWT_HW7,  "s-top Wt Herwig7",  kViolet+1);
+        ps->add("ttbarAF2",       "true-#tau_{h} t#bar{t} Nominal",  eProcessType::BKG,  eProcess::TTBAR_NOM,      "true-#tau_{h} t#bar{t} Wt Nominal",  kBlue+1);
+        ps->add("ttbarAMCP8",     "true-#tau_{h} t#bar{t} aMC@NLO",  eProcessType::BKG,  eProcess::TTBAR_AMC,  "true-#tau_{h} t#bar{t} Wt aMC@NLO",  kRed+1);
+        ps->add("ttbarPH7",       "true-#tau_{h} t#bar{t} Herwig7",  eProcessType::BKG,  eProcess::TTBAR_HW7,  "true-#tau_{h} t#bar{t} Wt Herwig7",  kViolet+1);
+        ps->add("ttbarPP8RadHi",  "true-#tau_{h} t#bar{t} Hdamp",    eProcessType::BKG,  eProcess::TTBAR_HDAMP,  "true-#tau_{h} t#bar{t} Hdamp",       kGreen+1);
 
         Config* c = new Config(b, ps, rs, vs_pnn);
         c->load(filename, "PNNScorePreselection");
-        info->parameter = "Wt_Gen_PNN";
+        info->parameter = "ttbar_Gen_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -150,19 +152,20 @@ void test_hadhad_WtGen(const std::string& filename)
         delete c;
     }
 
-    for (VariableInfo* v : *(vs_bdt->content()))
+        for (VariableInfo* v : *(vs_bdt->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWtAF2",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
-        ps->add("stopWtaMCAF2",    "s-top Wt aMC@NLO",  eProcessType::BKG,  eProcess::STOPWT_AMC,  "s-top Wt aMC@NLO",  kRed+1);
-        ps->add("stopWtHw7AF2",    "s-top Wt Herwig7",  eProcessType::BKG,  eProcess::STOPWT_HW7,  "s-top Wt Herwig7",  kViolet+1);
+        ps->add("ttbarAF2",       "true-#tau_{h} t#bar{t} Nominal",  eProcessType::BKG,  eProcess::TTBAR_NOM,      "true-#tau_{h} t#bar{t} Wt Nominal",  kBlue+1);
+        ps->add("ttbarAMCP8",     "true-#tau_{h} t#bar{t} aMC@NLO",  eProcessType::BKG,  eProcess::TTBAR_AMC,  "true-#tau_{h} t#bar{t} Wt aMC@NLO",  kRed+1);
+        ps->add("ttbarPH7",       "true-#tau_{h} t#bar{t} Herwig7",  eProcessType::BKG,  eProcess::TTBAR_HW7,  "true-#tau_{h} t#bar{t} Wt Herwig7",  kViolet+1);
+        ps->add("ttbarPP8RadHi",  "true-#tau_{h} t#bar{t} Hdamp",    eProcessType::BKG,  eProcess::TTBAR_HDAMP,  "true-#tau_{h} t#bar{t} Hdamp",       kGreen+1);
 
         Config* c = new Config(b, ps, rs, vs_bdt);
         c->load(filename, "BDTScorePreselection");
-        info->parameter = "Wt_Gen_BDT";
+        info->parameter = "ttbar_Gen_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);

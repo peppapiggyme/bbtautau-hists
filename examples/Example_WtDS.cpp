@@ -20,6 +20,7 @@ void test_hadhad_WtDS(const std::string& filename)
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
 
     Regions* rs = new Regions();
+    // rs->add("2tag2pjet_0ptv_LL_SS",     "2 b-tag, 2 loose #tau, SS",        eRegionType::SR);
     rs->add("2tag2pjet_0ptv_LL_OS",     "2 b-tag, 2 loose #tau, OS",        eRegionType::SR);
 
     Variables* vs_presel = new Variables();
@@ -81,7 +82,7 @@ void test_hadhad_WtDS(const std::string& filename)
     vector<double> binning2HDM1200  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1200.txt");
     vector<double> binning2HDM1400  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1400.txt");
     vector<double> binning2HDM1600  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1600.txt");
-    vector<double> binningSMHH      =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_SMBDT.txt");
+    vector<double> binningSMBDT     =   BU::intToDoubleBinEdgesForMVAInverse(BU::readBinningFromFile<int>("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_SMBDT.txt"), 1000, true);
 
     vs_pnn->add("PNN260",       "PNN260",       1,      &binning2HDM260[0],     binning2HDM260.size()-1);
     vs_pnn->add("PNN280",       "PNN280",       1,      &binning2HDM280[0],     binning2HDM280.size()-1);
@@ -103,7 +104,7 @@ void test_hadhad_WtDS(const std::string& filename)
     vs_pnn->add("PNN1600",      "PNN1600",      1,      &binning2HDM1600[0],    binning2HDM1600.size()-1);
 
     Variables* vs_bdt = new Variables();
-    vs_bdt->add("SMBDT",        "SM BDT",       1,      &binningSMHH[0],        binningSMHH.size()-1);
+    vs_bdt->add("SMBDT",        "SM BDT",       1,      &binningSMBDT[0],        binningSMBDT.size()-1);
 
     Systematics* ss = new Systematics();
     // ss->add("SingleTop_DS_mHH", "SingleTop_DS_mHH", eSystematicType::TwoSide);
@@ -114,7 +115,7 @@ void test_hadhad_WtDS(const std::string& filename)
     CompInfo* info = new CompInfo();
     info->ratio_high = 1.78;
     info->ratio_low = 0.22;
-    info->shape_only = false;
+    info->shape_only = true;
     info->save_ratio = true;
 
     AutoBinningInfo* abi = new AutoBinningInfo();
@@ -132,7 +133,7 @@ void test_hadhad_WtDS(const std::string& filename)
         info->parameter = "Wt_DS_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Stop";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -165,7 +166,7 @@ void test_hadhad_WtDS(const std::string& filename)
         info->parameter = "Wt_DS_PNN";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Stop";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -195,8 +196,8 @@ void test_hadhad_WtDS(const std::string& filename)
         info->parameter = "Wt_DS_BDT";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new CompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/Stop";
-        Tools::printVector(binningSMHH);
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        Tools::printVector(binningSMBDT);
         if (ct->check(c))
         {
             ct->manipulate(c);

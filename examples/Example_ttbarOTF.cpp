@@ -17,10 +17,10 @@ using std::clog;
 using BU = BinningUtils;
 
 /**
- * @brief Single top Wt-channel on the fly weights
+ * @brief hadhad chanel ttbar on the fly weights
  */
 
-void test_hadhad_WtOTF(const std::string& filename)
+void test_hadhad_ttbarSys_OTF(const std::string& filename)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
 
@@ -89,7 +89,7 @@ Variables* vs_pnn = new Variables();
     CompInfo* info = new CompInfo();
     info->ratio_high = 1.78;
     info->ratio_low = 0.22;
-    info->shape_only = false;
+    info->shape_only = true;
 
 
     info->logy = false;
@@ -97,17 +97,17 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_presel->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        ss->add("SingleTop_ISR", "SingleTop_ISR", eSystematicType::TwoSide, kMagenta);
+        ss->add("TTBAR_ACC_ISR", "TTBAR_ACC_ISR", eSystematicType::TwoSide, kMagenta);
 
         Config* c = new Config(b, ps, rs, vs_presel, ss);
         c->load(filename, "Preselection");
-        info->parameter = "Wt_ISR_Presel";
+        info->parameter = "TTbar_ISR_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -131,17 +131,17 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_pnn->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        ss->add("SingleTop_ISR", "SingleTop_ISR", eSystematicType::TwoSide, kMagenta);
+        ss->add("TTBAR_ACC_ISR", "TTBAR_ACC_ISR", eSystematicType::TwoSide, kMagenta);
 
         Config* c = new Config(b, ps, rs, vs_pnn, ss);
         c->load(filename, "PNNScorePreselection");
-        info->parameter = "Wt_ISR_PNN";
+        info->parameter = "TTbar_ISR_PNN";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -163,17 +163,17 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_bdt->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        ss->add("SingleTop_ISR", "SingleTop_ISR", eSystematicType::TwoSide, kMagenta);
+        ss->add("TTBAR_ACC_ISR", "TTBAR_ACC_ISR", eSystematicType::TwoSide, kMagenta);
 
         Config* c = new Config(b, ps, rs, vs_bdt, ss);
         c->load(filename, "BDTScorePreselection");
-        info->parameter = "Wt_ISR_BDT";
+        info->parameter = "TTbar_ISR_BDT";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -197,17 +197,17 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_presel->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        ss->add("SingleTop_FSR", "SingleTop_FSR", eSystematicType::TwoSide, kMagenta);
+        ss->add("TTBAR_ACC_FSR_OUTLIERREMOVAL", "TTBAR_ACC_FSR_OUTLIERREMOVAL", eSystematicType::TwoSide, kMagenta);
 
         Config* c = new Config(b, ps, rs, vs_presel, ss);
         c->load(filename, "Preselection");
-        info->parameter = "Wt_FSR_Presel";
+        info->parameter = "TTbar_FSR_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -231,17 +231,17 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_pnn->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        ss->add("SingleTop_FSR", "SingleTop_FSR", eSystematicType::TwoSide, kMagenta);
+        ss->add("TTBAR_ACC_FSR_OUTLIERREMOVAL", "TTBAR_ACC_FSR_OUTLIERREMOVAL", eSystematicType::TwoSide, kMagenta);
 
         Config* c = new Config(b, ps, rs, vs_pnn, ss);
         c->load(filename, "PNNScorePreselection");
-        info->parameter = "Wt_FSR_PNN";
+        info->parameter = "TTbar_FSR_PNN";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -263,17 +263,17 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_bdt->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        ss->add("SingleTop_FSR", "SingleTop_FSR", eSystematicType::TwoSide, kMagenta);
+        ss->add("TTBAR_ACC_FSR_OUTLIERREMOVAL", "TTBAR_ACC_FSR_OUTLIERREMOVAL", eSystematicType::TwoSide, kMagenta);
 
         Config* c = new Config(b, ps, rs, vs_bdt, ss);
         c->load(filename, "BDTScorePreselection");
-        info->parameter = "Wt_FSR_BDT";
+        info->parameter = "TTbar_FSR_BDT";
         c->updateHistogramPtr(rs->content()->front(), v);
         CompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -297,20 +297,20 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_presel->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        for (std::size_t iPDF = 90901; iPDF <= 90930; iPDF++) {
-            std::string sysName = "SingleTop_Wtchan_PDF4LHC" + std::to_string(iPDF);
+        for (std::size_t iPDF = 1; iPDF <= 30; iPDF++) {
+            std::string sysName = "TTBAR_ACC_PDF4LHC_" + std::to_string(iPDF);
             ss->add(sysName, sysName, eSystematicType::OneSide, kMagenta);
         }
 
         Config* c = new Config(b, ps, rs, vs_presel, ss);
         c->load(filename, "Preselection");
-        info->parameter = "Wt_PDF_Presel";
+        info->parameter = "TTbar_PDF_Presel";
         c->updateHistogramPtr(rs->content()->front(), v);
         SystCompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -335,20 +335,20 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_pnn->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        for (std::size_t iPDF = 90901; iPDF <= 90930; iPDF++) {
-            std::string sysName = "SingleTop_Wtchan_PDF4LHC" + std::to_string(iPDF);
+        for (std::size_t iPDF = 1; iPDF <= 30; iPDF++) {
+            std::string sysName = "TTBAR_ACC_PDF4LHC_" + std::to_string(iPDF);
             ss->add(sysName, sysName, eSystematicType::OneSide, kMagenta);
         }
 
         Config* c = new Config(b, ps, rs, vs_pnn, ss);
         c->load(filename, "PNNScorePreselection");
-        info->parameter = "Wt_PDF_PNN";
+        info->parameter = "TTbar_PDF_PNN";
         c->updateHistogramPtr(rs->content()->front(), v);
         SystCompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);
@@ -371,20 +371,20 @@ Variables* vs_pnn = new Variables();
     for (VariableInfo* v : *(vs_bdt->content()))
     {
         Processes* ps = new Processes();
-        ps->add("stopWt",       "s-top Wt Nominal",  eProcessType::BKG,  eProcess::STOPWT,      "s-top Wt Nominal",  kBlue+1);
+        ps->add("ttbar",       "true-#tau_{h} t#bar{t}",  eProcessType::BKG,  eProcess::TTBARTRUE,      "true-#tau_{h} t#bar{t} Nominal",  kBlack);
 
         Systematics* ss = new Systematics();
-        for (std::size_t iPDF = 90901; iPDF <= 90930; iPDF++) {
-            std::string sysName = "SingleTop_Wtchan_PDF4LHC" + std::to_string(iPDF);
+        for (std::size_t iPDF = 1; iPDF <= 30; iPDF++) {
+            std::string sysName = "TTBAR_ACC_PDF4LHC_" + std::to_string(iPDF);
             ss->add(sysName, sysName, eSystematicType::OneSide, kMagenta);
         }
 
         Config* c = new Config(b, ps, rs, vs_bdt, ss);
         c->load(filename, "BDTScorePreselection");
-        info->parameter = "Wt_PDF_BDT";
+        info->parameter = "TTbar_PDF_BDT";
         c->updateHistogramPtr(rs->content()->front(), v);
         SystCompTool* ct = new SystCompTool(info);
-        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SingleTop-SS";
+        ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/TTbar-SS";
         if (ct->check(c))
         {
             ct->manipulate(c);

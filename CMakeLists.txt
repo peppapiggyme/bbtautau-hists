@@ -60,6 +60,8 @@ add_library(ExamplesLib SHARED
     examples/Example_NonRes.cpp
     examples/Example_Pulls.cpp
     examples/Example_Ranking.cpp
+    examples/Example_ttbarGen.cpp
+    examples/Example_ttbarOTF.cpp
     examples/Example_ttbarRew.cpp
     examples/Example_ttbarSyst.cpp
     examples/Example_WS.cpp
@@ -70,6 +72,8 @@ add_library(ExamplesLib SHARED
     examples/Example_ZtautauMG.cpp
     examples/Example_ZtautauUnc1.cpp
     examples/Example_ZtautauUnc2.cpp
+    examples/Example_ZtautauUnc3.cpp
+    examples/Example_ZtautauRew.cpp
     examples/HadHadSR_v15_binning.cpp
     examples/HadHadSR_v15.cpp
     examples/HadHadSR_v15_yield.cpp
