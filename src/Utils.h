@@ -74,7 +74,7 @@ public:
         T x;
         while (iss >> x)
         {
-            binEdges.push_back(x);
+            binEdges.push_back(x-1); // off by one
         }
 
         return binEdges;
