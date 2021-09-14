@@ -35,24 +35,11 @@ void SystCompTool::paint(const Config* c) const
     p->histogram->SetMarkerColor(p->color);
     p->histogram->SetLineColor(p->color);
 
-    size_t idx = 0;
     for (auto& pp : p->systematic_histograms)
     {
         pp.second->SetLineWidth(2);
-        pp.second->SetLineStyle(2);
+        // pp.second->SetLineStyle(2);
         pp.second->SetMarkerSize(0);
-        idx %= Utils::paletteSysts.size();
-        if (pp.first.find("1up") != std::string::npos)
-        {
-            pp.second->SetMarkerColor(Utils::paletteSysts[idx].first);
-            pp.second->SetLineColor(Utils::paletteSysts[idx].first);
-        }
-        else if (pp.first.find("1down") != std::string::npos)
-        {
-            pp.second->SetMarkerColor(Utils::paletteSysts[idx].second);
-            pp.second->SetLineColor(Utils::paletteSysts[idx].second);
-        }
-        idx++;
     }
 }
 
@@ -90,10 +77,9 @@ void SystCompTool::run(const Config* c) const
 
     upper_pad->cd();
     if (m_info->shape_only) {
-        ps->front()->histogram->Scale(1.0 / ps->front()->histogram->Integral());
         for (auto &pp : ps->front()->systematic_histograms)
         {
-            pp.second->Scale(1.0 / pp.second->Integral());
+            pp.second->Scale(ps->front()->histogram->Integral() / pp.second->Integral());
         }
     } else {
         ps->front()->histogram->Scale(ps->front()->norm_factor);
@@ -121,6 +107,7 @@ void SystCompTool::run(const Config* c) const
 
     double y = 0.92 - 0.05 * (ps->size() + ps->front()->systematic_histograms.size() + 1);
     TLegend* legend = new TLegend(0.60, y, 0.90, 0.92);
+    // TLegend* legend = new TLegend(0.20, y, 0.50, 0.62);
     legend->SetTextFont(42);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
@@ -181,7 +168,7 @@ void SystCompTool::run(const Config* c) const
     
     /// @todo: other tool might also need this!
     {
-        TLegend* legend = new TLegend(0.60, 0.88, 0.90, 0.98);
+        TLegend* legend = new TLegend(0.50, 0.88, 0.90, 0.98);
         legend->SetTextFont(42);
         legend->SetFillStyle(0);
         legend->SetBorderSize(0);
@@ -195,8 +182,46 @@ void SystCompTool::run(const Config* c) const
     {
         TH1* rat_pp = (TH1*)pp.second->Clone();
         rat_pp->Divide(base_scale);
+        if (rat_pp->GetLineColor() == kGreen || rat_pp->GetLineColor() == kGreen+2 || rat_pp->GetLineColor() == kGreen+4)
+        {
+            rat_pp->SetLineWidth(4);
+        }
         rat_pp->Draw("HIST E1 SAME");
     }
+
+    // // Code to do envelope ...
+    // TH1* envelope_up = (TH1*)base->Clone();
+    // TH1* envelope_down = (TH1*)base->Clone();
+    // for (int i = 1; i <= envelope_up->GetNbinsX(); ++i)
+    // {
+    //     float min_i = 1e10;
+    //     float max_i = -1e10;
+    //     for (auto& pp : ps->front()->systematic_histograms)
+    //     {
+    //         TH1* rat_pp = (TH1*)pp.second->Clone();
+    //         rat_pp->Divide(base_scale);
+    //         float content_i = rat_pp->GetBinContent(i);
+    //         if (content_i > max_i)
+    //         {
+    //             max_i = content_i;
+    //         }
+    //         if (content_i < min_i)
+    //         {
+    //             min_i = content_i;
+    //         }
+    //     }    
+    //     envelope_up->SetBinContent(i, max_i);
+    //     envelope_down->SetBinContent(i, min_i);
+    // }
+
+    // envelope_up->SetLineColor(kGreen+1);
+    // envelope_down->SetLineColor(kYellow+1);
+
+    // cout << "envelope_up -> " << envelope_up->Integral() << "\n";
+    // cout << "envelope_down -> " << envelope_down->Integral() << "\n";
+
+    // envelope_up->Draw("HIST SAME");
+    // envelope_down->Draw("HIST SAME");
 
     ostringstream oss_out;
     oss_out << output_path << "/" 
@@ -206,6 +231,14 @@ void SystCompTool::run(const Config* c) const
     c1->Update();
     c1->SaveAs(oss_out.str().c_str());
 
+    // oss_out << ".root";
+    // TFile* envelope_param = TFile::Open(oss_out.str().c_str(), "recreate");
+    // envelope_up->SetName((ps->front()->current_variable->name+"__1up").c_str());
+    // envelope_up->SetTitle((ps->front()->current_variable->name+"__1up").c_str());
+    // envelope_down->SetName((ps->front()->current_variable->name+"__1down").c_str());
+    // envelope_down->SetTitle((ps->front()->current_variable->name+"__1down").c_str());
+    // envelope_up->Write();
+    // envelope_down->Write();
     delete upper_pad;
     delete lower_pad;
     delete legend;
@@ -220,6 +253,9 @@ void SystCompTool::uncHessianPDF4LHC(const Config* c) const
     auto& systs = ps->front()->systematic_histograms;
     TH1F* pdf_up = (TH1F*)nom->Clone("PDF4LHC__1up");
     TH1F* pdf_down = (TH1F*)nom->Clone("PDF4LHC__1down");
+
+    pdf_up->SetLineColor(kMagenta);
+    pdf_down->SetLineColor(kMagenta);
 
     for (int i = 1; i <= nom->GetNbinsX(); ++i) {
         float uncSquared{0.f};
@@ -241,4 +277,40 @@ void SystCompTool::uncHessianPDF4LHC(const Config* c) const
     systs.clear(); // delete ?
     Utils::histAssignSyst(pdf_up, ps->front(), "PDF4LHC__1up");
     Utils::histAssignSyst(pdf_down, ps->front(), "PDF4LHC__1down");
+}
+
+void SystCompTool::uncStdDevNNPDF(const Config* c) const
+{
+    vector<ProcessInfo*>* ps = c->processes->content();
+    auto& nom = ps->front()->histogram;
+    auto& systs = ps->front()->systematic_histograms;
+    Tools::println("number of systs = %", systs.size());
+    // assert(systs.size() == 100);
+
+    TH1F* pdf_up = (TH1F*)nom->Clone("NNPDF__1up");
+    TH1F* pdf_down = (TH1F*)nom->Clone("NNPDF__1down");
+
+    pdf_up->SetLineColor(kMagenta);
+    pdf_down->SetLineColor(kMagenta);
+
+    for (int i = 1; i <= nom->GetNbinsX(); ++i) {
+        float sqrSum{0.f};
+        pdf_up->SetBinError(i, 0.f);
+        pdf_down->SetBinError(i, 0.f);
+        for (auto& pp : systs) {
+            if (i == 1 && pp.first.find("NNPDF") == std::string::npos) {
+                clog << pp.first << " is not PDF4LHC uncertainty (skip it)\n";
+                continue;
+            }
+            float diff = pp.second->GetBinContent(i) - nom->GetBinContent(i);
+            sqrSum += diff * diff;
+        }
+        float unc = std::sqrt(sqrSum / (float)systs.size());
+        pdf_up->SetBinContent(i, nom->GetBinContent(i) + unc);
+        pdf_down->SetBinContent(i, nom->GetBinContent(i) - unc);
+    }
+
+    systs.clear(); // delete ?
+    Utils::histAssignSyst(pdf_up, ps->front(), "NNPDF__1up");
+    Utils::histAssignSyst(pdf_down, ps->front(), "NNPDF__1down");
 }

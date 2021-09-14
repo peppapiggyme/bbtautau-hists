@@ -18,11 +18,12 @@ void hadhadsr_v15_yield(const std::string& filename)
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
 
     Regions* rs = new Regions();
-    rs->add("2tag2pjet_0ptv_LL_OS",     "2 b-tag, 2 loose #tau, OS",        eRegionType::SR);
+    // rs->add("2tag2pjet_0ptv_LL_OS",     "2 b-tag, 2 loose #tau, OS",        eRegionType::SR);
+    rs->add("2tag2pjet_0ptv_LL_SS",     "2 b-tag, 2 loose #tau, SS",        eRegionType::SR);
 
     Variables* vs = new Variables();
-    // vs->add("Yield",                "Event Yield",                                       1 );
-    vs->add("SMBDT",                "SM BDT",                                           1 );
+    vs->add("Yield",                "Event Yield",                                       1 );
+    // vs->add("SMBDT",                "SM BDT",                                           1 );
 
     DrawStackInfo* info = new DrawStackInfo();
     info->blind = false;
@@ -62,22 +63,25 @@ void hadhadsr_v15_yield(const std::string& filename)
         ps->add("Wtt",                  "W+jets",                       eProcessType::BKG,      eProcess::WJETS,        "W+jets",                       kGreen-10);
         ps->add("W",                    "W+jets",                       eProcessType::BKG,      eProcess::WJETS,        "W+jets",                       kGreen-10);
         ps->add("Fake",                 "Multi-jet",                    eProcessType::BKG,      eProcess::FAKE,         "Multi-jet",                    kMagenta-10);
-        ps->add("ttV",                  "ttV",                          eProcessType::BKG,      eProcess::ttV,          "ttV",                          kYellow+3);
+        ps->add("ttW",                  "ttV",                          eProcessType::BKG,      eProcess::ttV,          "ttV",                          kYellow+3);
+        ps->add("ttZ",                  "ttV",                          eProcessType::BKG,      eProcess::ttV,          "ttV",                          kYellow+3);
         ps->add("ttH",                  "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("WHbb",                 "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
-        ps->add("ZHbb",                 "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
+        ps->add("ggZHbb",               "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
+        ps->add("qqZHbb",               "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("WHtautau",             "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
-        ps->add("ZHtautau",             "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
+        ps->add("ggZHtautau",           "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
+        ps->add("qqZHtautau",           "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("ggFHtautau",           "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("VBFHtautau",           "SM Higgs",                     eProcessType::BKG,      eProcess::H,            "SM Higgs",                     kYellow-5);
         ps->add("hhttbb",               "Non-res HH",                   eProcessType::SIG,      eProcess::SMHH,         "Non-res HH",                   kMagenta+2);
 
         Config* c = new Config(b, ps, rs, vs);
-        c->load(filename, "BDTScorePreselection");
+        c->load(filename, "Preselection");
 
         c->updateHistogramPtr(r, vs->content()->front());
         DrawStackTool* ds = new DrawStackTool(info);
-        ds->output_path = "/tmp/bowenzhang/";
+        ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/SR-OSSS-0822";
         if (ds->check(c))
         {
             ds->makeYield(c);

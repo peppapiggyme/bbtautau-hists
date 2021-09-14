@@ -27,6 +27,8 @@ public:
   // ref: https://arxiv.org/pdf/1510.03865.pdf
   void uncHessianPDF4LHC(const Config* c) const;
 
+  void uncStdDevNNPDF(const Config* c) const;
+
 protected:
   const CompInfo* m_info;
 

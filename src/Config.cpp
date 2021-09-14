@@ -125,13 +125,20 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
                          d_syst->GetListOfKeys()->Contains(fullnameWithSystUp.c_str()))
                 {
                     TH1* hUp = (TH1*)d_syst->Get(fullnameWithSystUp.c_str());
+
+                    // set styles here for simplicity
+                    hUp->SetLineColor(s->color);
+                    // hUp->SetFillColor(s->color);
+                    hUp->SetMarkerColor(s->color);
+                    hUp->SetLineStyle(1);
+
                     if (s->name == s->name_tex)
                     {
                         Utils::histAssignSyst(hUp, p, Utils::systString(s) + "__1up");
                     }
                     else
                     {
-                        Utils::histAssignSyst(hUp, p, Utils::systString(s) + " (1up)");
+                        Utils::histAssignSyst(hUp, p, Utils::systString(s));
                     }
                 }
                 else

@@ -39,24 +39,11 @@ void CompTool::paint(const Config* c) const
         p->histogram->SetMarkerColor(p->color);
         p->histogram->SetLineColor(p->color);
 
-        size_t idx = 0;
         for (auto& pp : p->systematic_histograms)
         {
             pp.second->SetLineWidth(2);
-            pp.second->SetLineStyle(2);
+            // pp.second->SetLineStyle(2);
             pp.second->SetMarkerSize(0);
-            idx %= Utils::paletteSysts.size();
-            if (pp.first.find("1up") != std::string::npos)
-            {
-                pp.second->SetMarkerColor(Utils::paletteSysts[idx].first);
-                pp.second->SetLineColor(Utils::paletteSysts[idx].first);
-            }
-            else if (pp.first.find("1down") != std::string::npos)
-            {
-                pp.second->SetMarkerColor(Utils::paletteSysts[idx].second);
-                pp.second->SetLineColor(Utils::paletteSysts[idx].second);
-            }
-            idx++;
         }
     });
 }
@@ -132,15 +119,31 @@ void CompTool::run(const Config* c) const
 
     for (auto& pp : ps->front()->systematic_histograms)
     {
+        // chi2 test
+        TH1* against = (TH1*)(*(ps->begin()+1))->histogram->Clone();
+        double chi2 = 0;
+        int ndf = 0;
+        int igood = 0;
+        double pvalue = against->Chi2TestX(pp.second, chi2, ndf, igood, "WW");
+        Tools::println("name [%]\n - chi2/ndf [%]\n - p [%]\n - good [%]", pp.first, chi2/(double)ndf, pvalue, igood);
+
         pp.second->Draw("HIST E1 SAME");
     }
 
-    for_each(ps->begin()+1, ps->end(), [this](const ProcessInfo* p) {
+    for_each(ps->begin()+1, ps->end(), [this, &base](const ProcessInfo* p) {
         if (m_info->shape_only) {
             p->histogram->Scale(1.0 / p->histogram->Integral());
         } else {
             p->histogram->Scale(p->norm_factor);
         }
+
+        // chi2 test
+        double chi2 = 0;
+        int ndf = 0;
+        int igood = 0;
+        double pvalue = p->histogram->Chi2TestX(base, chi2, ndf, igood, "WW");
+        Tools::println("name [%]\n - chi2/ndf [%]\n - p [%]\n - good [%]", "Base", chi2/(double)ndf, pvalue, igood);
+        
         p->histogram->Draw("HIST E1 SAME"); });
 
     double y = 0.92 - 0.05 * (ps->size() + ps->front()->systematic_histograms.size() + 1);
@@ -148,7 +151,7 @@ void CompTool::run(const Config* c) const
     legend->SetTextFont(42);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
-    legend->SetTextSize(0.035);
+    legend->SetTextSize(0.025);
     legend->SetTextAlign(12);
 
     for_each(ps->begin(), ps->end(), [&legend, &ps](const ProcessInfo* p) {
@@ -209,7 +212,7 @@ void CompTool::run(const Config* c) const
 
     /// @todo other tool might also need this!
     {
-        TLegend* legend = new TLegend(0.60, 0.88, 0.90, 0.98);
+        TLegend* legend = new TLegend(0.45, 0.88, 0.90, 0.98);
         legend->SetTextFont(42);
         legend->SetFillStyle(0);
         legend->SetBorderSize(0);
@@ -219,7 +222,7 @@ void CompTool::run(const Config* c) const
         legend->Draw("SAME");
     }
 
-    for_each(ps->begin()+1, ps->end(), [this, &base_scale](const ProcessInfo* p) {
+    for_each(ps->begin()+1, ps->end(), [this, &base_scale, &err](const ProcessInfo* p) {
         TH1* rat = (TH1*)p->histogram->Clone();
         rat->Divide(base_scale);
         // rat->Fit("pol1", "", "", 0, 250);
@@ -230,7 +233,7 @@ void CompTool::run(const Config* c) const
             oss << output_path << "/CompareTo_" << rat->GetName() << ".root";
             TFile f(oss.str().c_str(), "recreate");
             f.cd();
-            rat->Write(("ratio_acc_"+p->current_variable->name).c_str());
+            rat->Write(p->current_variable->name.c_str());
             f.Close();
         }
     });
