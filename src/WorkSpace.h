@@ -280,7 +280,7 @@ private:
 // Fitting
 // ============================================================================
 private:
-    RooFitResult* OneLinerFit(RooArgSet& cConstrainParas)
+    RooFitResult* OneLinerFit(RooArgSet& cConstrainParas, RooAbsData& cData)
     {
         std::cout << "Fitting with: \n"
         "o------------------------------------------------------------o\n"
@@ -292,14 +292,14 @@ private:
         "o------------------------------------------------------------o\n";
 
         RooFitResult* cRes = m_cSBModel->GetPdf()->fitTo(
-            *m_cData, InitialHesse(false), Minos(false), Minimizer("Minuit", "Migrad"),
+            cData, InitialHesse(false), Minos(false), Minimizer("Minuit", "Migrad"),
             Strategy(1), PrintLevel(m_cInfo->logLevel), Constrain(cConstrainParas), Save(true),
             Offset(RooStats::IsNLLOffset()));
 
         return cRes;
     }
 
-    RooFitResult* CustomizedFit(RooArgSet& cConstrainParas)
+    RooFitResult* CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& cData)
     {
         std::cout << "Fitting with: \n"
         "o------------------------------------------------------------o\n"
@@ -313,7 +313,7 @@ private:
         RooMsgService::instance().setGlobalKillBelow(ERROR);
 
         // Define NLL
-        RooAbsReal *cNLL = m_cSBModel->GetPdf()->createNLL(*m_cData, 
+        RooAbsReal *cNLL = m_cSBModel->GetPdf()->createNLL(cData, 
             Constrain(cConstrainParas), 
             GlobalObservables(*(m_cSBModel->GetGlobalObservables())), 
             Offset(RooStats::IsNLLOffset()), NumCPU(4));
@@ -401,7 +401,11 @@ private:
         return cRes;
     }
 
-    void Fit() {
+    void Fit(RooAbsData* cData=nullptr) {
+        if (!cData)
+        {
+            cData = m_cData;
+        }
         // Information from workspace
         RooRealVar* cPOI = static_cast<RooRealVar*>(m_cPOIs->first());
         auto sMinimizerType = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
@@ -418,11 +422,11 @@ private:
         // >>> core of fitting <<< START
         if (m_cInfo->use_oneline_fit)
         {
-            cRes = OneLinerFit(cConstrainParas);
+            cRes = OneLinerFit(cConstrainParas, *cData);
         }
         else 
         {
-            cRes = CustomizedFit(cConstrainParas);
+            cRes = CustomizedFit(cConstrainParas, *cData);
         }
         // >>> core of fitting <<< END
 
