@@ -78,7 +78,8 @@ add_library(ExamplesLib SHARED
     examples/HadHadSR_v15.cpp
     examples/HadHadSR_v15_yield.cpp
     examples/Example_ttbarKine.cpp
-    examples/Example_bbll.cpp)
+    examples/Example_bbll.cpp
+    examples/Example_PseudoData.cpp)
 
 target_link_libraries(UtilsLib PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ConfigLib PUBLIC stdc++fs ${ROOT_LIBRARIES})
@@ -90,11 +91,13 @@ add_executable(run-test exec/test.cpp)
 add_executable(run-main exec/main.cpp)
 add_executable(run-pulls exec/run_pulls.cpp)
 add_executable(run-ranking exec/run_ranking.cpp)
+add_executable(run-pd exec/run_pseudodata.cpp)
 
 target_link_libraries(run-test ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-main ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-pulls UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-ranking UtilsLib StatsLib ExamplesLib)
+target_link_libraries(run-pd UtilsLib StatsLib ExamplesLib)
 
 add_custom_target(link_target ALL
     COMMAND ${CMAKE_COMMAND} -E create_symlink run-main bbtautau-hists)
