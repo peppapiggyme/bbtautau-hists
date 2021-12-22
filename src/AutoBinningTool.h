@@ -23,6 +23,7 @@ public:
     double significance_delta = 1e-5; // stop adding bins if delta significance < 1e-5
     const char* atlas_label = "Simulation Internal";
     std::string parameter = "TAG";
+    bool for_bdt = false;
 };
 
 // ----------------------------------------------------------------------------

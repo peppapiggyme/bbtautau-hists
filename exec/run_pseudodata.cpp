@@ -29,6 +29,7 @@ int main(int argc, char** argv)
 
         while (iss >> x)
         {
+            if (x[0] == '#') continue;
             filenames.push_back(x);
             cout << x << endl;
         }

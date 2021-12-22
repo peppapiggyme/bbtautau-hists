@@ -22,3 +22,7 @@ void hadhadsr_v15_yield(const std::string& filename);
 void hadhadsr_v15_binning(const std::string& filename);
 void test_ttbarKine(const std::string& filename);
 void test_bbll(const std::string& filename);
+void thesis_mvainput(const std::string& filename);
+void thesis_mvaoutput(const std::string& filename);
+void thesis_overfit(const std::string& filename);
+void thesis_binning(const std::string& filename);

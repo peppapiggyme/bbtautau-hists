@@ -43,6 +43,7 @@ add_library(HistToolLib SHARED
     src/CompTool.cpp
     src/SystCompTool.cpp
     src/LephadTTBarCompTool.cpp
+    src/DistributionTool.cpp
     src/AutoBinningTool.cpp)
 
 add_library(StatsLib SHARED
@@ -54,32 +55,13 @@ add_library(StatsLib SHARED
     ext/LinkDef.h
     ${PROJECT_NAME}Dict.cxx)
 
+file(GLOB EXAMPLES "examples/Example_*.cpp")
+file(GLOB HADHADEXAMPLES "examples/HadHadSR_*.cpp")
+file(GLOB THESISEXAMPLES "examples/thesis/Example_*.cpp")
+
 add_library(ExamplesLib SHARED
     examples/Example.cpp
-    examples/Example_klambda.cpp
-    examples/Example_NonRes.cpp
-    examples/Example_Pulls.cpp
-    examples/Example_Ranking.cpp
-    examples/Example_ttbarGen.cpp
-    examples/Example_ttbarOTF.cpp
-    examples/Example_ttbarRew.cpp
-    examples/Example_ttbarSyst.cpp
-    examples/Example_WS.cpp
-    examples/Example_WtDS.cpp
-    examples/Example_WtGen.cpp
-    examples/Example_WtOTF.cpp
-    examples/Example_yield.cpp
-    examples/Example_ZtautauMG.cpp
-    examples/Example_ZtautauUnc1.cpp
-    examples/Example_ZtautauUnc2.cpp
-    examples/Example_ZtautauUnc3.cpp
-    examples/Example_ZtautauRew.cpp
-    examples/HadHadSR_v15_binning.cpp
-    examples/HadHadSR_v15.cpp
-    examples/HadHadSR_v15_yield.cpp
-    examples/Example_ttbarKine.cpp
-    examples/Example_bbll.cpp
-    examples/Example_PseudoData.cpp)
+    ${EXAMPLES} ${HADHADEXAMPLES} ${THESISEXAMPLES})
 
 target_link_libraries(UtilsLib PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ConfigLib PUBLIC stdc++fs ${ROOT_LIBRARIES})
@@ -92,12 +74,16 @@ add_executable(run-main exec/main.cpp)
 add_executable(run-pulls exec/run_pulls.cpp)
 add_executable(run-ranking exec/run_ranking.cpp)
 add_executable(run-pd exec/run_pseudodata.cpp)
+add_executable(gen-pd-zcr exec/gen_pseudodata_zcr.cpp)
+add_executable(ul exec/upper_limit_calc.cpp)
 
 target_link_libraries(run-test ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-main ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-pulls UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-ranking UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-pd UtilsLib StatsLib ExamplesLib)
+target_link_libraries(gen-pd-zcr UtilsLib)
+target_link_libraries(ul ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 
 add_custom_target(link_target ALL
     COMMAND ${CMAKE_COMMAND} -E create_symlink run-main bbtautau-hists)

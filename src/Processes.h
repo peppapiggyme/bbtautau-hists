@@ -38,6 +38,10 @@ enum class eProcess {
     TTBARHH, TTBARLH, TTBARZCR, // 69
     X800, X900, X1000, X1100, //74
     TTBAR_NOM, TTBAR_AMC, TTBAR_HW7, TTBAR_HDAMP,
+
+    // For sorting
+    P1, P2, P3, P4, P5, P6, P7, P8, 
+    P9, P10, P11, P12, P13, P14, P15, P16,
 };
 
 // ENTRY

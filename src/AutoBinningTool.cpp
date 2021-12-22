@@ -244,10 +244,10 @@ bool BinContent::passCaseTwoFromXtoY(double fBkg, double fBkgErr, double fEffErr
     }
 
     /// @note Hardcoded offset!
-    constexpr double fOffset = 0.01;
+    constexpr double fOffset = 0.;
     double fTotalSig = sumFromXtoY(itSig->second.first, x, y);
     double fTotalSigAll = sumFromXtoY(itSig->second.first, 0, size() - 1);
-    double fTotalBkgErr = errSumFromXtoY(data.at(BKGBKG).second, x, y) / sumFromXtoY(data.at(BKGBKG).first, x, y);
+    double fTotalBkgErr = sumFromXtoY(data.at(BKGBKG).first, x, y) == 0 ? 1 : errSumFromXtoY(data.at(BKGBKG).second, x, y) / sumFromXtoY(data.at(BKGBKG).first, x, y);
     double fErr = fTotalSig > 0 ? std::min(fBkgErr, fOffset + fEffErr * (fTotalSig / fTotalSigAll)) : fBkgErr;
 
     if (fTotalBkgErr > fErr)
@@ -337,7 +337,7 @@ bool AutoBinningTool_v1::check(const Config* c) const
 void AutoBinningTool_v1::run(const Config* c) const
 {
     m_binEdges->at(m_info->n_bins) = 1.;
-    m_binEdges->at(0) = 0.; // 0 for PNN, -1 for BDT
+    m_binEdges->at(0) = m_info->for_bdt ? -1. : 0.; // 0 for PNN, -1 for BDT
 
     vector<std::size_t> curXs;
 
@@ -433,27 +433,23 @@ void AutoBinningTool_v1::run(const Config* c) const
     Tools::println("The optimal here is %", sig_final);
     Tools::println(" -> Difference is %", (sig_max - sig_final) / sig_max);
 
-    // Tools::printQueue(pq);
+    Tools::printQueue(pq);
 
     size_t i = 1;
     auto pq_forBinEdges = pq;
     pq_forBinEdges.pop(); // pop 0
     while(!pq_forBinEdges.empty() && i < m_info->n_bins)
     {
-        m_binEdges->at(i++) = 0. + 0.001 * (pq_forBinEdges.top() + 1); // for PNN
-        // m_binEdges->at(i++) = -1. + 0.002 * (pq_forBinEdges.top() + 1); // for BDT
+        m_binEdges->at(i++) = (m_info->for_bdt ? -1. : 0.) + (m_info->for_bdt ? 0.002 : 0.001) * (pq_forBinEdges.top() + 1); // for PNN
         pq_forBinEdges.pop();
     }
 
     vector<ProcessInfo*>* ps = c->processes->content();
 
-    auto itSig = std::find_if(ps->begin(), ps->end(), 
-        [](ProcessInfo* p) { return p->type == eProcessType::SIG; });
-
     ostringstream oss;
     oss << output_path << "/" 
         << "Binning_" 
-        << Utils::signalTypeName((*itSig)->name) << ".txt";
+        << ps->front()->current_variable->name << ".txt";
     ofstream fout(oss.str());
 
     // Em.. WSMaker wants the opposite so
@@ -479,6 +475,7 @@ void AutoBinningTool_v1::run(const Config* c) const
         pq_bin.pop();
     }
 
+    Tools::printVector(*m_binEdges);
     clog << "INFO: Binning saved in " << oss.str() << " for WSMaker" << '\n';
 }
 

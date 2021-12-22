@@ -63,6 +63,7 @@ int main(/*int argc, char *argv[]*/)
     // hadhadsr_v15_yield("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-05-27-HadHadWSI-highMVA/hist-HadHadWSI-highMVA.pre.root");
     // hadhadsr_v15_binning("/scratchfs/atlas/bowenzhang/CxAODReaderSemiBoosted/run/hist-HadHadWSI-v1.all.root");
     // hadhadsr_v15_yield("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
+    hadhadsr_v15_yield("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // hadhadsr_v15("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // hadhadsr_v15("/scratchfs/atlas/bowenzhang/CxAODReaderSemiBoosted/run/hist-HadHadWSI-ValMVA.pre.root");
     // hadhadsr_v15("/scratchfs/atlas/bowenzhang/CxAODReaderSemiBoosted/run/hist-HadHadWSI-CutBased.pre.root");
@@ -92,6 +93,28 @@ int main(/*int argc, char *argv[]*/)
 
     // test_hadhad_ttbarSys_Gen("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-SS-TTbar-Alt.root");
     // test_hadhad_ttbarSys_OTF("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-SS-TTbar-Otf.root");
+
+    // hadhadsr_v15("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-hadhad-newZVR-v2.root");
+    // hadhadsr_v15("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-hadhad-newZVR-v3-systs.root");
+
+    // test_hadhad_ZtautauMG("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-Zjets-v2.root");
+    // test_hadhad_ZtautauMG("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-Zjets-v3.root");
+    // test_hadhad_ZtautauUnc1("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-Zjets.root");
+    // test_hadhad_ZtautauUnc2("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-Zjets.root");
+    // test_hadhad_ZtautauUnc3("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-Zjets.root");
+
+    // test_hadhad_WtDS("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-SingleTop.root");
+    // test_hadhad_WtGen("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-SingleTop.root");
+    // test_hadhad_WtOTF("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-SingleTop.root");
+
+    // test_hadhad_ttbarSys_Gen("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-TTbar.root");
+    // test_hadhad_ttbarSys_OTF("/scratchfs/atlas/bowenzhang/CxAODReaderForSystStudy/run/hist-1tag-TTbar-otf.root");
+
+    // thesis_mvainput("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
+    // thesis_mvaoutput("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
+
+    // thesis_overfit("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-OverFit-v2.root");
+    // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-varimpo-bdt.root");
 
     cout << "Ciao!" << endl;
 

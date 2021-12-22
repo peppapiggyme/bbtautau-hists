@@ -11,12 +11,11 @@ void test_pseudodata(const std::vector<std::string>& filenames, const std::strin
     TTree* t = new TTree("params", "params");
 
     Float_t muHat;
-    TBranch* b_muHat = t->Branch("muHat", &muHat, "muHat/F");
+    t->Branch("muHat", &muHat, "muHat/F");
     for (const auto& filename : filenames)
     {
         muHat = test_pseudodata_helper(filename);
         cout << muHat << endl;
-        b_muHat->Fill();
         t->Fill();
     }
 

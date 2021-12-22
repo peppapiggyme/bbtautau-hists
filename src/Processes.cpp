@@ -92,11 +92,11 @@ double Processes::normFactors(ProcessInfo* p) const
     // switch (p->process)
     // {
     // case eProcess::ZllHF:
-    //     return 1.22;
+    //     return 1.35;
     // case eProcess::TOP:
-    //     return 0.98;
+    //     return 0.97;
     // case eProcess::ZllLF:
-    //     return 0.89;
+    //     return 1.00;
     // default:
     //     return 1.00;
     // }
