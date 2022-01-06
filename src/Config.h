@@ -25,6 +25,7 @@ public:
 public:
     string ecm;
     string luminosity;
+    Utils::NameConvention name_convention = Utils::NameConvention::CxAODReader;
 };
 
 

@@ -81,6 +81,7 @@ struct WorkspaceInfo
     int8_t logLevel = -1;
     bool use_asimov = true;
     bool use_oneline_fit = true;
+    bool use_relative_tolerance = false;
 };
 
 class WorkspaceLoad
@@ -329,7 +330,7 @@ private:
         const int nStrategy = ROOT::Math::MinimizerOptions::DefaultStrategy();
         cMinimizer.setStrategy(nStrategy);
         // double fTolerance = ROOT::Math::MinimizerOptions::DefaultTolerance();
-        double fTolerance = m_cInfo->tolerance * cNLL->getVal();
+        double fTolerance = m_cInfo->use_relative_tolerance ? m_cInfo->tolerance * cNLL->getVal() : m_cInfo->tolerance;
         cMinimizer.setEps(fTolerance);
         int nStatus = -1;
         constexpr int nOptConstFlag = 2; // ?
@@ -461,7 +462,7 @@ public:
      * @param nMode
      * 1 corresponds to original up side, while -1 is the down side
      */
-    void FitWithFixedPara(const string& sPara, 
+    void FitWithFixedNP(const string& sPara, 
                           const map<string, tuple<double, double, double>>& mapNPsFromFitAll,
                           double nMode)
     {
@@ -482,7 +483,7 @@ public:
      * @param nDirection
      * 1 corresponds to all going positive, while -1 is all going negative
      */
-    void FitWithAllParaFixed(const map<string, tuple<double, double, double>>& mapNPsFromFitAll,
+    void FitWithAllNPFixed(const map<string, tuple<double, double, double>>& mapNPsFromFitAll,
                              double nDirection)
     {
         for (const auto& pp : mapNPsFromFitAll)
@@ -496,6 +497,20 @@ public:
             cNP->setVal(fFixedVal);
             cNP->setConstant(true);
         }
+        Fit();
+        UpdateMapNPsFinal(m_cNPs);
+        UpdateMapPOIsFitted(m_cPOIs);
+    }
+
+    /**
+     * @param mu_0
+     * mu_0 = 0 -> background only fit
+     * mu_0 = x -> sig = x hypothesis fit
+     */
+    void FitWithFixedMu(double mu_0)
+    {
+        static_cast<RooRealVar*>(m_cPOIs->first())->setVal(mu_0);
+        static_cast<RooRealVar*>(m_cPOIs->first())->setConstant(true);
         Fit();
         UpdateMapNPsFinal(m_cNPs);
         UpdateMapPOIsFitted(m_cPOIs);

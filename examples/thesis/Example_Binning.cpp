@@ -39,9 +39,9 @@ void add_bkg_binning(const Processes* ps)
     ps->add("Zcl",                  "Zll + cl",                     eProcessType::BKG,      eProcess::ZllLF,        "Z+lf",                         kBlue-5);
     ps->add("Zl",                   "Zll + l",                      eProcessType::BKG,      eProcess::ZllLF,        "Z+lf",                         kBlue-5);
     ps->add("ttbar",                "t#bar{t}",                     eProcessType::BKG,      eProcess::TTBAR,        "t#bar{t}",                     kWhite);
-    ps->add("ttbarSFTF",            "t#bar{t} TF",                  eProcessType::BKG,      eProcess::TTBARFAKE,    "fake-#tau t#bar{t}",           kYellow-9);
-    ps->add("ttbarSFFT",            "t#bar{t} FT",                  eProcessType::BKG,      eProcess::TTBARFAKE,    "fake-#tau t#bar{t}",           kYellow-9);
-    ps->add("ttbarSFFF",            "t#bar{t} FF",                  eProcessType::BKG,      eProcess::TTBARFAKE,    "fake-#tau t#bar{t}",           kYellow-9);
+    ps->add("ttbarTF",            "t#bar{t} TF",                  eProcessType::BKG,      eProcess::TTBARFAKE,    "fake-#tau t#bar{t}",           kYellow-9);
+    ps->add("ttbarFT",            "t#bar{t} FT",                  eProcessType::BKG,      eProcess::TTBARFAKE,    "fake-#tau t#bar{t}",           kYellow-9);
+    ps->add("ttbarFF",            "t#bar{t} FF",                  eProcessType::BKG,      eProcess::TTBARFAKE,    "fake-#tau t#bar{t}",           kYellow-9);
     ps->add("stops",                "single top",                   eProcessType::BKG,      eProcess::STOP,         "single top",                   kOrange+2);
     ps->add("stopt",                "single top",                   eProcessType::BKG,      eProcess::STOP,         "single top",                   kOrange+2);
     ps->add("stopWt",               "single top",                   eProcessType::BKG,      eProcess::STOP,         "single top",                   kOrange+2);
@@ -79,16 +79,25 @@ void thesis_binning(const std::string& filename)
     vs_bdt->add("SMBDT3",             "BDT score",         1);
     vs_bdt->add("SMBDT4",             "BDT score",         1);
 
+    Variables* vs_pnn = new Variables();        
+    vs_pnn->add("PNN300",            "PNN300 score",         1);
+    vs_pnn->add("PNN0M300",          "PNN300 score",         1);
+    vs_pnn->add("PNN1M300",          "PNN300 score",         1);
+    vs_pnn->add("PNN2M300",          "PNN300 score",         1);
+    vs_pnn->add("PNN3M300",          "PNN300 score",         1);
+    vs_pnn->add("PNN4M300",          "PNN300 score",         1);
+
+
     AutoBinningInfo* info = new AutoBinningInfo();
+    info->required_mcstats = 1.1; /* 0.2 to be more conservative */
+    info->min_mcstats = 0.2; 
+    info->min_bkg = 5; 
+    info->n_bins = 100; 
+    info->eff_factor = 1.0; /* only for CaseTwo */
 
     for (VariableInfo* v : *(vs_bdt->content()))
     { 
         info->parameter = "BDTScorePreselection"; 
-        info->required_mcstats = 1.1; /* 0.2 to be more conservative */
-        info->min_mcstats = 0.2; 
-        info->min_bkg = 5; 
-        info->n_bins = 100; 
-        info->eff_factor = 1.0; /* only for CaseTwo */
         info->for_bdt = true;
     
         Processes* ps = new Processes(); 
@@ -119,11 +128,46 @@ void thesis_binning(const std::string& filename)
         delete c; 
     }
 
+    for (VariableInfo* v : *(vs_pnn->content()))
+    { 
+        info->parameter = "PNNScorePreselection"; 
+        info->for_bdt = false;
+    
+        Processes* ps = new Processes(); 
+        ps->add("Hhhbbtautau300",      "Hhhbbtautau300",      eProcessType::SIG, eProcess::HH, "Hhhbbtautau300", kMagenta+2); 
+        add_bkg_binning(ps);
+
+        Config* c = new Config(b, ps, rs, vs_pnn); 
+        c->load(filename, "PNNScorePreselection"); 
+    
+        c->updateHistogramPtr(rs->content()->front(), v); 
+        AutoBinningTool* ab = new AutoBinningTool_v1(info, BinningCriteria::CaseTwo); 
+        ab->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/var-impo-bdt/"; 
+        if (ab->check(c)) 
+        { 
+            ab->manipulate(c); 
+            ab->paint(c); 
+            ab->makeYield(c, info->parameter); 
+            ab->run(c); 
+        } 
+        else  
+        { 
+            clog << "Can not draw " << c->current_region->name << " " << c->current_variable->name << 'n'; 
+        } 
+    
+        delete ps; 
+        delete ab; 
+        delete c; 
+    }
+
+
     delete b;
     delete rs;
     delete vs_bdt;
+    delete vs_pnn;
     delete info;
 }
+
 
 
 

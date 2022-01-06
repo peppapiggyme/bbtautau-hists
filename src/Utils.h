@@ -23,28 +23,30 @@ using std::pair;
 
 namespace Utils {
 
+    enum class NameConvention { CxAODReader, WSMaker };
+
     void histAssign(TH1* h, ProcessInfo* p, RegionInfo* r, VariableInfo* v);
     void histAssignSyst(TH1* h, ProcessInfo *p, const std::string& systname);
 
     /**
      * @note so far only support CxAODReader style naming
      */
-    string histString(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v);
+    string histString(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const NameConvention nc = NameConvention::CxAODReader);
     
     /**
      * @note so far only support CxAODReader style naming
      */
-    string systString(const SystematicInfo* s);
+    string systString(const SystematicInfo* s, const NameConvention nc = NameConvention::CxAODReader);
     
     /**
      * @note so far only support CxAODReader style naming
      */
-    string histStringSyst(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const SystematicInfo* s);
+    string histStringSyst(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const SystematicInfo* s, const NameConvention nc = NameConvention::CxAODReader);
     
     /**
      * @brief shorten the names of nuisance parameters 
      */
-    string systStringShort(const string& sSyst);
+    string systStringShort(const string& sSyst, const NameConvention nc = NameConvention::CxAODReader);
     
     /**
      * @brief histogram process name are hhttbb, Hhhbbtautau, ...

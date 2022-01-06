@@ -21,23 +21,33 @@ void histAssignSyst(TH1* h, ProcessInfo *p, const std::string& systname)
     p->systematic_histograms[systname] = std::move(h_clone);
 }
 
-string histString(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v)
+string histString(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const NameConvention nc)
 {
-    return p->name + "_" + r->name + "_" + v->name;
+    switch(nc)
+    {
+        case NameConvention::CxAODReader:
+            return p->name + "_" + r->name + "_" + v->name;
+        case NameConvention::WSMaker:
+            return p->name;
+        default:
+            return p->name + "_" + r->name + "_" + v->name;
+    }
 }
 
-string systString(const SystematicInfo* s)
+string systString(const SystematicInfo* s, const NameConvention nc)
 {
+    (void)nc;
     return s->name_tex;
 }
 
-string histStringSyst(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const SystematicInfo* s)
+string histStringSyst(const ProcessInfo* p, const RegionInfo* r, const VariableInfo* v, const SystematicInfo* s, const NameConvention nc)
 {
-    return histString(p, r, v) + "_Sys" + s->name;
+    return histString(p, r, v, nc) + "_Sys" + s->name;
 }
 
-string systStringShort(const string& sSyst)
+string systStringShort(const string& sSyst, const NameConvention nc)
 {
+    (void)nc;
     const string gamma("gamma_");
     const string alpha("alpha_");
     const string alphaSys("alpha_Sys");

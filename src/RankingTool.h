@@ -42,7 +42,7 @@ public:
         {
             string sPostFix = nMode > 0 ? "_Hi" : "_Lo";
             m_fits[sNP + sPostFix] = new WorkSpace(m_cInfo);
-            m_fits[sNP + sPostFix]->FitWithFixedPara(sNP, m_fits["base"]->GetFittedNPs(), nMode);
+            m_fits[sNP + sPostFix]->FitWithFixedNP(sNP, m_fits["base"]->GetFittedNPs(), nMode);
             // m_fits[sNP + sPostFix]->Check();
             m_mapAltPOIs[sNP + sPostFix] = m_fits[sNP + sPostFix]->GetCache(m_fits[sNP + sPostFix]->NameOfPOI());
             if (!m_bCache)

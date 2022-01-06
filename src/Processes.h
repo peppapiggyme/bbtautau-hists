@@ -14,12 +14,12 @@
 
 using std::string;
 using std::vector;
+using std::map;
 using std::shared_ptr;
 
 // ENUMS
 enum class eProcessType { DATA, BKG, SIG };
 
-// NOTE: BKG is special, it usually means total bkg, don't use it in ProcessInfo construction!
 enum class eProcess {
     DATA, BKG, OTHERS, // 2 
     TOP, TTBAR, TTBARTRUE, TTBARFAKE, TTBARTT, TTBARTF, TTBARFT, TTBARFF, // 10
@@ -42,6 +42,7 @@ enum class eProcess {
     // For sorting
     P1, P2, P3, P4, P5, P6, P7, P8, 
     P9, P10, P11, P12, P13, P14, P15, P16,
+    P101, P102, P103,
 };
 
 // ENTRY
@@ -96,7 +97,14 @@ public:
 
 public:
     /**
+     * @brief user defined the process scale factor mapping rules
+     * @note set before adding procs to be used
+     */
+    void setScaleFactorsMap(const map<eProcess, double>& scaleFactors);
+    /**
      * @brief return current fitted normalisation factor
+     * if the (user defined) map is not empty, then use the values in the map.
+     * else use the default values
      */
     double normFactors(ProcessInfo* p) const;
     /**
@@ -106,6 +114,7 @@ public:
 
 private:
     unique_ptr<vector<ProcessInfo*>> m_procs;
+    map<eProcess, double> m_scaleFactorsMap;
 };
 
 #endif // PROCESSES_H

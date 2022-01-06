@@ -70,7 +70,7 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
 
     for (ProcessInfo* p : *(processes->content()))
     {
-        const std::string& fullname = Utils::histString(p, r, v);
+        const std::string& fullname = Utils::histString(p, r, v, basic->name_convention);
         if (d->GetListOfKeys()->Contains(fullname.c_str()))
         {
             TH1* h = (TH1*)d->Get(fullname.c_str());
@@ -89,10 +89,12 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
         {
             for (SystematicInfo* s : *(systematics->content()))
             {
-                const std::string& fullnameWithSystUp = Utils::histStringSyst(p, r, v, s) + "__1up";
-                const std::string& fullnameWithSystDown = Utils::histStringSyst(p, r, v, s) + "__1down";
+                const std::string& fullnameWithSystUp = Utils::histStringSyst(p, r, v, s, basic->name_convention) + "__1up";
+                const std::string& fullnameWithSystDown = Utils::histStringSyst(p, r, v, s, basic->name_convention) + "__1down";
                 TDirectory* d_syst = nullptr;
                 d_syst = (TDirectory*)d->Get("Systematics");
+                // d_syst->ls();
+                cout << fullnameWithSystUp << endl;
                 if (s->type == eSystematicType::TwoSide &&
                     d_syst->GetListOfKeys()->Contains(fullnameWithSystUp.c_str()) &&
                     d_syst->GetListOfKeys()->Contains(fullnameWithSystDown.c_str()))
@@ -143,7 +145,7 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
                 }
                 else
                 {
-                    clog << "INFO: Can not add systematic uncertainty [" << s->name << "] (skip it)\n";
+                    clog << "INFO: Can not add systematic uncertainty [" << s->name << "] for [" << p->name << "] (skip it)\n";
                 }
             }
         }

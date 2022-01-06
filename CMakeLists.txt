@@ -27,6 +27,7 @@ include_directories(SYSTEM ${ROOT_INCLUDE_DIR}
 root_generate_dictionary(${PROJECT_NAME}Dict RooTwoSidedCBShape.h LINKDEF LinkDef.h)
 
 add_library(UtilsLib SHARED
+    src/Colors.cpp
     src/Utils.cpp 
     src/Utils_WS.cpp)
 

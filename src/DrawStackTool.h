@@ -17,11 +17,19 @@ public:
     bool logx = false;
     bool logy = false;
     bool atlas = true;
+    bool show_scaling = true;
+    bool draw_overflow = true;
+    int legend_ncolumns = 2;
+    int signal_linestyle = 1;
+    int signal_linewidth = 2;
     double ratio_high = 1.24;
     double ratio_low = 0.76;
-    const char* atlas_label = "Internal";
     double signal_scale = 100.;
+    double legend_scaling_horizontal = 1.0;
+    double legend_scaling_vertical = 1.0;
+    const char* atlas_label = "Internal";
     std::string parameter = "TAG";
+    std::string output_format = "png";
     // add new configs here
 };
 

@@ -108,10 +108,8 @@ void DrawStackTool::run(const Config* c) const
     gStyle->SetErrorX(0.5);
 
     TCanvas* c1 = new TCanvas("c", "", 900, 900);
-    c1->SetRightMargin(1.6 * c1->GetRightMargin());
 
     TPad* upper_pad = new TPad("upper_pad", "", 0, 0.35, 1, 1);
-    upper_pad->SetRightMargin(1.6 * upper_pad->GetRightMargin());
     upper_pad->SetBottomMargin(0.03);
     upper_pad->SetTickx(false);
     upper_pad->SetTicky(false);
@@ -120,7 +118,6 @@ void DrawStackTool::run(const Config* c) const
     upper_pad->Draw();
 
     TPad* lower_pad = new TPad("lower_pad", "", 0, 0, 1, 0.35);
-    lower_pad->SetRightMargin(1.6 * lower_pad->GetRightMargin());
     lower_pad->SetTopMargin(0);
     lower_pad->SetBottomMargin(0.4);
     lower_pad->SetGridy();
@@ -130,10 +127,17 @@ void DrawStackTool::run(const Config* c) const
     upper_pad->cd();
 
     TH1* data = (*m_it_data)->histogram;
-    // data->SetBinErrorOption(TH1::kPoisson);
+    data->SetBinErrorOption(TH1::kPoisson);
     THStack* stack = new THStack();
     map<string, THStack*> stacks;
     set<string> systs;
+
+    // magically sort the backgrounds by 
+    // eProcess codes
+    sort(m_it_bkg, m_it_sig, [](const ProcessInfo* left, const ProcessInfo* right) {
+        return static_cast<unsigned>(left->process) > static_cast<unsigned>(right->process);
+    });
+
     for_each(m_it_bkg, m_it_sig, [&systs, &stacks](const ProcessInfo* p) {
         for (auto &pp : p->systematic_histograms)
         {
@@ -141,14 +145,16 @@ void DrawStackTool::run(const Config* c) const
             stacks[pp.first] = new THStack();
         }
     });
-    for_each(m_it_bkg, m_it_sig, [&stack, &stacks](const ProcessInfo* p) {
+    for_each(m_it_bkg, m_it_sig, [this, &stack, &stacks](const ProcessInfo* p) {
         p->histogram->Scale(p->norm_factor);
+        if (m_info->draw_overflow) p->histogram->GetXaxis()->SetRange(1, p->histogram->GetNbinsX() + 1);
         stack->Add(p->histogram); 
         set<string> systs_here;
         for (auto &pp : p->systematic_histograms)
         {
             systs_here.insert(pp.first);
             pp.second->Scale(p->norm_factor);
+            if (m_info->draw_overflow) pp.second->GetXaxis()->SetRange(1, pp.second->GetNbinsX() + 1);
         }
         for (auto &pp : stacks)
         {
@@ -176,23 +182,29 @@ void DrawStackTool::run(const Config* c) const
     stack->GetXaxis()->SetTitleSize(0);
     stack->GetXaxis()->SetTitleOffset(1.3);
     stack->GetYaxis()->SetTitle("Events");
-    stack->GetYaxis()->SetLabelSize(0.04);
-    stack->GetYaxis()->SetTitleSize(0.045);
+    stack->GetYaxis()->SetLabelSize(0.045);
+    stack->GetYaxis()->SetTitleSize(0.055);
     stack->SetMaximum(data->GetMaximum() * 1.4);
+    stack->SetMinimum(0);
     if (m_info->logy)
     {
         stack->SetMaximum(data->GetMaximum() * 400);
         stack->SetMinimum(std::max(data->GetMinimum() * 1e-2, 1e-3));
     }
     stack->GetYaxis()->ChangeLabel(1, -1, 0);
+    if (m_info->draw_overflow) stack->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+    for (auto &pp : stacks)
+    {
+        if (m_info->draw_overflow && pp.second->GetXaxis()) pp.second->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+    }
 
     for (auto& pp : bkgs)
     {
         pp.second->Add(bkg, -1);
     }
 
-    vector<double> total_errors(bkg->GetNbinsX()+1, 0.);
-    for (int i = 0; i < bkg->GetNbinsX()+1; i++)
+    vector<double> total_errors(bkg->GetNbinsX()+2, 0.);
+    for (int i = 0; i < bkg->GetNbinsX()+2; i++)
     {
         double total_error_2 = bkg->GetBinError(i) * bkg->GetBinError(i);
         for (auto& pp : bkgs)
@@ -203,46 +215,64 @@ void DrawStackTool::run(const Config* c) const
     }
 
     TH1* bkg_stat = (TH1*)bkg->Clone();
-    for (int i = 0; i < bkg->GetNbinsX()+1; i++)
+    TH1* bkg_copy = (TH1*)bkg->Clone();
+    for (int i = 0; i < bkg->GetNbinsX()+2; i++)
     {
-        bkg->SetBinError(i, total_errors[i]);
+        bkg_copy->SetBinError(i, total_errors[i]);
     }
     
-    // bkg->SetFillStyle(3254);
-    bkg->SetFillColorAlpha(kRed + 3, 0.2);
-    bkg->SetMarkerSize(0);
-    bkg->SetName("Total Unc.");
-    bkg->Draw("E2 SAME");
+    bkg_copy->SetFillStyle(3254);
+    bkg_copy->SetFillColor(kGray+2);
+    bkg_copy->SetLineWidth(0);
+    // bkg_copy->SetFillColorAlpha(kRed + 3, 0.2);
+    bkg_copy->SetMarkerSize(0);
+    bkg_copy->SetName("Uncertainty");
+    if (m_info->draw_overflow) bkg_copy->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+    bkg_copy->Draw("E2 SAME");
 
-    if (!m_info->blind)
-        data->Draw("E1 SAME");
+    if (!m_info->blind) {
+        if (m_info->draw_overflow) data->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+        data->Draw("E0 X0 SAME");
+    }
 
     for_each(m_it_sig, m_it_end, [this](const ProcessInfo* p) {
         p->histogram->Scale(m_info->signal_scale);
         p->histogram->Scale(p->norm_factor);
-        p->histogram->Draw("HIST SAME"); });
+        p->histogram->SetLineStyle(m_info->signal_linestyle);
+        p->histogram->SetLineWidth(m_info->signal_linewidth);
+        if (m_info->draw_overflow) p->histogram->GetXaxis()->SetRange(1, p->histogram->GetNbinsX() + 1);
+        p->histogram->Draw("HIST SAME"); 
+    });
 
-    double y = 0.92 - 0.05 * (ps->size() / 2 + 1);
-    TLegend* legend = new TLegend(0.62, y, 0.90, 0.92);
-    legend->SetNColumns(2);
+    double x = 0.92 - m_info->legend_scaling_horizontal * 0.15 * m_info->legend_ncolumns;
+    double y = 0.92 - m_info->legend_scaling_vertical * (0.05 * (ps->size() / 2 + 1)) * 2 / m_info->legend_ncolumns;
+    TLegend* legend = new TLegend(x, y, 0.92, 0.92);
+    legend->SetNColumns(m_info->legend_ncolumns);
     legend->SetTextFont(42);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
-    legend->SetTextSize(0.035);
+    legend->SetTextSize(0.045);
     legend->SetTextAlign(32);
 
-    legend->AddEntry(data, "Data", "lep");
+    // reverse for legend
+    sort(m_it_bkg, m_it_sig, [](const ProcessInfo* left, const ProcessInfo* right) {
+        return static_cast<unsigned>(left->process) < static_cast<unsigned>(right->process);
+    });
+
+    legend->AddEntry(data, "Data", "ep");
     for_each(m_it_bkg, m_it_sig, [&legend](const ProcessInfo* p) {
         legend->AddEntry(p->histogram, p->name_tex.c_str(), "f"); });
     for_each(m_it_sig, m_it_end, [&legend, this](const ProcessInfo* p) {
-        legend->AddEntry(p->histogram, 
-                        (to_string((double)(m_info->signal_scale * p->norm_factor)).substr(0, 4) + " x " + p->name_tex).c_str(), "l"); });
-    legend->AddEntry(bkg, "Total Unc.", "f");
+        string signal_name = m_info->show_scaling ? to_string((double)(m_info->signal_scale * p->norm_factor)).substr(0, 4) + " x " : string();
+        signal_name += p->name_tex;
+        legend->AddEntry(p->histogram, signal_name.c_str(), "l"); });
+    legend->AddEntry(bkg_copy, "Uncertainty", "f");
 
     legend->Draw("SAME");
 
     TLatex *text = new TLatex();
     text->SetNDC();
+    float baseline = m_info->atlas ? 0.86 : 0.92;
     if (m_info->atlas) {
         text->SetTextFont(72);
         text->SetTextSize(0.055);
@@ -253,36 +283,38 @@ void DrawStackTool::run(const Config* c) const
     }
     ostringstream oss;
     oss << c->basic->ecm << ", " << c->basic->luminosity;
-    text->DrawLatex(0.20, 0.80, oss.str().c_str());
-    text->SetTextSize(0.040);
-    text->DrawLatex(0.20, 0.74, (*m_it_data)->current_region->name_tex.c_str());
+    text->DrawLatex(0.20, baseline - 0.06, oss.str().c_str());
+    text->SetTextSize(0.045);
+    text->DrawLatex(0.20, baseline - 0.12, (*m_it_data)->current_region->name_tex.c_str());
 
     lower_pad->cd();
     double resize = 0.65 / 0.35;
 
-    TH1* err = (TH1*)bkg->Clone();
+    TH1* err = (TH1*)bkg_copy->Clone();
     TH1* bkg_scale = (TH1*)bkg->Clone();
     for (int i = 0; i < bkg_scale->GetNbinsX() + 2; ++i)
     {
         bkg_scale->SetBinError(i, 0.0);
     }
     err->Divide(bkg_scale);
-    err->SetLineWidth(0);
-    // err->SetFillStyle(3254);
-    err->SetFillColorAlpha(kRed + 3, 0.2);
+    err->SetFillStyle(3254);
+    err->SetFillColor(kGray+2);
+    err->SetLineWidth(0);    
+    // err->SetFillColorAlpha(kRed + 3, 0.2);
     err->SetMarkerSize(0);
-    err->SetName("Total Unc.");
+    err->SetName("Uncertainty");
     err->GetXaxis()->SetTitle((*m_it_data)->current_variable->name_tex.c_str());
     err->GetXaxis()->SetTitleOffset(0.8 * resize);
-    err->GetXaxis()->SetTitleSize(0.045 * resize);
-    err->GetXaxis()->SetLabelSize(0.04 * resize);
+    err->GetXaxis()->SetTitleSize(0.055 * resize);
+    err->GetXaxis()->SetLabelSize(0.045 * resize);
     err->GetYaxis()->SetTitle("Data / Pred.");
     err->GetYaxis()->SetTitleOffset(0.4 * resize);
-    err->GetYaxis()->SetTitleSize(0.045 * resize);
-    err->GetYaxis()->SetLabelSize(0.04 * resize);
+    err->GetYaxis()->SetTitleSize(0.055 * resize);
+    err->GetYaxis()->SetLabelSize(0.045 * resize);
     err->GetYaxis()->SetNdivisions(505);
     err->SetMinimum(m_info->ratio_low);
     err->SetMaximum(m_info->ratio_high);
+    if (m_info->draw_overflow) err->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
     err->Draw("E2");
 
     TH1* err_stat = (TH1*)bkg_stat->Clone();
@@ -292,35 +324,38 @@ void DrawStackTool::run(const Config* c) const
     err_stat->SetFillColorAlpha(kGray + 3, 0.2);
     err_stat->SetMarkerSize(0);
     err_stat->SetName("Unc. Stat-Only");
-    err_stat->Draw("E2 SAME");
+    // err_stat->Draw("E2 SAME");
 
     /// @todo: other tool might also need this!
-    {
-        TLegend* legend = new TLegend(0.62, 0.88, 0.90, 0.98);
-        legend->SetNColumns(2);
-        legend->SetTextFont(42);
-        legend->SetFillStyle(0);
-        legend->SetBorderSize(0);
-        legend->SetTextSize(0.035 * resize);
-        legend->SetTextAlign(12);
-        legend->AddEntry(err_stat, "Stat Unc.", "f");
-        legend->AddEntry(err, "Total Unc.", "f");
-        legend->Draw("SAME");
-    }
+    // {
+    //     TLegend* legend = new TLegend(0.62, 0.88, 0.90, 0.98);
+    //     legend->SetNColumns(2);
+    //     legend->SetTextFont(42);
+    //     legend->SetFillStyle(0);
+    //     legend->SetBorderSize(0);
+    //     legend->SetTextSize(0.035 * resize);
+    //     legend->SetTextAlign(12);
+    //     // legend->AddEntry(err_stat, "Stat Unc.", "f");
+    //     legend->AddEntry(err, "Uncertainty", "f");
+    //     legend->Draw("SAME");
+    // }
 
     TH1* rat = (TH1*)data->Clone();
     // bkg_scale->SetBinErrorOption(TH1::kPoisson);
-    // rat->SetBinErrorOption(TH1::kPoisson);
     rat->Divide(bkg_scale);
+    rat->SetBinErrorOption(TH1::kPoisson);
     rat->SetTitle("lower_pad");
-    if (!m_info->blind)
-        rat->Draw("E0 SAME");
+    if (!m_info->blind) {
+        if (m_info->draw_overflow) rat->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+        rat->Draw("E0 X0 SAME");
+    }
 
     ostringstream oss_out;
     oss_out << output_path << "/" 
             << (*m_it_data)->current_region->name << "_"
             << (*m_it_data)->current_variable->name << "_"
-            << m_info->parameter << ".png";
+            << m_info->parameter << "." 
+            << m_info->output_format;
     c1->Update();
     c1->SaveAs(oss_out.str().c_str());
 

@@ -154,7 +154,7 @@ void HistTool::makeYield(const Config* c, const std::string& tag) const
         for (auto& pp : p->systematic_histograms) {
             auto systEntries = pp.second->GetEntries();
             auto systInt = pp.second->Integral();
-            fout << " |- " << FOUR_COLUMN_TABLE(pp.first, systEntries, systInt, systInt / integral - 1.f);
+            fout << " |- " << FOUR_COLUMN_TABLE(pp.first, systEntries, systInt * p->norm_factor, systInt / integral - 1.f);
         }
 
         if (p->type == eProcessType::BKG)
