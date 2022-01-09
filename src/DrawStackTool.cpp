@@ -197,7 +197,7 @@ void DrawStackTool::run(const Config* c) const
     stack->GetYaxis()->SetTitle("Events");
     stack->GetYaxis()->SetLabelSize(0.045);
     stack->GetYaxis()->SetTitleSize(0.055);
-    stack->SetMaximum(data->GetMaximum() * 1.4);
+    stack->SetMaximum(data->GetMaximum() * m_info->ymax_ratio_nolog);
     stack->SetMinimum(0);
     if (m_info->logy)
     {

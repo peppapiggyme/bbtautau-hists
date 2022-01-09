@@ -30,6 +30,7 @@ public:
     double legend_scaling_horizontal = 1.0;
     double legend_scaling_vertical = 1.0;
     double xmax = DBL_MAX;
+    double ymax_ratio_nolog = 1.4;
     const char* atlas_label = "Internal";
     std::string parameter = "TAG";
     std::string output_format = "png";
