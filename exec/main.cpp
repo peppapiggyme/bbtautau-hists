@@ -63,7 +63,7 @@ int main(/*int argc, char *argv[]*/)
     // hadhadsr_v15_yield("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-05-27-HadHadWSI-highMVA/hist-HadHadWSI-highMVA.pre.root");
     // hadhadsr_v15_binning("/scratchfs/atlas/bowenzhang/CxAODReaderSemiBoosted/run/hist-HadHadWSI-v1.all.root");
     // hadhadsr_v15_yield("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
-    hadhadsr_v15_yield("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
+    // hadhadsr_v15_yield("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // hadhadsr_v15("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // hadhadsr_v15("/scratchfs/atlas/bowenzhang/CxAODReaderSemiBoosted/run/hist-HadHadWSI-ValMVA.pre.root");
     // hadhadsr_v15("/scratchfs/atlas/bowenzhang/CxAODReaderSemiBoosted/run/hist-HadHadWSI-CutBased.pre.root");
@@ -114,8 +114,17 @@ int main(/*int argc, char *argv[]*/)
     // thesis_mvaoutput("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
 
     // thesis_overfit("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-OverFit-v2.root");
-    // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-varimpo-bdt.root");
-
+    // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-varimpo-bdt-v2.root");
+    // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-OverFit-v2.root");
+    // thesis_zcr("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/13TeV_TwoLepton_2tag2pjet_0ptv_ZllbbCR_mLL.root");
+    // thesis_ttbarsf("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-LepHad.root");
+    // thesis_zvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vZVR.all.root");
+    // thesis_sr("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
+    // thesis_mjvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vFakeVR.all.root"); // RUN_2BSS off
+    // thesis_mjvr("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root"); // RUN_2BSS on
+    // thesis_ttbarvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vTopVR.pre.root"); // RUN_2BSS on
+    thesis_ffcr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-FakeFactor.root");
+    
     cout << "Ciao!" << endl;
 
     return 0;

@@ -19,6 +19,8 @@ public:
     bool atlas = true;
     bool show_scaling = true;
     bool draw_overflow = true;
+    bool draw_ratio = true;
+    bool use_poisson_data_error = true;
     int legend_ncolumns = 2;
     int signal_linestyle = 1;
     int signal_linewidth = 2;
@@ -27,6 +29,7 @@ public:
     double signal_scale = 100.;
     double legend_scaling_horizontal = 1.0;
     double legend_scaling_vertical = 1.0;
+    double xmax = DBL_MAX;
     const char* atlas_label = "Internal";
     std::string parameter = "TAG";
     std::string output_format = "png";

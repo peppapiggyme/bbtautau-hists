@@ -107,27 +107,30 @@ void DrawStackTool::run(const Config* c) const
     gROOT->SetStyle("ATLAS");
     gStyle->SetErrorX(0.5);
 
-    TCanvas* c1 = new TCanvas("c", "", 900, 900);
+    TCanvas* c1 = new TCanvas("c", "", m_info->draw_ratio ? 900 : 1200, 900);
 
-    TPad* upper_pad = new TPad("upper_pad", "", 0, 0.35, 1, 1);
-    upper_pad->SetBottomMargin(0.03);
+    TPad* upper_pad = new TPad("upper_pad", "", 0, m_info->draw_ratio ? 0.35 : 0, 1, 1);
+    upper_pad->SetBottomMargin(m_info->draw_ratio ? 0.03 : 0.15);
     upper_pad->SetTickx(false);
     upper_pad->SetTicky(false);
     upper_pad->SetLogx(m_info->logx);
     upper_pad->SetLogy(m_info->logy);
     upper_pad->Draw();
 
-    TPad* lower_pad = new TPad("lower_pad", "", 0, 0, 1, 0.35);
-    lower_pad->SetTopMargin(0);
-    lower_pad->SetBottomMargin(0.4);
-    lower_pad->SetGridy();
-    lower_pad->SetLogx(m_info->logx);
-    lower_pad->Draw();
+    TPad* lower_pad = new TPad("lower_pad", "", 0, 0, 1, m_info->draw_ratio ? 0.35 : 0);
+    if (m_info->draw_ratio)
+    {
+        lower_pad->SetTopMargin(0);
+        lower_pad->SetBottomMargin(0.4);
+        lower_pad->SetGridy();
+        lower_pad->SetLogx(m_info->logx);
+        lower_pad->Draw();
+    }
 
     upper_pad->cd();
 
     TH1* data = (*m_it_data)->histogram;
-    data->SetBinErrorOption(TH1::kPoisson);
+    if (m_info->use_poisson_data_error) data->SetBinErrorOption(TH1::kPoisson);
     THStack* stack = new THStack();
     map<string, THStack*> stacks;
     set<string> systs;
@@ -178,9 +181,19 @@ void DrawStackTool::run(const Config* c) const
         Tools::println("bkg % = %", pp.first, bkgs[pp.first]->Integral());
     }
     stack->Draw("HIST");
-    stack->GetXaxis()->SetLabelSize(0);
-    stack->GetXaxis()->SetTitleSize(0);
-    stack->GetXaxis()->SetTitleOffset(1.3);
+    if (m_info->draw_ratio)
+    {
+        stack->GetXaxis()->SetLabelSize(0);
+        stack->GetXaxis()->SetTitleSize(0);
+        stack->GetXaxis()->SetTitleOffset(1.3);
+    }
+    else
+    {
+        stack->GetXaxis()->SetTitle((*m_it_data)->current_variable->name_tex.c_str());
+        stack->GetXaxis()->SetTitleOffset(1.3);
+        stack->GetXaxis()->SetTitleSize(0.055);
+        stack->GetXaxis()->SetLabelSize(0.045);
+    }
     stack->GetYaxis()->SetTitle("Events");
     stack->GetYaxis()->SetLabelSize(0.045);
     stack->GetYaxis()->SetTitleSize(0.055);
@@ -193,6 +206,10 @@ void DrawStackTool::run(const Config* c) const
     }
     stack->GetYaxis()->ChangeLabel(1, -1, 0);
     if (m_info->draw_overflow) stack->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+    
+    // user defined maximum x must be defined without turning on the draw_overflow option!
+    if (!m_info->draw_overflow && m_info->xmax > DBL_MAX) stack->GetXaxis()->SetRangeUser(stack->GetXaxis()->GetXmin(), m_info->xmax);
+
     for (auto &pp : stacks)
     {
         if (m_info->draw_overflow && pp.second->GetXaxis()) pp.second->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
@@ -287,67 +304,69 @@ void DrawStackTool::run(const Config* c) const
     text->SetTextSize(0.045);
     text->DrawLatex(0.20, baseline - 0.12, (*m_it_data)->current_region->name_tex.c_str());
 
-    lower_pad->cd();
-    double resize = 0.65 / 0.35;
+    if (m_info->draw_ratio) {    
+        lower_pad->cd();
+        double resize = 0.65 / 0.35;
 
-    TH1* err = (TH1*)bkg_copy->Clone();
-    TH1* bkg_scale = (TH1*)bkg->Clone();
-    for (int i = 0; i < bkg_scale->GetNbinsX() + 2; ++i)
-    {
-        bkg_scale->SetBinError(i, 0.0);
-    }
-    err->Divide(bkg_scale);
-    err->SetFillStyle(3254);
-    err->SetFillColor(kGray+2);
-    err->SetLineWidth(0);    
-    // err->SetFillColorAlpha(kRed + 3, 0.2);
-    err->SetMarkerSize(0);
-    err->SetName("Uncertainty");
-    err->GetXaxis()->SetTitle((*m_it_data)->current_variable->name_tex.c_str());
-    err->GetXaxis()->SetTitleOffset(0.8 * resize);
-    err->GetXaxis()->SetTitleSize(0.055 * resize);
-    err->GetXaxis()->SetLabelSize(0.045 * resize);
-    err->GetYaxis()->SetTitle("Data / Pred.");
-    err->GetYaxis()->SetTitleOffset(0.4 * resize);
-    err->GetYaxis()->SetTitleSize(0.055 * resize);
-    err->GetYaxis()->SetLabelSize(0.045 * resize);
-    err->GetYaxis()->SetNdivisions(505);
-    err->SetMinimum(m_info->ratio_low);
-    err->SetMaximum(m_info->ratio_high);
-    if (m_info->draw_overflow) err->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
-    err->Draw("E2");
+        TH1* err = (TH1*)bkg_copy->Clone();
+        TH1* bkg_scale = (TH1*)bkg->Clone();
+        for (int i = 0; i < bkg_scale->GetNbinsX() + 2; ++i)
+        {
+            bkg_scale->SetBinError(i, 0.0);
+        }
+        err->Divide(bkg_scale);
+        err->SetFillStyle(3254);
+        err->SetFillColor(kGray+2);
+        err->SetLineWidth(0);    
+        // err->SetFillColorAlpha(kRed + 3, 0.2);
+        err->SetMarkerSize(0);
+        err->SetName("Uncertainty");
+        err->GetXaxis()->SetTitle((*m_it_data)->current_variable->name_tex.c_str());
+        err->GetXaxis()->SetTitleOffset(0.8 * resize);
+        err->GetXaxis()->SetTitleSize(0.055 * resize);
+        err->GetXaxis()->SetLabelSize(0.045 * resize);
+        err->GetYaxis()->SetTitle("Data / Pred.");
+        err->GetYaxis()->SetTitleOffset(0.4 * resize);
+        err->GetYaxis()->SetTitleSize(0.055 * resize);
+        err->GetYaxis()->SetLabelSize(0.045 * resize);
+        err->GetYaxis()->SetNdivisions(505);
+        err->SetMinimum(m_info->ratio_low);
+        err->SetMaximum(m_info->ratio_high);
+        if (m_info->draw_overflow) err->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+        err->Draw("E2");
 
-    TH1* err_stat = (TH1*)bkg_stat->Clone();
-    err_stat->Divide(bkg_scale);
-    err_stat->SetLineWidth(0);
-    // err_stat->SetFillStyle(3254);
-    err_stat->SetFillColorAlpha(kGray + 3, 0.2);
-    err_stat->SetMarkerSize(0);
-    err_stat->SetName("Unc. Stat-Only");
-    // err_stat->Draw("E2 SAME");
+        TH1* err_stat = (TH1*)bkg_stat->Clone();
+        err_stat->Divide(bkg_scale);
+        err_stat->SetLineWidth(0);
+        // err_stat->SetFillStyle(3254);
+        err_stat->SetFillColorAlpha(kGray + 3, 0.2);
+        err_stat->SetMarkerSize(0);
+        err_stat->SetName("Unc. Stat-Only");
+        // err_stat->Draw("E2 SAME");
 
-    /// @todo: other tool might also need this!
-    // {
-    //     TLegend* legend = new TLegend(0.62, 0.88, 0.90, 0.98);
-    //     legend->SetNColumns(2);
-    //     legend->SetTextFont(42);
-    //     legend->SetFillStyle(0);
-    //     legend->SetBorderSize(0);
-    //     legend->SetTextSize(0.035 * resize);
-    //     legend->SetTextAlign(12);
-    //     // legend->AddEntry(err_stat, "Stat Unc.", "f");
-    //     legend->AddEntry(err, "Uncertainty", "f");
-    //     legend->Draw("SAME");
-    // }
+        /// @todo: other tool might also need this!
+        // {
+        //     TLegend* legend = new TLegend(0.62, 0.88, 0.90, 0.98);
+        //     legend->SetNColumns(2);
+        //     legend->SetTextFont(42);
+        //     legend->SetFillStyle(0);
+        //     legend->SetBorderSize(0);
+        //     legend->SetTextSize(0.035 * resize);
+        //     legend->SetTextAlign(12);
+        //     // legend->AddEntry(err_stat, "Stat Unc.", "f");
+        //     legend->AddEntry(err, "Uncertainty", "f");
+        //     legend->Draw("SAME");
+        // }
 
-    TH1* rat = (TH1*)data->Clone();
-    // bkg_scale->SetBinErrorOption(TH1::kPoisson);
-    rat->Divide(bkg_scale);
-    rat->SetBinErrorOption(TH1::kPoisson);
-    rat->SetTitle("lower_pad");
-    if (!m_info->blind) {
-        if (m_info->draw_overflow) rat->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
-        rat->Draw("E0 X0 SAME");
+        TH1* rat = (TH1*)data->Clone();
+        // if (m_info->use_poisson_data_error) bkg_scale->SetBinErrorOption(TH1::kPoisson);
+        rat->Divide(bkg_scale);
+        if (m_info->use_poisson_data_error) rat->SetBinErrorOption(TH1::kPoisson);
+        rat->SetTitle("lower_pad");
+        if (!m_info->blind) {
+            if (m_info->draw_overflow) rat->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
+            rat->Draw("E0 X0 SAME");
+        }
     }
 
     ostringstream oss_out;
