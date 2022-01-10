@@ -33,3 +33,5 @@ void thesis_sr(const std::string& filename);
 void thesis_mjvr(const std::string& filename);
 void thesis_ttbarvr(const std::string& filename);
 void thesis_ffcr(const std::string& filename);
+void thesis_ffcr_2tag(const std::string& filename);
+void thesis_syst_zhf(const std::string& filename);

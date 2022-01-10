@@ -202,7 +202,7 @@ void DrawStackTool::run(const Config* c) const
     if (m_info->logy)
     {
         stack->SetMaximum(data->GetMaximum() * 400);
-        stack->SetMinimum(std::max(data->GetMinimum() * 1e-2, 1e-3));
+        stack->SetMinimum(std::max(data->GetMinimum() * 1e-1, 1.));
     }
     stack->GetYaxis()->ChangeLabel(1, -1, 0);
     if (m_info->draw_overflow) stack->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);

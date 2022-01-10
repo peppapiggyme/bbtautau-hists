@@ -117,13 +117,15 @@ int main(/*int argc, char *argv[]*/)
     // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-varimpo-bdt-v2.root");
     // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-OverFit-v2.root");
     // thesis_zcr("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/13TeV_TwoLepton_2tag2pjet_0ptv_ZllbbCR_mLL.root");
-    // thesis_ttbarsf("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-LepHad.root");
+    // thesis_ttbarsf("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-LepHad-TTbarFakeInput.root");
     // thesis_zvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vZVR.all.root");
     // thesis_sr("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // thesis_mjvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vFakeVR.all.root"); // RUN_2BSS off
     // thesis_mjvr("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root"); // RUN_2BSS on
     // thesis_ttbarvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vTopVR.pre.root"); // RUN_2BSS on
-    thesis_ffcr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-FakeFactor.root");
+    // thesis_ffcr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-FakeFactor-v2.root");
+    // thesis_ffcr_2tag("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-FakeFactor-v2.root");
+    thesis_syst_zhf("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     
     cout << "Ciao!" << endl;
 

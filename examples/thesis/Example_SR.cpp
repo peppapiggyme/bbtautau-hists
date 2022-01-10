@@ -31,6 +31,58 @@ void thesis_sr(const std::string& filename)
     vs->add("dRBB",                 "#Delta R(b, b)",                         4);
     vs->add("dRTauTau",             "#Delta R(#tau, #tau)",                   4);
 
+    auto binningFromFile = [](const std::string& fn, bool BDT=false)
+    { 
+        return BU::intToDoubleBinEdgesForMVAInverse(BU::readBinningFromFile<int>(fn), 1000, BDT);
+    };
+
+    vector<double> binning2HDM251   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM260.txt");
+    vector<double> binning2HDM260   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM260.txt");
+    vector<double> binning2HDM280   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM280.txt");
+    vector<double> binning2HDM300   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM300.txt");
+    vector<double> binning2HDM325   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM300.txt");
+    vector<double> binning2HDM350   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM350.txt");
+    vector<double> binning2HDM400   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM400.txt");
+    vector<double> binning2HDM450   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM450.txt");
+    vector<double> binning2HDM500   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM500.txt");
+    vector<double> binning2HDM550   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM550.txt");
+    vector<double> binning2HDM600   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM600.txt");
+    vector<double> binning2HDM700   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM700.txt");
+    vector<double> binning2HDM800   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM800.txt");
+    vector<double> binning2HDM900   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM900.txt");
+    vector<double> binning2HDM1000  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1000.txt");
+    vector<double> binning2HDM1100  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1100.txt");
+    vector<double> binning2HDM1200  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1200.txt");
+    vector<double> binning2HDM1400  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1400.txt");
+    vector<double> binning2HDM1600  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_2HDM1600.txt");
+    vector<double> binningSMBDT     =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_Trafo14_SMBDT.txt", true);
+
+    Tools::printVector(binningSMBDT); 
+
+    Variables* vs_pnn = new Variables();
+    vs_pnn->add("PNN251",                  "PNN251",                       100,   &binning2HDM251[0], binning2HDM251.size()-1);
+    vs_pnn->add("PNN260",                  "PNN260",                       100,   &binning2HDM260[0], binning2HDM260.size()-1);
+    vs_pnn->add("PNN280",                  "PNN280",                       100,   &binning2HDM280[0], binning2HDM280.size()-1);
+    vs_pnn->add("PNN300",                  "PNN300",                       100,   &binning2HDM300[0], binning2HDM300.size()-1);
+    vs_pnn->add("PNN325",                  "PNN325",                       100,   &binning2HDM325[0], binning2HDM325.size()-1);
+    vs_pnn->add("PNN350",                  "PNN350",                       100,   &binning2HDM350[0], binning2HDM350.size()-1);
+    vs_pnn->add("PNN400",                  "PNN400",                       100,   &binning2HDM400[0], binning2HDM400.size()-1);
+    vs_pnn->add("PNN450",                  "PNN450",                       100,   &binning2HDM450[0], binning2HDM450.size()-1);
+    vs_pnn->add("PNN500",                  "PNN500",                       100,   &binning2HDM500[0], binning2HDM500.size()-1);
+    vs_pnn->add("PNN550",                  "PNN550",                       100,   &binning2HDM550[0], binning2HDM550.size()-1);
+    vs_pnn->add("PNN600",                  "PNN600",                       100,   &binning2HDM600[0], binning2HDM600.size()-1);
+    vs_pnn->add("PNN700",                  "PNN700",                       100,   &binning2HDM700[0], binning2HDM700.size()-1);
+    vs_pnn->add("PNN800",                  "PNN800",                       100,   &binning2HDM800[0], binning2HDM800.size()-1);
+    vs_pnn->add("PNN900",                  "PNN900",                       100,   &binning2HDM900[0], binning2HDM900.size()-1);
+    vs_pnn->add("PNN1000",                 "PNN1000",                      100,   &binning2HDM1000[0], binning2HDM1000.size()-1);
+    vs_pnn->add("PNN1100",                 "PNN1100",                      100,   &binning2HDM1100[0], binning2HDM1100.size()-1);
+    vs_pnn->add("PNN1200",                 "PNN1200",                      100,   &binning2HDM1200[0], binning2HDM1200.size()-1);
+    vs_pnn->add("PNN1400",                 "PNN1400",                      100,   &binning2HDM1400[0], binning2HDM1400.size()-1);
+    vs_pnn->add("PNN1600",                 "PNN1600",                      100,   &binning2HDM1600[0], binning2HDM1600.size()-1);
+
+    Variables* vs_bdt = new Variables();
+    vs_bdt->add("SMBDT",                   "SM BDT",                       100,   &binningSMBDT[0], binningSMBDT.size()-1);
+
     Systematics* ss = new Systematics();
 
     // WARN: you must pass OneSide for DrawStackTool, otherwise it will double count!!!
@@ -138,7 +190,7 @@ void thesis_sr(const std::string& filename)
     info->logy = false;
     info->output_format = "pdf";
     info->draw_overflow = true;
-
+/*
     for (VariableInfo* v : *(vs->content()))
     {
         Processes* ps = new Processes();
@@ -201,6 +253,161 @@ void thesis_sr(const std::string& filename)
         {
             ds->manipulate(c);
             ds->rebin(c, eRebinOption::Array);
+            ds->paint(c);
+            ds->makeYield(c);
+            ds->run(c);
+        }
+        else 
+        {
+            clog << "Can not draw " << c->current_region->name << " " << c->current_variable->name << '\n';
+        }
+
+        delete ps;
+        delete ds;
+        delete c;
+    }
+*/
+    info->logy = true;
+    info->draw_overflow = false;
+    info->ratio_high = 1.55;
+    info->ratio_low = 0.45;
+
+    for (VariableInfo* v : *(vs_bdt->content()))
+    {
+        Processes* ps = new Processes();
+        map<eProcess, double> scaleFactors = {
+            {eProcess::P1, 1.38},
+            {eProcess::P4, 0.96},
+            {eProcess::P6, 0.96},
+        };
+        ps->setScaleFactorsMap(scaleFactors);
+        ps->add("data",       "data",               eProcessType::DATA,     eProcess::DATA,         "Data",                             kBlack);
+        ps->add("Zttbb",      "Z#tau#tau + bb",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
+        ps->add("Zttbc",      "Z#tau#tau + bc",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
+        ps->add("Zttcc",      "Z#tau#tau + cc",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
+        ps->add("ttbar",      "t#bar{t}",           eProcessType::BKG,      eProcess::P4,           "True-#tau_{had} t#bar{t}",         bbtt_kGOLDEN);
+        ps->add("ttbarSFTF",  "t#bar{t} TF",        eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
+        ps->add("ttbarSFFT",  "t#bar{t} FT",        eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
+        ps->add("ttbarSFFF",  "t#bar{t} FF",        eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
+        ps->add("Fake",       "Multi-jet",          eProcessType::BKG,      eProcess::P8,           "Multi-jet",                        bbtt_kPINK);
+        ps->add("Zttbl",      "Z#tau#tau + bl",     eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zttcl",      "Z#tau#tau + cl",     eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zttl",       "Z#tau#tau + l",      eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("stops",      "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("stopt",      "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("stopWt",     "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zbb",        "Zll + bb",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zbc",        "Zll + bc",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zbl",        "Zll + bl",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zcc",        "Zll + cc",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zcl",        "Zll + cl",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zl",         "Zll + l",            eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("WW",         "WW",                 eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("WZ",         "WZ",                 eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ZZ",         "ZZ",                 eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Wtt",        "W+jets",             eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("W",          "W+jets",             eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ttW",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ttZ",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ttH",        "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("WHbb",       "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("ggZHbb",     "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("qqZHbb",     "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("WHtautau",   "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("ggZHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("qqZHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("ggFHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("VBFHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("hhttbb",      "SM HH",             eProcessType::SIG,      eProcess::P101,         "SM HH",                            kRed);
+        ps->add("hhttbbVBFSM", "SM HH",             eProcessType::SIG,      eProcess::P101,         "SM HH",                            kRed);
+
+        Config* c = new Config(b, ps, rs, vs, ss);
+        c->load(filename, "BDTScorePreselection");
+        info->parameter = "BDT";
+
+        c->updateHistogramPtr(rs->content()->back(), v);
+        DrawStackTool* ds = new DrawStackTool(info);
+        ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR/";
+        if (ds->check(c))
+        {
+            ds->manipulate(c);
+            ds->rebin(c, eRebinOption::Array, "", true);
+            ds->paint(c);
+            ds->makeYield(c);
+            ds->run(c);
+        }
+        else 
+        {
+            clog << "Can not draw " << c->current_region->name << " " << c->current_variable->name << '\n';
+        }
+
+        delete ps;
+        delete ds;
+        delete c;
+    }
+
+    info->signal_scale = 0.1;
+
+    for (VariableInfo* v : *(vs_pnn->content()))
+    {
+        string mass = v->name.substr(3);
+        Processes* ps = new Processes();
+        map<eProcess, double> scaleFactors = {
+            {eProcess::P1, 1.38},
+            {eProcess::P4, 0.96},
+            {eProcess::P6, 0.96},
+        };
+        ps->setScaleFactorsMap(scaleFactors);
+        ps->add("data",       "data",               eProcessType::DATA,     eProcess::DATA,         "Data",                             kBlack);
+        ps->add("Zttbb",      "Z#tau#tau + bb",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
+        ps->add("Zttbc",      "Z#tau#tau + bc",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
+        ps->add("Zttcc",      "Z#tau#tau + cc",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
+        ps->add("ttbar",      "t#bar{t}",           eProcessType::BKG,      eProcess::P4,           "True-#tau_{had} t#bar{t}",         bbtt_kGOLDEN);
+        ps->add("ttbarSFTF",  "t#bar{t} TF",        eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
+        ps->add("ttbarSFFT",  "t#bar{t} FT",        eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
+        ps->add("ttbarSFFF",  "t#bar{t} FF",        eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
+        ps->add("Fake",       "Multi-jet",          eProcessType::BKG,      eProcess::P8,           "Multi-jet",                        bbtt_kPINK);
+        ps->add("Zttbl",      "Z#tau#tau + bl",     eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zttcl",      "Z#tau#tau + cl",     eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zttl",       "Z#tau#tau + l",      eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("stops",      "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("stopt",      "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("stopWt",     "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zbb",        "Zll + bb",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zbc",        "Zll + bc",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zbl",        "Zll + bl",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zcc",        "Zll + cc",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zcl",        "Zll + cl",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Zl",         "Zll + l",            eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("WW",         "WW",                 eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("WZ",         "WZ",                 eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ZZ",         "ZZ",                 eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("Wtt",        "W+jets",             eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("W",          "W+jets",             eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ttW",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ttZ",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("ttH",        "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("WHbb",       "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("ggZHbb",     "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("qqZHbb",     "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("WHtautau",   "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("ggZHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("qqZHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("ggFHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("VBFHtautau", "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
+        ps->add("Hhhbbtautau"+mass,  "X("+mass+")", eProcessType::SIG,      eProcess::P102,         "X("+mass+")",                      kRed);
+
+        Config* c = new Config(b, ps, rs, vs, ss);
+        c->load(filename, "PNNScorePreselection");
+        info->parameter = "PNN";
+
+        c->updateHistogramPtr(rs->content()->back(), v);
+        DrawStackTool* ds = new DrawStackTool(info);
+        ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR/";
+        if (ds->check(c))
+        {
+            ds->manipulate(c);
+            ds->rebin(c, eRebinOption::Array, "", true);
             ds->paint(c);
             ds->makeYield(c);
             ds->run(c);
