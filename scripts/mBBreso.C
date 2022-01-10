@@ -39,6 +39,9 @@ void mBBreso()
     RooDataSet wdata(data->GetName(),data->GetTitle(),data,*data->get(),0,w.GetName()) ;
     wdata.Print("V") ;
 
+    // Bukin pdf:
+    // https://root.cern.ch/doc/master/classRooBukinPdf.html
+
     // for mBB corrected
     RooRealVar Xp_x("Xp_x","Xp_x", 120000.0, 20000.0, 220000.0) ;
     RooRealVar sigp_x("sigp_x","sigp_x",10000.0, 5000.0, 50000.0) ;
@@ -53,7 +56,6 @@ void mBBreso()
     RooRealVar rho1_y("rho1_y","rho1_y",-0.1, -1.0, 0.0) ;
     RooRealVar rho2_y("rho2_y","rho2_y",0.1, 0.0, 1.0) ;
     RooBukinPdf bukin_y("bukin_y","bukin_y", y, Xp_y, sigp_y, xi_y, rho1_y, rho2_y) ;
-
 
     RooFitResult* r_ml_wgt_corr_x = bukin_x.fitTo(wdata,Save(),SumW2Error(kTRUE)) ;
     RooFitResult* r_ml_wgt_corr_y = bukin_y.fitTo(wdata,Save(),SumW2Error(kTRUE)) ;
@@ -111,10 +113,11 @@ void mBBreso()
     legend->SetTextSize(0.036);
     legend->SetTextAlign(12);
 
+    // sigp_x = FWHM * 2*sqrt(2*log(2)) -> 2.35 
     legend->AddEntry(dummy_data_y, "Original", "lep");
-    legend->AddEntry(dummy_y, "Peak: 118 GeV, FWHM: 15.6 GeV", "l");
+    legend->AddEntry(dummy_y, "Peak: 118 GeV, FWHM: 36.7 GeV", "l");
     legend->AddEntry(dummy_data_x, "Corrected ", "lep");
-    legend->AddEntry(dummy_x, "Peak: 123 GeV, FWHM: 14.0 GeV", "l");
+    legend->AddEntry(dummy_x, "Peak: 123 GeV, FWHM: 32.9 GeV", "l");
 
     legend->Draw();
 
