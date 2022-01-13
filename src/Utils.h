@@ -123,6 +123,26 @@ public:
         return ret;
     }
 
+    static std::vector<double> intToDoubleBinEdgesForMVAInverse_LepHad1090Version(const std::vector<int>& ii)
+    {
+        std::vector<double> ret(ii.size());
+
+        ret.at(0) = 0.;
+        
+        ret.at(ret.size()-1) = 1.;
+
+        for (size_t i = 1; i < ret.size()-1; ++i)
+        {
+            int ibin = ii[ret.size()-1-i];
+            if (ibin <= 991)
+                ret.at(i) = 0. + (double)ibin / 1e3;
+            else 
+                ret.at(i) = 0.99 + (ibin - 991) / 1e4;
+        }
+        
+        return ret;
+    }
+
 };
 
 class Tools

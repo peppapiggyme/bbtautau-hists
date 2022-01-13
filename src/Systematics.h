@@ -17,14 +17,15 @@ enum class eSystematicType { TwoSide, OneSide };
 class SystematicInfo
 {
 public:
-    SystematicInfo(const string& nm, const string& nmtex, eSystematicType tp, int col=2) noexcept
-        : name(nm), name_tex(nmtex), type(tp), color(col) {}
+    SystematicInfo(const string& nm, const string& nmtex, eSystematicType tp, int col=2, bool smth=false) noexcept
+        : name(nm), name_tex(nmtex), type(tp), color(col), smooth(smth) {}
 
 public:
     string name;
     string name_tex;
     eSystematicType type;
     int color;
+    bool smooth;  // only monotonic smoothing, as in WSMaker
 };
 
 
@@ -38,7 +39,7 @@ public:
     Systematics& operator=(Systematics& rs) = delete;
 
 public:
-    void add(const string& nm, const string& nmtex, eSystematicType tp, int col=2) const;
+    void add(const string& nm, const string& nmtex, eSystematicType tp, int col=2, bool smth=false) const;
     inline vector<SystematicInfo*>* content() const { return m_systs.get(); }
 
 private:

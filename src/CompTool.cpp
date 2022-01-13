@@ -56,16 +56,19 @@ void CompTool::run(const Config* c) const
     }
     
     vector<ProcessInfo*>* ps = c->processes->content();
+    vector<SystematicInfo*>* ss = c->systematics->content();
 
     gROOT->SetStyle("ATLAS");
     gStyle->SetErrorX(0.5);
 
-    TCanvas* c1 = new TCanvas("c", "", 900, 1200);
+    double resize = 1.5;
+
+    TCanvas* c1 = new TCanvas("c", "", 900, 900);
     c1->SetRightMargin(1.6 * c1->GetRightMargin());
 
     TPad* upper_pad = new TPad("upper_pad", "", 0, 0.5, 1, 1);
     upper_pad->SetRightMargin(1.6 * upper_pad->GetRightMargin());
-    upper_pad->SetBottomMargin(0.03);
+    upper_pad->SetBottomMargin(0);
     upper_pad->SetTickx(false);
     upper_pad->SetTicky(false);
     upper_pad->SetLogx(m_info->logx);
@@ -75,7 +78,7 @@ void CompTool::run(const Config* c) const
     TPad* lower_pad = new TPad("lower_pad", "", 0, 0, 1, 0.5);
     lower_pad->SetRightMargin(1.6 * lower_pad->GetRightMargin());
     lower_pad->SetTopMargin(0);
-    lower_pad->SetBottomMargin(0.14);
+    lower_pad->SetBottomMargin(0.26);
     lower_pad->SetGridy();
     lower_pad->SetLogx(m_info->logx);
     lower_pad->Draw();
@@ -96,24 +99,18 @@ void CompTool::run(const Config* c) const
         }
     }
     TH1* base = ps->front()->histogram;
-    base->Draw("HIST E1");
+    base->Draw("HIST");
     base->GetXaxis()->SetLabelSize(0);
     base->GetXaxis()->SetTitleSize(0);
-    base->GetXaxis()->SetTitleOffset(1.3);
-    if (!m_info->shape_only)
+    base->GetYaxis()->SetTitle(m_info->shape_only ? "Arbitrary Unit" : "Events");
+    base->GetYaxis()->SetLabelSize(0.045 * resize);
+    base->GetYaxis()->SetTitleSize(0.055 * resize);
+    base->GetYaxis()->SetTitleOffset(0.8);
+    base->SetMaximum(base->GetMaximum() * m_info->ymax_ratio_nolog);
+    base->SetMinimum(0.);
+    if (m_info->logy)
     {
-        base->GetYaxis()->SetTitle("Events");
-    }
-    else
-    {
-        base->GetYaxis()->SetTitle("a.u.");
-    }
-    base->GetYaxis()->SetLabelSize(0.04);
-    base->GetYaxis()->SetTitleSize(0.045);
-    base->SetMaximum(base->GetMaximum() * 1.6);
-    if (!m_info->logy)
-    {
-        base->SetMinimum(0);
+        base->SetMaximum(base->GetMaximum() * 10);
     }
     base->GetYaxis()->ChangeLabel(1, -1, 0);
 
@@ -121,13 +118,22 @@ void CompTool::run(const Config* c) const
     {
         // chi2 test
         TH1* against = (TH1*)(*(ps->begin()+1))->histogram->Clone();
+        TH1* here = (TH1*)(pp.second)->Clone();
+        against->GetXaxis()->SetRangeUser(m_info->xmin_for_test, m_info->xmax_for_test);
+        here->GetXaxis()->SetRangeUser(m_info->xmin_for_test, m_info->xmax_for_test);
         double chi2 = 0;
         int ndf = 0;
         int igood = 0;
-        double pvalue = against->Chi2TestX(pp.second, chi2, ndf, igood, "WW");
-        Tools::println("name [%]\n - chi2/ndf [%]\n - p [%]\n - good [%]", pp.first, chi2/(double)ndf, pvalue, igood);
+        double pvalue = against->Chi2TestX(here, chi2, ndf, igood, "WW");
+        double pvalue_ks = against->KolmogorovTest(here, "X");
+        
+        Tools::println("name [%]\n - chi2/ndf [%]\n - p_chi2 [%]\n - p_ks [%]\n - good [%]", 
+            pp.first, chi2/(double)ndf, pvalue, pvalue_ks, igood);
 
-        pp.second->Draw("HIST E1 SAME");
+        pp.second->Draw("HIST SAME");
+
+        delete against;
+        delete here;
     }
 
     for_each(ps->begin()+1, ps->end(), [this, &base](const ProcessInfo* p) {
@@ -136,54 +142,62 @@ void CompTool::run(const Config* c) const
         } else {
             p->histogram->Scale(p->norm_factor);
         }
+        p->histogram->Draw("E0 SAME"); 
+    });
 
-        // chi2 test
-        double chi2 = 0;
-        int ndf = 0;
-        int igood = 0;
-        double pvalue = p->histogram->Chi2TestX(base, chi2, ndf, igood, "WW");
-        Tools::println("name [%]\n - chi2/ndf [%]\n - p [%]\n - good [%]", "Base", chi2/(double)ndf, pvalue, igood);
-        
-        p->histogram->Draw("HIST E1 SAME"); });
+    TH1* base_copy = (TH1*)base->Clone();
+    base_copy->SetFillStyle(3254);
+    base_copy->SetFillColor(kGray+2);
+    base_copy->SetLineWidth(0);
+    base_copy->SetMarkerSize(0);
+    base_copy->SetName("Uncertainty");
+    base_copy->Draw("E2 SAME");
 
-    double y = 0.92 - 0.05 * (ps->size() + ps->front()->systematic_histograms.size() + 1);
-    TLegend* legend = new TLegend(0.60, y, 0.90, 0.92);
+    double x = 0.92 - m_info->legend_scaling_horizontal * 0.32 ;
+    double y = 0.92 - m_info->legend_scaling_vertical * 0.06 * (ps->size() + ps->front()->systematic_histograms.size() + 1);
+    TLegend* legend = new TLegend(x, y, 0.92, 0.92);
     legend->SetTextFont(42);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
-    legend->SetTextSize(0.025);
+    legend->SetTextSize(0.040 * resize);
     legend->SetTextAlign(12);
 
-    for_each(ps->begin(), ps->end(), [&legend, &ps](const ProcessInfo* p) {
-        legend->AddEntry(p->histogram, p->name_tex.c_str(), "lep");
-        if (p == ps->front()) { 
-            for (auto& pp : p->systematic_histograms)
-            {
-                std::string updown;
-                legend->AddEntry(pp.second, pp.first.c_str(), "lep");
-            }
+    vector<TH1*> dummys;
+    for (auto& s : *ss) {
+        TH1* dummy = new TH1F();
+        dummy->SetLineColor(s->color);
+        dummy->SetMarkerColor(s->color);
+        dummy->SetLineWidth(2);
+        dummy->SetMarkerSize(0);
+        dummys.push_back(dummy);
+    }
+
+    for_each(ps->begin(), ps->end(), [&legend, &ps, &ss, &base_copy, &dummys](const ProcessInfo* p) {
+        legend->AddEntry(p->histogram, p->name_tex.c_str(), p == ps->front() ? "f" : "lep");
+        if (p == ps->front()) 
+            legend->AddEntry(base_copy, (p->name_tex + " Stat. Unc.").c_str(), "f");
+        if (p == ps->front())
+        for (size_t i = 0; i < ss->size(); i++)
+        {
+            legend->AddEntry(dummys[i], ss->at(i)->name_tex.c_str(), "f");
         }
     });
-
     legend->Draw("SAME");
 
     TLatex *text = new TLatex();
     text->SetNDC();
     if (m_info->atlas) {
         text->SetTextFont(72);
-        text->SetTextSize(0.050);
+        text->SetTextSize(0.055 * resize);
         text->DrawLatex(0.20, 0.86, "ATLAS");
         text->SetTextFont(42);
         text->DrawLatex(0.20 + 0.12, 0.86, m_info->atlas_label);
-        text->SetTextSize(0.045);
+        text->SetTextSize(0.045 * resize);
     }
-    ostringstream oss{c->basic->ecm};
-    text->DrawLatex(0.20, 0.80, oss.str().c_str());
-    text->SetTextSize(0.040);
-    text->DrawLatex(0.20, 0.74, ps->front()->current_region->name_tex.c_str());
+    text->SetTextSize(0.045 * resize);
+    text->DrawLatex(0.20, 0.86, ps->front()->current_region->name_tex.c_str());
 
     lower_pad->cd();
-    double resize = 1;
 
     TH1* err = (TH1*)base->Clone();
     TH1* base_scale = (TH1*)base->Clone();
@@ -194,33 +208,21 @@ void CompTool::run(const Config* c) const
     err->Divide(base_scale);
     err->SetLineWidth(0);
     err->SetFillStyle(3254);
-    err->SetFillColor(kGray + 3);
+    err->SetFillColor(kGray+2);
     err->SetMarkerSize(0);
     err->SetName("Unc.");
     err->GetXaxis()->SetTitle(ps->front()->current_variable->name_tex.c_str());
-    err->GetXaxis()->SetTitleOffset(1.2 * resize);
-    err->GetXaxis()->SetTitleSize(0.045 * resize);
-    err->GetXaxis()->SetLabelSize(0.04 * resize);
+    err->GetXaxis()->SetTitleOffset(1.2);
+    err->GetXaxis()->SetTitleSize(0.055 * resize);
+    err->GetXaxis()->SetLabelSize(0.045 * resize);
     err->GetYaxis()->SetTitle(m_info->ratio_tex.c_str());
-    err->GetYaxis()->SetTitleOffset(1.2 * resize);
-    err->GetYaxis()->SetTitleSize(0.045 * resize);
-    err->GetYaxis()->SetLabelSize(0.04 * resize);
+    err->GetYaxis()->SetTitleOffset(0.8);
+    err->GetYaxis()->SetTitleSize(0.055 * resize);
+    err->GetYaxis()->SetLabelSize(0.045 * resize);
     err->GetYaxis()->SetNdivisions(505);
     err->SetMinimum(m_info->ratio_low);
     err->SetMaximum(m_info->ratio_high);
     err->Draw("E2");
-
-    /// @todo other tool might also need this!
-    {
-        TLegend* legend = new TLegend(0.45, 0.88, 0.90, 0.98);
-        legend->SetTextFont(42);
-        legend->SetFillStyle(0);
-        legend->SetBorderSize(0);
-        legend->SetTextSize(0.035);
-        legend->SetTextAlign(12);
-        legend->AddEntry(err, "Stat. Unc.", "f");
-        legend->Draw("SAME");
-    }
 
     for_each(ps->begin()+1, ps->end(), [this, &base_scale, &err](const ProcessInfo* p) {
         TH1* rat = (TH1*)p->histogram->Clone();
@@ -242,6 +244,17 @@ void CompTool::run(const Config* c) const
     {
         TH1* rat_pp = (TH1*)pp.second->Clone();
         rat_pp->Divide(base_scale);
+        for (int i = 0; i < rat_pp->GetNbinsX() + 2; ++i)
+        {
+            if (base_scale->GetBinContent(i) < 1e-6)
+            {
+                rat_pp->SetBinContent(i, 1.);
+            }
+        }
+        if (rat_pp->GetLineColor() == kGreen || rat_pp->GetLineColor() == kGreen+2 || rat_pp->GetLineColor() == kGreen+4)
+        {
+            rat_pp->SetLineWidth(4);
+        }
         rat_pp->Draw("HIST SAME");
     }
 
@@ -249,10 +262,13 @@ void CompTool::run(const Config* c) const
     oss_out << output_path << "/" 
             << c->current_region->name << "_"
             << c->current_variable->name << "_"
-            << m_info->parameter << ".png";
+            << m_info->parameter << "."
+            << m_info->output_format;
+
     c1->Update();
     c1->SaveAs(oss_out.str().c_str());
 
+    for (auto& d : dummys) delete d;
     delete upper_pad;
     delete lower_pad;
     delete legend;

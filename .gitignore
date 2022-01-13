@@ -4,3 +4,4 @@ output/
 ihep_run/
 html/
 data/*txt
+data/*root

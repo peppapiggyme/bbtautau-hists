@@ -60,28 +60,28 @@ void thesis_sr(const std::string& filename)
     Tools::printVector(binningSMBDT); 
 
     Variables* vs_pnn = new Variables();
-    vs_pnn->add("PNN251",                  "PNN251",                       100,   &binning2HDM251[0], binning2HDM251.size()-1);
-    vs_pnn->add("PNN260",                  "PNN260",                       100,   &binning2HDM260[0], binning2HDM260.size()-1);
-    vs_pnn->add("PNN280",                  "PNN280",                       100,   &binning2HDM280[0], binning2HDM280.size()-1);
-    vs_pnn->add("PNN300",                  "PNN300",                       100,   &binning2HDM300[0], binning2HDM300.size()-1);
-    vs_pnn->add("PNN325",                  "PNN325",                       100,   &binning2HDM325[0], binning2HDM325.size()-1);
-    vs_pnn->add("PNN350",                  "PNN350",                       100,   &binning2HDM350[0], binning2HDM350.size()-1);
-    vs_pnn->add("PNN400",                  "PNN400",                       100,   &binning2HDM400[0], binning2HDM400.size()-1);
-    vs_pnn->add("PNN450",                  "PNN450",                       100,   &binning2HDM450[0], binning2HDM450.size()-1);
-    vs_pnn->add("PNN500",                  "PNN500",                       100,   &binning2HDM500[0], binning2HDM500.size()-1);
-    vs_pnn->add("PNN550",                  "PNN550",                       100,   &binning2HDM550[0], binning2HDM550.size()-1);
-    vs_pnn->add("PNN600",                  "PNN600",                       100,   &binning2HDM600[0], binning2HDM600.size()-1);
-    vs_pnn->add("PNN700",                  "PNN700",                       100,   &binning2HDM700[0], binning2HDM700.size()-1);
-    vs_pnn->add("PNN800",                  "PNN800",                       100,   &binning2HDM800[0], binning2HDM800.size()-1);
-    vs_pnn->add("PNN900",                  "PNN900",                       100,   &binning2HDM900[0], binning2HDM900.size()-1);
-    vs_pnn->add("PNN1000",                 "PNN1000",                      100,   &binning2HDM1000[0], binning2HDM1000.size()-1);
-    vs_pnn->add("PNN1100",                 "PNN1100",                      100,   &binning2HDM1100[0], binning2HDM1100.size()-1);
-    vs_pnn->add("PNN1200",                 "PNN1200",                      100,   &binning2HDM1200[0], binning2HDM1200.size()-1);
-    vs_pnn->add("PNN1400",                 "PNN1400",                      100,   &binning2HDM1400[0], binning2HDM1400.size()-1);
-    vs_pnn->add("PNN1600",                 "PNN1600",                      100,   &binning2HDM1600[0], binning2HDM1600.size()-1);
+    vs_pnn->add("PNN251",                  "PNN251 score",                       100,   &binning2HDM251[0], binning2HDM251.size()-1);
+    vs_pnn->add("PNN260",                  "PNN260 score",                       100,   &binning2HDM260[0], binning2HDM260.size()-1);
+    vs_pnn->add("PNN280",                  "PNN280 score",                       100,   &binning2HDM280[0], binning2HDM280.size()-1);
+    vs_pnn->add("PNN300",                  "PNN300 score",                       100,   &binning2HDM300[0], binning2HDM300.size()-1);
+    vs_pnn->add("PNN325",                  "PNN325 score",                       100,   &binning2HDM325[0], binning2HDM325.size()-1);
+    vs_pnn->add("PNN350",                  "PNN350 score",                       100,   &binning2HDM350[0], binning2HDM350.size()-1);
+    vs_pnn->add("PNN400",                  "PNN400 score",                       100,   &binning2HDM400[0], binning2HDM400.size()-1);
+    vs_pnn->add("PNN450",                  "PNN450 score",                       100,   &binning2HDM450[0], binning2HDM450.size()-1);
+    vs_pnn->add("PNN500",                  "PNN500 score",                       100,   &binning2HDM500[0], binning2HDM500.size()-1);
+    vs_pnn->add("PNN550",                  "PNN550 score",                       100,   &binning2HDM550[0], binning2HDM550.size()-1);
+    vs_pnn->add("PNN600",                  "PNN600 score",                       100,   &binning2HDM600[0], binning2HDM600.size()-1);
+    vs_pnn->add("PNN700",                  "PNN700 score",                       100,   &binning2HDM700[0], binning2HDM700.size()-1);
+    vs_pnn->add("PNN800",                  "PNN800 score",                       100,   &binning2HDM800[0], binning2HDM800.size()-1);
+    vs_pnn->add("PNN900",                  "PNN900 score",                       100,   &binning2HDM900[0], binning2HDM900.size()-1);
+    vs_pnn->add("PNN1000",                 "PNN1000 score",                      100,   &binning2HDM1000[0], binning2HDM1000.size()-1);
+    vs_pnn->add("PNN1100",                 "PNN1100 score",                      100,   &binning2HDM1100[0], binning2HDM1100.size()-1);
+    vs_pnn->add("PNN1200",                 "PNN1200 score",                      100,   &binning2HDM1200[0], binning2HDM1200.size()-1);
+    vs_pnn->add("PNN1400",                 "PNN1400 score",                      100,   &binning2HDM1400[0], binning2HDM1400.size()-1);
+    vs_pnn->add("PNN1600",                 "PNN1600 score",                      100,   &binning2HDM1600[0], binning2HDM1600.size()-1);
 
     Variables* vs_bdt = new Variables();
-    vs_bdt->add("SMBDT",                   "SM BDT",                       100,   &binningSMBDT[0], binningSMBDT.size()-1);
+    vs_bdt->add("SMBDT",                   "BDT score",                       100,   &binningSMBDT[0], binningSMBDT.size()-1);
 
     Systematics* ss = new Systematics();
 

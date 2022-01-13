@@ -45,7 +45,8 @@ add_library(HistToolLib SHARED
     src/SystCompTool.cpp
     src/LephadTTBarCompTool.cpp
     src/DistributionTool.cpp
-    src/AutoBinningTool.cpp)
+    src/AutoBinningTool.cpp
+    ext/WSMakerBinning.cpp)
 
 add_library(StatsLib SHARED
     src/WorkSpace.cpp

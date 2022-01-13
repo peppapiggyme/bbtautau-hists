@@ -15,7 +15,7 @@ Systematics::~Systematics()
     content()->clear();
 }
 
-void Systematics::add(const string &nm, const string &nmtex, eSystematicType tp, int col) const
+void Systematics::add(const string &nm, const string &nmtex, eSystematicType tp, int col, bool smth) const
 {
-    m_systs->emplace_back(new SystematicInfo(nm, nmtex, tp, col));
+    m_systs->emplace_back(new SystematicInfo(nm, nmtex, tp, col, smth));
 }

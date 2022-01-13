@@ -26,6 +26,7 @@ public:
     string ecm;
     string luminosity;
     Utils::NameConvention name_convention = Utils::NameConvention::CxAODReader;
+    bool make_systs_shape_only = false; // used in comptool, but might also be useful in draw stack
 };
 
 
