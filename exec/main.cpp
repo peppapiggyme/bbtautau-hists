@@ -119,7 +119,7 @@ int main(/*int argc, char *argv[]*/)
     // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-varimpo-bdt-v2.root");
     // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-OverFit-v2.root");
 
-    // thesis_ttbarsf("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-LepHad-TTbarFakeInput.root");
+    thesis_ttbarsf("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-LepHad-TTbarFakeInput.all.root");
 
     // thesis_zcr("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/13TeV_TwoLepton_2tag2pjet_0ptv_ZllbbCR_mLL.root");
     // thesis_zvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vZVR.all.root");
@@ -129,7 +129,7 @@ int main(/*int argc, char *argv[]*/)
     // thesis_ttbarvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vTopVR.pre.root"); // RUN_2BSS on
     // thesis_ffcr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-FakeFactor-v2.root");
     // thesis_ffcr_2tag("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-FakeFactor-v2.root");
-    thesis_ffcr_closure("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
+    // thesis_ffcr_closure("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
 
     // thesis_syst_zhf("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // thesis_syst_zhf_param_mg("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/Hists/hist-Ztautau-v5-acc.root");

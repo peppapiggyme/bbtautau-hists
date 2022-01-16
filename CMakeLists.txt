@@ -78,6 +78,7 @@ add_executable(run-ranking exec/run_ranking.cpp)
 add_executable(run-pd exec/run_pseudodata.cpp)
 add_executable(gen-pd-zcr exec/gen_pseudodata_zcr.cpp)
 add_executable(ul exec/upper_limit_calc.cpp)
+add_executable(ul-rootstat exec/upper_limit_calc_roostat.cpp)
 
 target_link_libraries(run-test ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-main ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
@@ -85,7 +86,8 @@ target_link_libraries(run-pulls UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-ranking UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-pd UtilsLib StatsLib ExamplesLib)
 target_link_libraries(gen-pd-zcr UtilsLib)
-target_link_libraries(ul ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
+target_link_libraries(ul UtilsLib StatsLib)
+target_link_libraries(ul-rootstat UtilsLib StatsLib)
 
 add_custom_target(link_target ALL
     COMMAND ${CMAKE_COMMAND} -E create_symlink run-main bbtautau-hists)
