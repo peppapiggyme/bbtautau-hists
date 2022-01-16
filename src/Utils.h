@@ -76,24 +76,24 @@ public:
         T x;
         while (iss >> x)
         {
-            binEdges.push_back(x-1); // off by one
+            binEdges.push_back(x); // off by one
         }
 
         return binEdges;
     }
 
-    static std::vector<double> intToDoubleBinEdgesForMVA(const std::vector<int>& ii, int nbins=1000)
-    {
-        std::vector<double> ret(ii.size()+1);
-        ret.at(0) = 0.;
+    // static std::vector<double> intToDoubleBinEdgesForMVA(const std::vector<int>& ii, int nbins=1000)
+    // {
+    //     std::vector<double> ret(ii.size()+1);
+    //     ret.at(0) = 0.;
 
-        for (size_t i = 1; i <= ii.size(); ++i)
-        {
-            ret.at(i) = 0. + (double)ii[i]/(double)nbins;
-        }
+    //     for (size_t i = 1; i <= ii.size(); ++i)
+    //     {
+    //         ret.at(i) = 0. + (double)ii[i]/(double)nbins;
+    //     }
         
-        return ret;
-    }
+    //     return ret;
+    // }
 
     static std::vector<double> intToDoubleBinEdgesForMVAInverse(const std::vector<int>& ii, int nbins=1000, bool isBDT=false)
     {
@@ -110,13 +110,14 @@ public:
 
         for (size_t i = 1; i < ret.size()-1; ++i)
         {
+            int ibin = ii[ret.size()-1-i] - 1;
             if (isBDT)
             {
-                ret.at(i) = -1. + 2. * (double)ii[ret.size()-1-i]/(double)nbins;
+                ret.at(i) = -1. + 2. * (double)ibin/(double)nbins;
             }
             else
             {
-                ret.at(i) = 0. + (double)ii[ret.size()-1-i]/(double)nbins;
+                ret.at(i) = 0. + (double)ibin/(double)nbins;
             }
         }
         
@@ -133,11 +134,11 @@ public:
 
         for (size_t i = 1; i < ret.size()-1; ++i)
         {
-            int ibin = ii[ret.size()-1-i];
-            if (ibin <= 991)
+            int ibin = ii[ret.size()-1-i] - 1;
+            if (ibin <= 990)
                 ret.at(i) = 0. + (double)ibin / 1e3;
             else 
-                ret.at(i) = 0.99 + (ibin - 991) / 1e4;
+                ret.at(i) = 0.99 + (ibin - 990) / 1e4;
         }
         
         return ret;

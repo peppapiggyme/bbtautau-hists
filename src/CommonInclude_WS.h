@@ -47,7 +47,12 @@
 #include "RooStats/RooStatsUtils.h"
 #include "RooStats/MinNLLTestStat.h"
 #include "RooStats/AsymptoticCalculator.h"
-
+#include "RooStats/FeldmanCousins.h"
+#include "RooStats/PointSetInterval.h"
+#include "RooStats/ConfidenceBelt.h"
+#include "RooWorkspace.h"
+#include "RooAbsData.h"
+ 
 // Huirun's pdf in ext/
 #include "RooTwoSidedCBShape.h"
 

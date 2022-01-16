@@ -76,6 +76,7 @@ struct WorkspaceInfo
     string workspace_name;
     string config_name = "ModelConfig";
     string data_name = "obsData";
+    string output_tag = "TAG";
     double mu_asimov = 1.0;
     double tolerance = 1e-5;
     int8_t logLevel = -1;
@@ -516,6 +517,16 @@ public:
         UpdateMapPOIsFitted(m_cPOIs);
     }
 
+    void SetStatOnly()
+    {
+        const RooArgSet *cNPs = m_cSBModel->GetNuisanceParameters();
+        if (cNPs && cNPs->getSize() > 0)
+        {
+            Tools::println("Switching off NPs by setting them constant to their default values");
+            SetAllConstant(*cNPs);
+        }
+    }
+
 public:
     map<string, tuple<double, double, double>> GetFittedNPs()
     {
@@ -551,6 +562,92 @@ public:
 
 public:
     bool bFitted = false;
+
+// High level usage
+public:
+    void DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nWorkers=4)
+    {
+        gROOT->SetStyle("ATLAS");
+        gStyle->SetErrorX(0.5);
+        
+        Tools::println("Will generate sampling distribution at % = %", m_cPOIs->first()->GetName(), fMu);
+ 
+        ProfileLikelihoodTestStat* cPLLTestStat = new ProfileLikelihoodTestStat(*m_cSBModel->GetPdf());
+        cPLLTestStat->SetOneSided(true); // ATLAS use one-side 
+        cPLLTestStat->SetMinimizer("Minuit2");
+        cPLLTestStat->SetStrategy(0);
+        double fTolerance = m_cInfo->tolerance;
+        cPLLTestStat->SetTolerance(fTolerance);
+ 
+        static_cast<RooRealVar*>(m_cPOIs->first())->setVal(fMu); // set POI value for generation
+        
+        RooArgSet cPOIs_tmp;
+        cPOIs_tmp.add(*m_cSBModel->GetParametersOfInterest());
+
+        double fTestStatData = cPLLTestStat->Evaluate(*m_cData, cPOIs_tmp);
+        Tools::println("Evaluate profiled likelihood on data: %", fTestStatData);
+
+        ToyMCSampler* cToySampler = new ToyMCSampler(*cPLLTestStat, nToys);
+        cToySampler->SetPdf(*m_cSBModel->GetPdf());
+        cToySampler->SetObservables(*m_cSBModel->GetObservables());
+        cToySampler->SetGlobalObservables(*m_cSBModel->GetGlobalObservables());
+        cToySampler->SetParametersForTestStat(*m_cSBModel->GetParametersOfInterest()); // set POI value for evaluation
+
+        ProofConfig cProofConfig(*m_cWs, nWorkers, "", false);
+        cToySampler->SetProofConfig(&cProofConfig); // enable proof
+
+        RooArgSet* cAllParams = new RooArgSet();
+        cAllParams->add(*m_cSBModel->GetParametersOfInterest());
+        cAllParams->add(*m_cSBModel->GetNuisanceParameters());
+
+        SamplingDistribution *cSamplingDist = cToySampler->GetSamplingDistribution(*cAllParams);
+        SamplingDistPlot cSamplingPlot;
+        cSamplingPlot.AddSamplingDistribution(cSamplingDist);
+        
+        TCanvas *cCanvas = new TCanvas("Sampling", "", 1200, 900);
+        cCanvas->SetLogy();
+        TH1F* cHistPlot = (TH1F*)cSamplingPlot.GetTH1F(cSamplingDist)->Clone("plotting");
+
+        double xmin = cHistPlot->GetXaxis()->GetXmin();
+        double xmax = std::max(cHistPlot->GetXaxis()->GetXmax(), fTestStatData);
+        TH1F* cHistDummy = new TH1F("dummy", "", 1, xmin, xmax * 1.2);
+        cHistDummy->GetXaxis()->SetLabelSize(0.04);
+        cHistDummy->GetXaxis()->SetTitleSize(0.045);
+        cHistDummy->GetXaxis()->SetTitleOffset(1.2);
+        cHistDummy->GetXaxis()->SetTitle(Form("q_{#mu}=-2log#lambda at #mu=%.2f", fMu));
+        cHistDummy->GetXaxis()->SetRangeUser(xmin, xmax * 1.2);
+        cHistDummy->GetYaxis()->SetLabelSize(0.04);
+        cHistDummy->GetYaxis()->SetTitleSize(0.045);
+        cHistDummy->GetYaxis()->SetTitle("f(q_{#mu}|#mu)");
+        cHistDummy->Draw("AXIS");
+        
+        cHistPlot->SetLineWidth(1);
+        cHistPlot->Draw("HIST E0 SAME");
+
+        TF1 *cChi2 = new TF1("f", "0.5 * ROOT::Math::chisquared_pdf(x, 1)", xmin, xmax);
+        cChi2->SetLineColor(kRed+1);
+        cChi2->SetLineWidth(1);
+        cChi2->Draw("SAME");
+
+        TLine* cLineObsData = new TLine(fTestStatData, cHistPlot->GetMinimum(), fTestStatData, cHistPlot->GetMaximum());
+        cLineObsData->SetLineColor(kBlue+1);
+        cLineObsData->SetLineStyle(2);
+        cLineObsData->SetLineWidth(2);
+        cLineObsData->Draw("SAME");
+
+        cCanvas->SetLogy();
+        cCanvas->Update();
+        string sOutputPath = \
+            "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/pll_test_stat_distribution." + m_cInfo->output_tag + ".pdf";
+        cCanvas->SaveAs(sOutputPath.c_str());
+
+        delete cLineObsData;
+        delete cChi2;
+        delete cAllParams;
+        delete cToySampler;
+        delete cPLLTestStat;
+        delete cCanvas;
+    }
 
 };
 

@@ -29,7 +29,8 @@ root_generate_dictionary(${PROJECT_NAME}Dict RooTwoSidedCBShape.h LINKDEF LinkDe
 add_library(UtilsLib SHARED
     src/Colors.cpp
     src/Utils.cpp 
-    src/Utils_WS.cpp)
+    src/Utils_WS.cpp
+    ext/catch.cpp)
 
 add_library(ConfigLib SHARED
     src/Config.cpp
@@ -80,6 +81,8 @@ add_executable(gen-pd-zcr exec/gen_pseudodata_zcr.cpp)
 add_executable(ul exec/upper_limit_calc.cpp)
 add_executable(ul-rootstat exec/upper_limit_calc_roostat.cpp)
 
+add_executable(catch-test-binning exec/unit_tests/utest_binning.cpp)
+
 target_link_libraries(run-test ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-main ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-pulls UtilsLib StatsLib ExamplesLib)
@@ -88,6 +91,8 @@ target_link_libraries(run-pd UtilsLib StatsLib ExamplesLib)
 target_link_libraries(gen-pd-zcr UtilsLib)
 target_link_libraries(ul UtilsLib StatsLib)
 target_link_libraries(ul-rootstat UtilsLib StatsLib)
+
+target_link_libraries(catch-test-binning UtilsLib ConfigLib HistToolLib StatsLib ExamplesLib)
 
 add_custom_target(link_target ALL
     COMMAND ${CMAKE_COMMAND} -E create_symlink run-main bbtautau-hists)
