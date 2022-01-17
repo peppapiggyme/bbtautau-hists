@@ -18,7 +18,7 @@ void test_samplingdist(const std::string& filename)
     wst->SetStatOnly();
     wst->Check();
 
-    wst->DrawProfiledLikelihoodTestStatDist(0.4, 40000);
+    wst->DrawProfiledLikelihoodTestStatDist(0.4, 10000);
 
     delete info;
     delete wst;

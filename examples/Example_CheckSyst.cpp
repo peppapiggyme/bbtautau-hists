@@ -17,36 +17,38 @@ using std::endl;
 using std::clog;
 using BU = BinningUtils;
 
+static string channel = "SLT";
+static string version = "v13";
+
 void test_check_syst(const std::string& filename)
 {
     BasicInfo* b = new BasicInfo("SR", "#sqrt{s} = 13 TeV");
     b->name_convention = Utils::NameConvention::WSMaker;
 
     Regions* rs = new Regions();
-    rs->add("2tag2pjet_0ptv_LL_OS",     "LepHad SLT",        eRegionType::SR);
+    rs->add("2tag2pjet_0ptv_LL_OS",     "LepHad " + channel + " " + version,        eRegionType::SR);
 
     auto binningFromFile = [](const std::string& fn)
     { 
         return BU::intToDoubleBinEdgesForMVAInverse_LepHad1090Version(BU::readBinningFromFile<int>(fn));
     };
 
-    // vector<double> binningSMNN      =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_LepHad_SLT_SM_NN.txt");
-    // vector<double> binning2HDM500   =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_LepHad_SLT_2HDM500.txt");
-    // vector<double> binning2HDM1000  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_LepHad_SLT_2HDM1000.txt");
-    vector<double> binning2HDM1100  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_LepHad_SLT_2HDM1100.txt");
+    vector<double> binning2HDM1000 = binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/" + version + "/Binning_LepHad_" + channel + "_2HDM1000." + version + ".txt");
+    vector<double> binning2HDM1100 = binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/" + version + "/Binning_LepHad_" + channel + "_2HDM1100." + version + ".txt");
 
-    // vector<double> binning2HDM1000  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_LepHad_LTT_2HDM1000.txt");
-    // vector<double> binning2HDM1100  =   binningFromFile("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/Binning_LepHad_LTT_2HDM1100.txt");
+    Tools::printVector(binning2HDM1000);
+    Tools::printVector(binning2HDM1100);
 
     Variables* vs_pnn = new Variables();
-    // vs_pnn->add("SM_NN",                   "NN score",                           100,   &binningSMNN[0], binningSMNN.size()-1);
-    // vs_pnn->add("PNN500",                  "PNN500 score",                       100,   &binning2HDM500[0], binning2HDM500.size()-1);
-    // vs_pnn->add("PNN1000",                 "PNN1000 score",                      100,   &binning2HDM1000[0], binning2HDM1000.size()-1);
-    vs_pnn->add("PNN1100",                 "PNN1100 score",                      100,   &binning2HDM1100[0], binning2HDM1100.size()-1);
+    vs_pnn->add("PNN1000",                 "PNN1000 score",                      1,   &binning2HDM1000[0], binning2HDM1000.size()-1);
+    // vs_pnn->add("PNN1100",                 "PNN1100 score",                      1,   &binning2HDM1100[0], binning2HDM1100.size()-1);
 
     Systematics* ss = new Systematics();
     // ss->add("THEO_ACC_StopWt_FSR", "THEO_ACC_StopWt_FSR", eSystematicType::TwoSide, bbtt_kBLUE4COMP, true);
-    ss->add("Subtraction_bkg", "Subtraction_bkg", eSystematicType::TwoSide, bbtt_kBLUE4COMP);
+    // ss->add("THEO_ACC_TTBAR_ME", "THEO_ACC_TTBAR_ME", eSystematicType::OneSide, bbtt_kBLUE4COMP);
+    // ss->add("THEO_ACC_TTBAR_PS_SLT", "THEO_ACC_TTBAR_PS_SLT", eSystematicType::OneSide, bbtt_kRED4COMP);
+    // ss->add("Subtraction_bkg", "Subtraction_bkg", eSystematicType::TwoSide, bbtt_kBLUE4COMP);
+    ss->add("FFVarrQCD", "FFVarrQCD", eSystematicType::TwoSide, bbtt_kBLUE4COMP);
     ss->add("ttReweighting", "ttReweighting", eSystematicType::OneSide, bbtt_kRED4COMP);
 
     CompInfo* info = new CompInfo();
@@ -55,13 +57,13 @@ void test_check_syst(const std::string& filename)
     // info->ratio_high = 1.55;
     // info->ratio_low = 0.45;
 
-    info->ratio_high = 1.75;
-    info->ratio_low = 0.25;
+    info->ratio_high = 1.8;
+    info->ratio_low = 0.2;
 
     info->shape_only = false;
-    info->logy = false;
+    info->logy = true;
     info->save_ratio = false;
-    info->output_format = "pdf";
+    info->output_format = "png";
     info->legend_scaling_vertical = 0.8;
     info->legend_scaling_horizontal = 1.2;
 
@@ -76,9 +78,11 @@ void test_check_syst(const std::string& filename)
 
         // ps->add("stopWt",       "stopWt",  eProcessType::BKG,  eProcess::FAKE,      "Single top Wt",  kBlack);
 
+        // ps->add("ttbar",       "ttbar",  eProcessType::BKG,  eProcess::TTBAR,      "ttbar",  kBlack);
+
         Config* c = new Config(b, ps, rs, vs_pnn, ss);
         c->load(filename, "");
-        info->parameter = "LepHad_LTT_PNN";
+        info->parameter = "LepHad_" + channel + "_PNN." + version + "_Input." + version + "_Binning";
         c->updateHistogramPtr(rs->content()->front(), v);
         SystCompTool* ct = new SystCompTool(info);
         ct->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/CheckSyst/";

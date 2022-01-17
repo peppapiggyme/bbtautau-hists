@@ -110,8 +110,14 @@ int main(/*int argc, char *argv[]*/)
     // test_hadhad_ttbarSys_Gen("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/Hists/hist-1tag-TTbar.root");
     // test_hadhad_ttbarSys_OTF("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/Hists/hist-1tag-TTbar-otf.root");
 
+    // test_check_syst("/scratchfs/atlas/bowenzhang/ResolvedStatAna/WSMaker_Draft2/inputs/All_Comb_v9/13TeV_TauLH_2tag2pjet_0ptv_2HDM_PNN_1000.root");
+    // test_check_syst("/scratchfs/atlas/bowenzhang/ResolvedStatAna/WSMaker_Draft2/inputs/All_Comb_v9/13TeV_TauLH_2tag2pjet_0ptv_2HDM_PNN_1100.root");
+    // test_check_syst("/scratchfs/atlas/bowenzhang/ResolvedStatAna/WSMaker_Draft2/inputs/All_Comb_v9/13TeV_TauLH_LTT_2tag2pjet_0ptv_2HDM_PNN_1000.root");
+    // test_check_syst("/scratchfs/atlas/bowenzhang/ResolvedStatAna/WSMaker_Draft2/inputs/All_Comb_v9/13TeV_TauLH_LTT_2tag2pjet_0ptv_2HDM_PNN_1100.root");
     // test_check_syst("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/WSI/2022-01-12-Yanlin-v13/SLT211222/13TeV_TauLH_2tag2pjet_0ptv_2HDM_PNN_1000.root");
+    // test_check_syst("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/WSI/2022-01-12-Yanlin-v13/SLT211222/13TeV_TauLH_2tag2pjet_0ptv_2HDM_PNN_1100.root");
     // test_check_syst("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/WSI/2022-01-12-Yanlin-v13/LTT211222/13TeV_TauLH_LTT_2tag2pjet_0ptv_2HDM_PNN_1000.root");
+    // test_check_syst("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/WSI/2022-01-12-Yanlin-v13/LTT211222/13TeV_TauLH_LTT_2tag2pjet_0ptv_2HDM_PNN_1100.root");
 
     // thesis_mvainput("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // thesis_mvaoutput("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
@@ -119,7 +125,7 @@ int main(/*int argc, char *argv[]*/)
     // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-varimpo-bdt-v2.root");
     // thesis_binning("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-OverFit-v2.root");
 
-    thesis_ttbarsf("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-LepHad-TTbarFakeInput.all.root");
+    // thesis_ttbarsf("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-LepHad-TTbarFakeInput.all.root");
 
     // thesis_zcr("/scratchfs/atlas/bowenzhang/bbtautau-hists/data/13TeV_TwoLepton_2tag2pjet_0ptv_ZllbbCR_mLL.root");
     // thesis_zvr("/scratchfs/atlas/bowenzhang/CxAODReaderNonRes/run/hist-HadHad-vZVR.all.root");

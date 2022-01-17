@@ -14,6 +14,8 @@ int test_pulls(const std::string& filename, const std::string& outname)
     // info->data_name = "asimovData_SB_SM";
     info->use_asimov = false;
     info->use_oneline_fit = false;
+    info->use_relative_tolerance = false;
+    info->tolerance = 1e-8;
 
     auto timeStart = steady_clock::now();
 

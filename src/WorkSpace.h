@@ -584,7 +584,8 @@ public:
         RooArgSet cPOIs_tmp;
         cPOIs_tmp.add(*m_cSBModel->GetParametersOfInterest());
 
-        double fTestStatData = cPLLTestStat->Evaluate(*m_cData, cPOIs_tmp);
+        /// @todo the evaluate is -2loglambda ??
+        double fTestStatData = cPLLTestStat->Evaluate(*m_cData, cPOIs_tmp) * 0.5; 
         Tools::println("Evaluate profiled likelihood on data: %", fTestStatData);
 
         ToyMCSampler* cToySampler = new ToyMCSampler(*cPLLTestStat, nToys);
@@ -614,17 +615,17 @@ public:
         cHistDummy->GetXaxis()->SetLabelSize(0.04);
         cHistDummy->GetXaxis()->SetTitleSize(0.045);
         cHistDummy->GetXaxis()->SetTitleOffset(1.2);
-        cHistDummy->GetXaxis()->SetTitle(Form("q_{#mu}=-2log#lambda at #mu=%.2f", fMu));
+        cHistDummy->GetXaxis()->SetTitle(Form("-log#lambda(#mu=%.2f)", fMu));
         cHistDummy->GetXaxis()->SetRangeUser(xmin, xmax * 1.2);
         cHistDummy->GetYaxis()->SetLabelSize(0.04);
         cHistDummy->GetYaxis()->SetTitleSize(0.045);
-        cHistDummy->GetYaxis()->SetTitle("f(q_{#mu}|#mu)");
+        cHistDummy->GetYaxis()->SetTitle("f(-log#lambda(#mu)|#mu)");
         cHistDummy->Draw("AXIS");
         
         cHistPlot->SetLineWidth(1);
         cHistPlot->Draw("HIST E0 SAME");
 
-        TF1 *cChi2 = new TF1("f", "0.5 * ROOT::Math::chisquared_pdf(x, 1)", xmin, xmax);
+        TF1 *cChi2 = new TF1("f", "ROOT::Math::chisquared_pdf(2 * x, 1)", xmin, xmax);
         cChi2->SetLineColor(kRed+1);
         cChi2->SetLineWidth(1);
         cChi2->Draw("SAME");
