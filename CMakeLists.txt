@@ -24,7 +24,7 @@ find_package(Threads REQUIRED)
 include_directories(SYSTEM ${ROOT_INCLUDE_DIR} 
     ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/ext ${CMAKE_SOURCE_DIR}/examples)
 
-root_generate_dictionary(${PROJECT_NAME}Dict RooTwoSidedCBShape.h LINKDEF LinkDef.h)
+root_generate_dictionary(${PROJECT_NAME}Dict RooTwoSidedCBShape.h RooExpandedFitResult.h LINKDEF LinkDef.h)
 
 add_library(UtilsLib SHARED
     src/Colors.cpp
@@ -53,7 +53,9 @@ add_library(StatsLib SHARED
     src/WorkSpace.cpp
     src/PullsTool.cpp
     src/RankingTool.cpp
+    src/WorkspaceToRoot.cpp
     ext/roofitUtils.cpp
+    ext/RooExpandedFitResult.cpp
     ext/RooTwoSidedCBShape.cpp
     ext/LinkDef.h
     ${PROJECT_NAME}Dict.cxx)

@@ -9,5 +9,6 @@
 #pragma link C++ nestedtypedef;
 
 #pragma link C++ class RooTwoSidedCBShape+;
+#pragma link C++ class RooExpandedFitResult;
 
 #endif // __CINT__

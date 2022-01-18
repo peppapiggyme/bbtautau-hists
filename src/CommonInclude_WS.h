@@ -28,6 +28,7 @@
 #include "Roo1DTable.h"
 #include "RooConstVar.h"
 #include "RooProduct.h"
+#include "RooAddition.h"
 #include "RooRandom.h"
 #include "TStopwatch.h"
 #include "RooNLLVar.h"
@@ -55,6 +56,8 @@
  
 // Huirun's pdf in ext/
 #include "RooTwoSidedCBShape.h"
+
+#include "CommonInclude.h"
 
 using namespace RooFit;
 using namespace RooStats;

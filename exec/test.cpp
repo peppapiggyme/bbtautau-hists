@@ -16,5 +16,6 @@ int main(int argc, char *argv[])
     }
 
     // test_ws_info(std::string(argv[1]));
-    test_samplingdist(std::string(argv[1]));
+    // test_samplingdist(std::string(argv[1]));
+    test_w2r(std::string(argv[1]));
 }
