@@ -16,7 +16,10 @@ WorkspaceToRoot::WorkspaceToRoot(const WorkspaceInfo* info, const W2RInfo* w2rIn
     Tools::println("Initializing [%]", this->sToolName);
     RooMsgService::instance().setGlobalKillBelow(ERROR);
 
-    m_cWs->Check();
+    if (m_cW2RInfo->verbose) 
+    {
+        m_cWs->Check();
+    }
 }
 
 WorkspaceToRoot::~WorkspaceToRoot()
@@ -48,7 +51,7 @@ void WorkspaceToRoot::WriteToRootfile(const std::string& sOutName)
         Tools::println("  -> Data");
         ((RooAbsData*)m_mapContent[pp.first]["Data"])->plotOn(cFrame, RooFit::DataError(RooAbsData::Poisson));
         RooHist* cRooHistData = cFrame->getHist();
-        cRooHistData->SetName("data");
+        cRooHistData->SetName("RooData");
         cRooHistData->Write();
 
         // chi2
@@ -59,6 +62,9 @@ void WorkspaceToRoot::WriteToRootfile(const std::string& sOutName)
         cHistChi2->SetBinContent(1, fChi2);
         cHistChi2->Write();
         delete cHistChi2;
+
+        TH1F* cHistData = nullptr;
+        TH1F* cHistBkg = nullptr;
 
         // components
         for (const auto& qq : pp.second)
@@ -79,7 +85,24 @@ void WorkspaceToRoot::WriteToRootfile(const std::string& sOutName)
                 cHist->SetName(qq.first.c_str());
                 cHist->Write();
             }
+            if (!cHistData)
+            {
+                cHistData = (TH1F*)cHist->Clone();
+            }
+            if (!cHistBkg && qq.first == "Background")
+            {
+                cHistBkg = (TH1F*)cHist->Clone();
+            }
         }
+
+        // data histogram -> only for the sake of DST checkings
+        Tools::println("Generating data histogram nbins [%]", cHistData->GetNbinsX());
+        for (int i = 0; i < cRooHistData->GetN(); i++)
+        {
+            cHistData->SetBinContent(i + 1, cRooHistData->GetPointY(i));
+        }
+        cHistData->SetName("data");
+        cHistData->Write();
 
         // error
         Tools::println("  -> Error");
@@ -87,12 +110,37 @@ void WorkspaceToRoot::WriteToRootfile(const std::string& sOutName)
         ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setVal(0.);
         m_mapPdf[pp.first]->plotOn(cFrame, 
             RooFit::VisualizeError(*m_cPostFitResult, 1), 
-            RooFit::Name("PostFitError"), 
+            RooFit::Name("PostfitError"), 
             RooFit::Normalization(1, RooAbsReal::RelativeExpected));
         ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setVal(fMu);
         RooCurve* cRooCurveError = cFrame->getCurve();
         cRooCurveError->Write();
 
+        /// @todo investigate the error propagation, why it is symmetric?
+        /// anyway put it into histogram to maintain underflow and overflow bins
+        TH1F* cHistError = (TH1F*)cHistBkg->Clone();
+        cHistError->SetName("error");
+        const int nBins = cHistBkg->GetNbinsX();
+        const int nPoints = cRooCurveError->GetN();
+        if (nPoints != (((nBins+3)<<1)+1)<<1)
+        {
+            Tools::println("inconsistent nbins [%] and npoint [%]", nBins, nPoints);
+            throw std::runtime_error("inconsistency in cHistError construction!");
+        }
+        
+        Tools::println("Generating error histogram, nbins [%]", cHistError->GetNbinsX());
+        for (int i = 1; i < nPoints - i - 1; i += 2)
+        {
+            double fErrorUp = cRooCurveError->GetPointY(i);
+            double fErrorDown = cRooCurveError->GetPointY(nPoints-i-1);
+            cHistError->SetBinError(i >> 1, 0.5 * (fErrorUp - fErrorDown));
+            Tools::println(" -> Bin [%] % +- % [up-%, down-%]",
+                i >> 1, cHistError->GetBinContent(i >> 1), cHistError->GetBinError(i >> 1),
+                fErrorUp, fErrorDown
+            );
+        }
+        cHistError->Write();
+        
         // postfit curve
         Tools::println("  -> Pre-fit background");
         TH1F* cHistPrefit = m_mapHistPrefit[pp.first];
@@ -101,7 +149,6 @@ void WorkspaceToRoot::WriteToRootfile(const std::string& sOutName)
 
         cOutput->cd();
     }
-
 
     cOutput->Close();
     cOutput = nullptr;
@@ -256,6 +303,7 @@ void WorkspaceToRoot::GetFitResult()
     Tools::println("Forcing POI = %", fMu);
     ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setVal(fMu);
     ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setError(1e-6);
+    ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setConstant(true);
 
     for (auto& np : *m_cWs->GetRooNPs())
     {
@@ -304,6 +352,9 @@ void WorkspaceToRoot::GetFitResult()
         Tools::print("========== PRE-FIT RESULT ==========\n");
     }
 
+    /// @todo mutmp is same as m_W2RInfo->mu, no?
+    double fMuTmp = ((RooRealVar*)m_cWs->GetRooPOIs()->first())->getVal();
+    ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setVal(0.);
     for (const auto& pp : m_mapObs)
     {
         RooArgSet cObsSet(*pp.second);
@@ -312,10 +363,55 @@ void WorkspaceToRoot::GetFitResult()
         cHistPrefit->Scale(fPrefitYield / cHistPrefit->Integral());
         m_mapHistPrefit[pp.first] = cHistPrefit;
     }
+    ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setVal(fMuTmp);
 
     if (m_cW2RInfo->prefit)
     {
         m_cPostFitResult.reset((RooFitResult*)m_cPreFitResult->Clone());
+    }
+    else
+    {   
+        if (!m_cW2RInfo->postfit_from_file)
+        {
+            throw std::runtime_error("adhoc postfit not supported yet");
+        }
+        TFile* cFilePostFit = TFile::Open(m_cW2RInfo->postfit_result_file.c_str());
+        m_cPostFitResult.reset(
+            new RooExpandedFitResult((RooFitResult*)cFilePostFit->Get(m_cW2RInfo->postfit_result_directory.c_str())->Clone(), RooArgList())
+        );
+
+        if (!m_cPostFitResult)
+        {
+            throw std::runtime_error("postfit result not found, check path and directory");
+        }
+
+        RooArgList* cListPars = (RooArgList*)m_cPostFitResult->floatParsFinal().Clone();
+        RooArgList* cListConstPars = (RooArgList*)m_cPostFitResult->constPars().Clone();
+        cListPars->add(*cListConstPars);
+
+        if (m_cW2RInfo->verbose)
+        {
+            cListPars->Print();
+        }
+
+        for (auto& np : *m_cWs->GetRooNPs())
+        {
+            string sNameNP{np->GetName()};
+            auto cTheirs = cListPars->find(*np);
+            if (!cTheirs) continue;
+            ((RooRealVar*)np)->setVal(((RooRealVar*)cTheirs)->getVal());
+            ((RooRealVar*)np)->setError(((RooRealVar*)cTheirs)->getError());
+
+            Tools::println("Post-fit NP value and errors are [%] = [%] +- [%]",
+                sNameNP, ((RooRealVar*)np)->getVal(), ((RooRealVar*)np)->getError());
+        }
+    }
+
+    if (m_cW2RInfo->verbose && !m_cW2RInfo->prefit)
+    {
+        Tools::print("\n========== POST-FIT RESULT ==========");
+        m_cPostFitResult->Print();
+        Tools::print("========== POST-FIT RESULT ==========\n");
     }
     // else
 }

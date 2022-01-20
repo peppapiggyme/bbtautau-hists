@@ -19,12 +19,13 @@ using std::unique_ptr;
 class W2RInfo
 {
 public:
-    bool make_yield = true;
     bool prefit = true;
     bool verbose = true; // show fit results
     /// @todo false -> ad-hoc postfit
-    bool postfit_from_file = true; 
     double mu = 1.; // signal scale
+    bool postfit_from_file = true; 
+    std::string postfit_result_file;
+    std::string postfit_result_directory;
 };
 
 struct Yield

@@ -50,8 +50,9 @@ public:
 public:
     void load(const string& fn, const string& dir="");
     void updateHistogramPtr(RegionInfo* r, VariableInfo* v);
-    void setManipulated(bool m) { m_manipulated = m; }
-
+    inline void setManipulated(bool m) { m_manipulated = m; }
+    inline const unique_ptr<TFile>& getInputTFile() const { return m_fin; }
+    inline const std::string& getInputDirStr() const { return m_dir; }
 public:
     RegionInfo* current_region;
     VariableInfo* current_variable;

@@ -208,7 +208,8 @@ void DrawStackTool::run(const Config* c) const
     if (m_info->draw_overflow) stack->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
     
     // user defined maximum x must be defined without turning on the draw_overflow option!
-    if (!m_info->draw_overflow && m_info->xmax > DBL_MAX) stack->GetXaxis()->SetRangeUser(stack->GetXaxis()->GetXmin(), m_info->xmax);
+    if (!m_info->draw_overflow && m_info->xmax > DBL_MAX) 
+        stack->GetXaxis()->SetRangeUser(stack->GetXaxis()->GetXmin(), m_info->xmax);
 
     for (auto &pp : stacks)
     {
@@ -228,7 +229,7 @@ void DrawStackTool::run(const Config* c) const
         {
             total_error_2 += pp.second->GetBinContent(i) * pp.second->GetBinContent(i);
         }
-        total_errors[i] = TMath::Sqrt(total_error_2);
+        total_errors[i] = TMath::Sqrt(total_error_2 / 2.0); // -> to average up and down
     }
 
     TH1* bkg_stat = (TH1*)bkg->Clone();

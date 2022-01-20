@@ -379,7 +379,7 @@ void WorkSpace::DrawProfiledLogLikelihood()
     gROOT->SetStyle("ATLAS");
     gStyle->SetErrorX(0.5);
 
-    const RooArgSet* cGlobalObs = m_cSBModel->GetGlobalObservables();
+    // const RooArgSet* cGlobalObs = m_cSBModel->GetGlobalObservables();
     
     // run the fit
     FitAll();

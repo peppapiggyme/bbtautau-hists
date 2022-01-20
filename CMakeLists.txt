@@ -42,6 +42,7 @@ add_library(ConfigLib SHARED
 add_library(HistToolLib SHARED 
     src/HistTool.cpp
     src/DrawStackTool.cpp
+    src/DrawStackTool_WS.cpp
     src/CompTool.cpp
     src/SystCompTool.cpp
     src/LephadTTBarCompTool.cpp
@@ -84,6 +85,7 @@ add_executable(ul exec/upper_limit_calc.cpp)
 add_executable(ul-rootstat exec/upper_limit_calc_roostat.cpp)
 
 add_executable(catch-test-binning exec/unit_tests/utest_binning.cpp)
+add_executable(catch-test-math exec/unit_tests/utest_math.cpp)
 
 target_link_libraries(run-test ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
 target_link_libraries(run-main ConfigLib HistToolLib UtilsLib StatsLib ExamplesLib)
@@ -95,6 +97,7 @@ target_link_libraries(ul UtilsLib StatsLib)
 target_link_libraries(ul-rootstat UtilsLib StatsLib)
 
 target_link_libraries(catch-test-binning UtilsLib ConfigLib HistToolLib StatsLib ExamplesLib)
+target_link_libraries(catch-test-math UtilsLib ConfigLib HistToolLib StatsLib ExamplesLib)
 
 add_custom_target(link_target ALL
     COMMAND ${CMAKE_COMMAND} -E create_symlink run-main bbtautau-hists)

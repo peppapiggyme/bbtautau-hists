@@ -287,7 +287,7 @@ public:
 
     inline set<string> GetNPs() { return m_setStrNPs; }
 
-    inline const RooWorkspace* GetRooWorkspace() const { return m_cWs; }
+    inline RooWorkspace* GetRooWorkspace() { return m_cWs; }  // cannot be const limited by RooFit
 
     inline const ModelConfig* GetModelConfig() const { return m_cSBModel; }
 

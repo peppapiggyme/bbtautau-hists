@@ -26,3 +26,7 @@
 #include "TGraph.h"
 #include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
+
+// Math
+#include "Math/ProbFuncMathCore.h"
+#include "Math/QuantFuncMathCore.h"

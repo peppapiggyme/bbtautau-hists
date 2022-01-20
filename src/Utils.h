@@ -54,6 +54,11 @@ namespace Utils {
      */
     string signalTypeName(const string& sSigName);
 
+    /**
+     * @brief the standard directory of background-only fit
+     * i.e. the POI (signal strength) was set to constant of 0 in the fit
+     */
+    inline const string bkgOnlyFitResultString() { return "PlotsAfterGlobalFit/conditionnal_MuIsEqualTo_0/fitResult"; }
 
     void properties_copy(TH1* h1, TH1* h2);
 }

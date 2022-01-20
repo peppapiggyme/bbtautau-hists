@@ -33,6 +33,8 @@ void thesis_zcr(const std::string& filename);
 void thesis_ttbarsf(const std::string& filename);
 void thesis_zvr(const std::string& filename);
 void thesis_sr(const std::string& filename);
+void thesis_sr_ws_bdt(const std::string& filename);
+void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass);
 void thesis_mjvr(const std::string& filename);
 void thesis_ttbarvr(const std::string& filename);
 void thesis_ffcr(const std::string& filename);

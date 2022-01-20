@@ -9,22 +9,20 @@ void test_ws_info(const std::string& filename) {
     info->workspace_name = "combined";
     info->use_asimov = false;
     info->use_oneline_fit = false;
+    info->use_relative_tolerance = true;
+    info->tolerance = 1e-6;
 
     WorkSpace* wst = new WorkSpace(info);
     wst->Check();
-    wst->FitAll();
-    // wst->CheckParaMaps();
+    // wst->FitWithFixedMu(0.);
 
-    info->tolerance = 1e-8;
+    // wst->SetStatOnly();
+    // wst->FitAll();
 
-    WorkSpace* wst_up = new WorkSpace(info);
-    wst_up->FitWithAllParaFixed(wst->GetFittedNPs(), 1.0f);
+    wst->DrawProfiledLogLikelihood();
 
-    WorkSpace* wst_down = new WorkSpace(info);
-    wst_down->FitWithAllParaFixed(wst->GetFittedNPs(), -1.0f);
+    wst->Check();
 
     delete info;
     delete wst;
-    delete wst_up;
-    delete wst_down;
 }

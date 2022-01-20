@@ -144,6 +144,7 @@ int main(/*int argc, char *argv[]*/)
     // thesis_syst_stop("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // thesis_syst_stop_param_topint("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/Hists/hist-top-v3.root");
 
+    thesis_sr_ws_pnn("test.root", "1000");
 
     cout << "Ciao!" << endl;
 
