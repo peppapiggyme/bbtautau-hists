@@ -38,7 +38,7 @@ void thesis_sr_ws_bdt(const std::string& filename)
     info->legend_ncolumns = 1;
     info->legend_scaling_horizontal = 1.7;
     info->logy = false;
-    info->output_format = "png";
+    info->output_format = "pdf";
     info->draw_overflow = true;
     info->logy = true;
     info->draw_overflow = false;
@@ -115,19 +115,19 @@ void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass)
     info->blind = false;
     info->ratio_high = 1.35;
     info->ratio_low = 0.65;
-    info->signal_scale = 0.2;
+    info->signal_scale = 0.1;
     info->signal_linestyle = 2;
     info->signal_linewidth = 3;
     info->show_scaling = true;
     info->legend_ncolumns = 1;
     info->legend_scaling_horizontal = 1.7;
     info->logy = false;
-    info->output_format = "png";
+    info->output_format = "pdf";
     info->draw_overflow = true;
     info->logy = true;
     info->draw_overflow = false;
-    info->ratio_high = 1.45;
-    info->ratio_low = 0.55;
+    info->ratio_high = 1.55;
+    info->ratio_low = 0.45;
     info->auto_ratio = true;
     
     for (VariableInfo* v : *(vs->content()))
@@ -160,7 +160,7 @@ void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass)
 
         Config* c = new Config(b, ps, rs, vs);
         c->load(filename, "Region_BMin0_incJet1_distPNN" + mass + "_J2_Y2015_DLLOS_T2_SpcTauHH_L0");
-        info->parameter = "PNN"+mass;
+        info->parameter = "PNN";
 
         c->updateHistogramPtr(rs->content()->back(), v);
         DrawStackTool* ds = new DrawStackTool_WS(info);

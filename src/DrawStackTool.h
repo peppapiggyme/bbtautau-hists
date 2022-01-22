@@ -22,6 +22,7 @@ public:
     bool draw_ratio = true;
     bool auto_ratio = false;
     bool use_poisson_data_error = true;
+    bool prefit = true;
     int legend_ncolumns = 2;
     int signal_linestyle = 1;
     int signal_linewidth = 2;

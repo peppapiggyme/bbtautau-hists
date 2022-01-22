@@ -144,7 +144,27 @@ int main(/*int argc, char *argv[]*/)
     // thesis_syst_stop("/scratchfs/atlas/bowenzhang/ResolvedWSI/2021-06-25-HadHadWSI-v8/reader_hists_2021_06_24_fix_Preselection.root");
     // thesis_syst_stop_param_topint("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/Hists/hist-top-v3.root");
 
-    thesis_sr_ws_pnn("test.root", "1000");
+    // thesis_sr_ws_bdt("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_SMggFVBF_MVA_0.root");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_251.root", "251");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_260.root", "260");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_280.root", "280");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_300.root", "300");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_325.root", "325");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_350.root", "350");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_375.root", "375");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_400.root", "400");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_450.root", "450");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_500.root", "500");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_550.root", "550");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_600.root", "600");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_700.root", "700");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_800.root", "800");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_900.root", "900");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_1000.root", "1000");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_1100.root", "1100");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_1200.root", "1200");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_1400.root", "1400");
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Prefit/Systs_hadhad_2HDM_MVA_1600.root", "1600");
 
     cout << "Ciao!" << endl;
 

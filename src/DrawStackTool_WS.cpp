@@ -136,7 +136,8 @@ void DrawStackTool_WS::run(const Config* c) const
     cHistPrefitBkg->SetLineColor(kBlue);
     cHistPrefitBkg->SetLineStyle(3);
     cHistPrefitBkg->SetLineWidth(2);
-    cHistPrefitBkg->Draw("HIST SAME");
+    if (!m_info->prefit) 
+        cHistPrefitBkg->Draw("HIST SAME");
 
     if (!m_info->blind) {
         if (m_info->draw_overflow) {
@@ -177,7 +178,8 @@ void DrawStackTool_WS::run(const Config* c) const
     legend->AddEntry(cRooHistData, "Data", "ep");
     for_each(m_it_bkg, m_it_sig, [&legend](const ProcessInfo* p) {
         legend->AddEntry(p->histogram, p->name_tex.c_str(), "f"); });
-    legend->AddEntry(cHistPrefitBkg, "Pre-fit Bkg.", "l");
+    if (!m_info->prefit) 
+        legend->AddEntry(cHistPrefitBkg, "Pre-fit Bkg.", "l");
     for_each(m_it_sig, m_it_end, [&legend, this](const ProcessInfo* p) {
         string signal_name = m_info->show_scaling ? to_string((double)(m_info->signal_scale * p->norm_factor)).substr(0, 4) + " x " : string();
         signal_name += p->name_tex;
