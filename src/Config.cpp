@@ -113,6 +113,16 @@ void Config::updateHistogramPtr(RegionInfo* r, VariableInfo* v)
                         WSMakerBinning::smoothSyst(p->histogram, hDown);
                     }
 
+                    if (s->average) {
+                        for (int i = 0; i < p->histogram->GetNbinsX()+2; i++)
+                        {
+                            float mid = p->histogram->GetBinContent(i);
+                            float rel = 0.5 * (hUp->GetBinContent(i) - hDown->GetBinContent(i));
+                            hUp->SetBinContent(i, mid + rel);
+                            hDown->SetBinContent(i, mid - rel);
+                        }
+                    }
+
                     // set styles here for simplicity
                     hUp->SetLineColor(s->color);
                     // hUp->SetFillColor(s->color);

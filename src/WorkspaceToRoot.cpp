@@ -66,6 +66,8 @@ void WorkspaceToRoot::WriteToRootfile(const std::string& sOutName)
         TH1F* cHistData = nullptr;
         TH1F* cHistBkg = nullptr;
 
+        set<string> setMergedBkgs = {"MergedZhf", "MergedSingleHiggs", "MergedOthers"};
+
         // components
         for (const auto& qq : pp.second)
         {
@@ -77,7 +79,12 @@ void WorkspaceToRoot::WriteToRootfile(const std::string& sOutName)
             {
                 continue;
             }
+            if (setMergedBkgs.find(pp.first) != setMergedBkgs.end())
+            {
+                continue;
+            }
             Tools::println("  -> %", qq.first);
+
             TH1F* cHist = (TH1F*)((RooAbsReal*)qq.second)->createHistogram(qq.first.c_str(), *m_mapObs[pp.first]);
             if (cHist->Integral() != 0.)
             {
@@ -198,6 +205,8 @@ void WorkspaceToRoot::FetchContents()
         m_mapContent[sCategory]["Data"] = (RooAbsArg*)cDataTmp;
 
         RooArgList cListBkg, cListSig, cListTotal;
+        RooArgList cListZhf, cListSingleHiggs, cListOthers;
+
         string sModelName{sCategory+"_model"};
         RooRealSumPdf* cModel = (RooRealSumPdf*)m_mapPdf[sCategory]->getComponents()->find(sModelName.c_str());
         if (!cModel)
@@ -231,18 +240,25 @@ void WorkspaceToRoot::FetchContents()
             else 
             {
                 cListBkg.add(*component);
+                if (IsZhf(sComponent)) cListZhf.add(*component);
+                if (IsSingleHiggs(sComponent)) cListSingleHiggs.add(*component);
+                if (IsOthers(sComponent)) cListOthers.add(*component);
             }
         }
         m_mapContent[sCategory]["Total"] = new RooAddition("Total", "tot_sum", cListTotal);
         m_mapContent[sCategory]["Signal"] = new RooAddition("Signal", "sig_sum", cListSig);
         m_mapContent[sCategory]["Background"] = new RooAddition("Background", "bkg_sum", cListBkg);
+        m_mapContent[sCategory]["MergedZhf"] = new RooAddition("MergedZhf", "zhf_sum", cListZhf);
+        m_mapContent[sCategory]["MergedSingleHiggs"] = new RooAddition("MergedSingleHiggs", "singlehiggs_sum", cListSingleHiggs);
+        m_mapContent[sCategory]["MergedOthers"] = new RooAddition("MergedOthers", "others_sum", cListOthers);
     }
 }
 
 void WorkspaceToRoot::MakeYield()
 {
     set<string> setSpecialItems = {
-        "Data", "Total", "Signal", "Background"
+        "Data", "Total", "Signal", "Background", 
+        "MergedZhf", "MergedSingleHiggs", "MergedOthers"
     };
 
     for (const auto& pp : m_mapContent)
@@ -257,9 +273,16 @@ void WorkspaceToRoot::MakeYield()
         Yield yTotal = GetIntegralAndError(pp.first, pp.second.at("Total"));
         Yield ySignal = GetIntegralAndError(pp.first, pp.second.at("Signal"));
         Yield yBackground = GetIntegralAndError(pp.first, pp.second.at("Background"));
+        Yield yZhf = GetIntegralAndError(pp.first, pp.second.at("MergedZhf"));
+        Yield ySingleHiggs = GetIntegralAndError(pp.first, pp.second.at("MergedSingleHiggs"));
+        Yield yOthers = GetIntegralAndError(pp.first, pp.second.at("MergedOthers"));
+
         Tools::println("|- Total % +- %", yTotal.val, yTotal.err);
         Tools::println("|- Signal % +- %", ySignal.val, ySignal.err);
         Tools::println("|- Background % +- %", yBackground.val, yBackground.err);
+        Tools::println("|- Merged Zhf % +- %", yZhf.val, yZhf.err);
+        Tools::println("|- Merged SingleHiggs % +- %", ySingleHiggs.val, ySingleHiggs.err);
+        Tools::println("|- Merged Others % +- %", yOthers.val, yOthers.err);
 
         // put values into a cache
         m_mapYields[pp.first];
@@ -267,6 +290,9 @@ void WorkspaceToRoot::MakeYield()
         m_mapYields[pp.first]["Total"] = yTotal;
         m_mapYields[pp.first]["Signal"] = ySignal;
         m_mapYields[pp.first]["Background"] = yBackground;
+        m_mapYields[pp.first]["MergedZhf"] = yZhf;
+        m_mapYields[pp.first]["MergedSingleHiggs"] = ySingleHiggs;
+        m_mapYields[pp.first]["MergedOthers"] = yOthers;
 
         // components
         for (const auto& qq : pp.second)
@@ -444,4 +470,184 @@ bool WorkspaceToRoot::IsCR(const string& sCateName)
     }
 
     return false;
+}
+
+bool WorkspaceToRoot::IsZhf(const string& sCompName)
+{
+    const set<string> setZhf = { "Ztthf", "Zhf" };
+
+    for (const auto& p : setZhf)
+    {
+        if (sCompName == p)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool WorkspaceToRoot::IsSingleHiggs(const string& sCompName)
+{
+    const set<string> setSingleHiggs = { 
+        "VBFHtautau", "ttH", "WHbb", "WHtautau", "ggFHtautau", 
+        "ggZHbb", "ggZHtautau", "qqZHbb", "qqZHtautau" 
+    };
+
+    for (const auto& p : setSingleHiggs)
+    {
+        if (sCompName == p)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+bool WorkspaceToRoot::IsOthers(const string& sCompName)
+{
+    const set<string> setOthers = { 
+        "W", "Wtt", "Zlf", "Zttlf", "diboson", "stop", "ttW", "ttZ"
+    };
+
+    for (const auto& p : setOthers)
+    {
+        if (sCompName == p)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void WorkspaceToRoot::DrawMorphing(const std::string& sNP, int nScan, double fLow, double fHigh)
+{
+    // fix all other parameters to their true value
+    ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setVal(0.);
+    ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setError(1e-6);
+    ((RooRealVar*)m_cWs->GetRooPOIs()->first())->setConstant(true);
+
+    for (auto& np : *m_cWs->GetRooNPs())
+    {
+        string sNameNP{np->GetName()};
+        Tools::println("Init NP value and errors are [%] = [%] +- [%]",
+            sNameNP, ((RooRealVar*)np)->getVal(), ((RooRealVar*)np)->getError());
+
+        if (sNameNP.substr(0, 5) == "alpha")
+        {
+            ((RooRealVar*)np)->setVal(0);
+            ((RooRealVar*)np)->setError(1);
+        }
+        else if (sNameNP.substr(0, 5) == "gamma")
+        {
+            RooAbsPdf* cGamma = (RooAbsPdf*)m_cWs->GetRooWorkspace()->pdf((sNameNP+"_constraint").c_str());
+            RooRealVar* cTau = (RooRealVar*)m_cWs->GetRooWorkspace()->obj((sNameNP+"_tau").c_str());
+            if (cGamma && cTau)
+            {
+                ((RooRealVar*)np)->setVal(1);
+                ((RooRealVar*)np)->setError(TMath::Sqrt(1.0 / cTau->getVal()));
+            }
+            else 
+            {
+                throw runtime_error("gamma constrain not exists");
+            }
+        }
+        else if (sNameNP == "ATLAS_norm_Zhf")
+        {
+            ((RooRealVar*)np)->setVal(1.);
+            ((RooRealVar*)np)->setError(1e-6);
+        }
+        else if (sNameNP == "ATLAS_norm_ttbar")
+        {
+            ((RooRealVar*)np)->setVal(1.);
+            ((RooRealVar*)np)->setError(1e-6);
+        }
+        ((RooRealVar*)np)->setConstant(true);
+    }
+
+    // ask for input
+    std::string sCategory, sProcess;
+    
+    Tools::println("Categorys and Processes to choose: ");
+    for (const auto& pp: m_mapYields)
+    {
+        Tools::println("- Category [%]", pp.first);
+        Tools::print("  - Processes");
+        for (const auto& qq : pp.second)
+        {
+            Tools::print(" [%]", qq.first);
+        }
+        Tools::println("");
+    }
+
+    sCategory = Tools::getString("Type in the name of category: ");
+    sProcess = Tools::getString("Type in the name of process: ");
+    
+    RooAbsArg* cComponent;
+
+    try {
+        cComponent = m_mapContent[sCategory][sProcess];
+    } catch (std::exception& e) {
+        Tools::println("[%][%] does not exist in the content. Returning..");
+        return;
+    }
+    // will check the morphing of this NP
+    RooRealVar* cNP = (RooRealVar*)m_cWs->GetRooNPs()->find(sNP.c_str()); 
+
+    if (nScan == 0) throw std::logic_error("nScan must be greater than 0!");
+    double fStep = (fHigh - fLow) / (double)(nScan-1);
+
+    vector<pair<double, vector<double>>> vMorphing;
+    bool first = true;
+    int nBinsHist{0};
+    float fLowHist{0.f};
+    float fHighHist{0.f};
+
+    int nCount = 1;
+    for (double fScan = fLow; fScan < fHigh+1e-3; fScan += fStep)
+    {
+        Tools::println("Scaning % of %, [%=%]", nCount++, nScan, sNP, fScan);
+        cNP->setVal(fScan);
+        Yield y = GetIntegralAndError(sCategory, cComponent);
+        TH1F* cHist = (TH1F*)((RooAbsReal*)cComponent)->createHistogram("tmps", *m_mapObs[sCategory]);
+        if (cHist->Integral() != 0.)
+        {
+            cHist->Scale(y.val / cHist->Integral());
+        }
+        vMorphing.push_back(make_pair(fScan, vector<double>()));
+        for (int i = 1; i <= cHist->GetNbinsX(); ++i)
+        {
+            vMorphing.back().second.push_back(cHist->GetBinContent(i));
+        }
+        if (first)
+        {
+            first = false;
+            nBinsHist = cHist->GetNbinsX();
+            fLowHist = cHist->GetXaxis()->GetXmin();
+            fHighHist = cHist->GetXaxis()->GetXmax();
+        }
+
+        delete cHist;
+    }
+    TH2F* cHistMorphing = new TH2F(
+        "Morphing", "", 
+        nScan, fLow-0.5*fStep, fHigh+0.5*fStep, nBinsHist, fLowHist, fHighHist);
+    cHistMorphing->SetDirectory(0);
+
+    for (int i = 1; i <= cHistMorphing->GetNbinsX(); ++i)
+    for (int j = 1; j <= cHistMorphing->GetNbinsY(); ++j)
+    {
+        cHistMorphing->SetBinContent(i, j, (vMorphing[i-1].second)[j-1]);
+    }
+    string sOutput{"Morphing_"+sCategory+"_"+sProcess};
+    cHistMorphing->SetName(sOutput.c_str());
+    TFile* f = TFile::Open((sOutput+".root").c_str(), "RECREATE");
+    f->cd();
+    cHistMorphing->Write();
+
+    f->Close();
+    delete cHistMorphing;
 }

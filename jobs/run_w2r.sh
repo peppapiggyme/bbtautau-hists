@@ -1,7 +1,8 @@
 W2R_VERSION=$1
-W2R_LEVEL=Prefit
+W2R_LEVEL=Postfit
 
-INPUT_PATH=~/public_store/WSMakerOutput/All_Comb_v${W2R_VERSION}.master_HH_13TeV_master_Systs_hadhad_*
+# INPUT_PATH=~/public_store/WSMakerOutput/All_Comb_v${W2R_VERSION}.master_HH_13TeV_master_Systs_hadhad_*
+INPUT_PATH=/scratchfs/atlas/bowenzhang/ResolvedStatAna/WSMaker_Draft2/output/All_Comb_v${W2R_VERSION}.master_HH_13TeV_master_Systs_hadhad_*
 LIST_OF_INPUTS=$( ls -d ${INPUT_PATH} )
 
 # Comment out other functions!

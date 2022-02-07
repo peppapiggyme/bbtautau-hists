@@ -15,7 +15,7 @@ using std::endl;
 using std::clog;
 using BU = BinningUtils;
 
-void thesis_sr_ws_bdt(const std::string& filename)
+void thesis_sr_ws_bdt(const std::string& filename, bool prefit)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
     b->name_convention = Utils::NameConvention::WSMaker;
@@ -39,11 +39,11 @@ void thesis_sr_ws_bdt(const std::string& filename)
     info->legend_scaling_horizontal = 1.7;
     info->logy = false;
     info->output_format = "pdf";
-    info->draw_overflow = true;
     info->logy = true;
     info->draw_overflow = false;
     info->ratio_high = 1.45;
     info->ratio_low = 0.55;
+    info->prefit = prefit;
 
     for (VariableInfo* v : *(vs->content()))
     {
@@ -80,7 +80,10 @@ void thesis_sr_ws_bdt(const std::string& filename)
 
         c->updateHistogramPtr(rs->content()->back(), v);
         DrawStackTool* ds = new DrawStackTool_WS(info);
-        ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR_WS/";
+        if (info->prefit)
+            ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR_WS/";
+        else
+            ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR_WS_Post/";
         if (ds->check(c))
         {
             ds->manipulate(c);
@@ -99,7 +102,7 @@ void thesis_sr_ws_bdt(const std::string& filename)
     }
 }
 
-void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass)
+void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass, bool prefit)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
     b->name_convention = Utils::NameConvention::WSMaker;
@@ -123,12 +126,12 @@ void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass)
     info->legend_scaling_horizontal = 1.7;
     info->logy = false;
     info->output_format = "pdf";
-    info->draw_overflow = true;
     info->logy = true;
     info->draw_overflow = false;
     info->ratio_high = 1.55;
     info->ratio_low = 0.45;
     info->auto_ratio = true;
+    info->prefit = prefit;
     
     for (VariableInfo* v : *(vs->content()))
     {
@@ -164,7 +167,10 @@ void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass)
 
         c->updateHistogramPtr(rs->content()->back(), v);
         DrawStackTool* ds = new DrawStackTool_WS(info);
-        ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR_WS/";
+        if (info->prefit)
+            ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR_WS/";
+        else
+            ds->output_path = "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/forThesis/SR_WS_Post/";
         if (ds->check(c))
         {
             ds->manipulate(c);

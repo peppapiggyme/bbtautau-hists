@@ -51,18 +51,28 @@ public:
 public:
     virtual void Execute() override;
     void WriteToRootfile(const std::string& sOutName);
+    void MakeYield();
     
+    /**
+     * investigate the interpolation/extrapolation of a given parameter
+     * user need to specify the category and process
+     * if the user-specified does not exist, the function will do nothing
+     * @todo this can be const-ed
+     */
+    void DrawMorphing(const std::string& sNP, int nScan, double fLow, double fHigh);
+
     /**
      * Function to recognise signal and control region (no signal)
      * @brief only sensitive to bbtautau signals
      */
     bool IsSignal(const string& sCompName);
     bool IsCR(const string& sCateName);
-
+    bool IsZhf(const string& sCompName);
+    bool IsSingleHiggs(const string& sCompName);
+    bool IsOthers(const string& sCompName);
 private:
     // m_mapContent is filled with components, RooProdcts and RooAdditions
     void FetchContents();
-    void MakeYield();
     Yield GetIntegralAndError(const string& sCategory, RooAbsArg* cComponent) const;
     void GetFitResult();
 

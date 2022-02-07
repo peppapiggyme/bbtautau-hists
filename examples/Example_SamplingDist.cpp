@@ -10,7 +10,7 @@ void test_samplingdist(const std::string& filename)
     info->path = filename;
     info->workspace_name = "combined";
     info->use_asimov = false;
-    info->use_oneline_fit = false;
+    info->fit_func = FitFunction::CST;
     info->tolerance = 1e-8;
     info->output_tag = "v13atMu0p4";
 

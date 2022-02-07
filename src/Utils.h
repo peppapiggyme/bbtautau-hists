@@ -207,6 +207,26 @@ public:
         return INT_MIN;
     }
 
+    static std::string getString(const std::string& prompt = "Type in an string: ", 
+                          const std::string& reprompt = "It is not string. Retry. \n")
+    {
+        while (1)
+        {
+            std::cout << prompt;
+            std::string line;
+            if (!getline(std::cin, line)) throw std::domain_error("Failed to get line from cin.");
+
+            std::istringstream iss(line);
+            std::string str; char a;
+            if (iss >> str && !(iss >> a))
+            {
+                return str;
+            }
+            std::cout << reprompt;
+        }
+        return "";
+    }
+
     /**
      * @brief pretty print vectors
      * @note pass by value so the print uses a copy

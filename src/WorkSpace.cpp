@@ -1,4 +1,5 @@
 #include "WorkSpace.h"
+#include "Minimization.h"
 
 void WorkSpace::Check() {
     Tools::println("%", m_cWs);
@@ -59,6 +60,9 @@ RooFitResult* WorkSpace::OneLinerFit(RooArgSet& cConstrainParas, RooAbsData& cDa
         Strategy(1), PrintLevel(m_cInfo->logLevel), Constrain(cConstrainParas), Save(true),
         Offset(RooStats::IsNLLOffset()));
 
+    m_nStatus = cRes->status();
+    m_fNLL = m_cNLL->getVal();
+    
     return cRes;
 }
 
@@ -69,6 +73,7 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     "| [Customized version]                                       |\n"
     "o------------------------------------------------------------o\n"
     "| The speed depends on the tolarence                         |\n"
+    "| This one is not stable                                     |\n"
     "o------------------------------------------------------------o\n";
 
     RooMsgService::instance().setGlobalKillBelow(ERROR);
@@ -77,7 +82,7 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     m_cNLL = m_cSBModel->GetPdf()->createNLL(cData, 
         Constrain(cConstrainParas), 
         GlobalObservables(*(m_cSBModel->GetGlobalObservables())), 
-        Offset(RooStats::IsNLLOffset()), NumCPU(4));
+        Offset(true), NumCPU(4));
 
     // Staring NLL value
     Tools::println("Starting NLL value = %", m_cNLL->getVal());
@@ -102,7 +107,6 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     cMinimizer.setMaxFunctionCalls(nMaxCalls);
     cMinimizer.setMaxIterations(nMaxIterations);
     // Error engine
-    constexpr bool bUseMinos = false;
 
     Tools::println("Tolerance = [%]", fTolerance);
     Tools::println("Max Calls = [%], Max Iterations = [%]", nMaxCalls, nMaxIterations);
@@ -110,6 +114,7 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     // Do minimization
     nStatus = cMinimizer.minimize("Minuit2", sAlgorithm.c_str());
     Tools::println("Minimize status = [%]", nStatus);
+    m_nStatus = nStatus;
 
     // Save the fit result pre
     RooFitResult* cResPre = cMinimizer.save();
@@ -140,7 +145,7 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
         cMinimizer.setMinimizerType("Minuit2");
         nStatus = cMinimizer.hesse();
         Tools::println("Hesse status = [%]", nStatus);
-        if (bUseMinos)
+        if (m_cInfo->use_minos)
         {
             cMinimizer.minos();
         }
@@ -156,10 +161,266 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     Tools::println("Final NLL value = %", m_cNLL->getVal());
 
     RooFitResult* cRes = cMinimizer.save();
+    m_fNLL = m_cNLL->getVal();
 
     delete cResPre;
 
     return cRes;
+}
+
+RooFitResult* WorkSpace::CommonStatToolFit(RooArgSet& cConstrainParas, RooAbsData& cData)
+{
+    std::cout << "Fitting with: \n"
+    "o------------------------------------------------------------o\n"
+    "| [CommonStatTool version]                                   |\n"
+    "o------------------------------------------------------------o\n"
+    "| Stable                                                     |\n"
+    "| Only MINOS confidence interval                             |\n"
+    "o------------------------------------------------------------o\n";
+    m_cNLL = EXOSTATS::createNLL(m_cSBModel->GetPdf(), &cData, &cConstrainParas, 4);
+
+    RooFitResult *cRes;
+    EXOSTATS::minimize(m_cNLL, 3, nullptr, "", "", 0, kTRUE, &cRes, m_cInfo->use_minos);
+
+    m_nStatus = cRes->status();
+    m_fNLL = m_cNLL->getVal();
+
+    return cRes;
+}
+
+/// @todo need some clean up ..
+RooFitResult* WorkSpace::FCCFit(RooArgSet& cConstrainParas, RooAbsData& cData)
+{
+    std::cout << "Fitting with: \n"
+    "o------------------------------------------------------------o\n"
+    "| [FitCrossCheck version]                                    |\n"
+    "o------------------------------------------------------------o\n"
+    "| Stable                                                     |\n"
+    "| Default is HESSE, can choose MINOS                         |\n"
+    "o------------------------------------------------------------o\n";
+    
+    bool fancy(false);
+    bool retryOnHesseFailure(false); // a bit less fancy
+
+    // RooMsgService::instance().getStream(1).removeTopic(NumIntegration);
+
+    Constrain(cConstrainParas);
+
+    const RooArgSet* glbObs = m_cSBModel->GetGlobalObservables();
+
+    // fix poi to zero
+    RooRealVar * poi = (RooRealVar*) m_cSBModel->GetParametersOfInterest()->first();
+    if(poi) {
+        cout << "Constant POI ";
+    if(poi->isConstant()) { cout << "YES" << endl; } else { cout << "NO" << endl; }
+        cout << "Value of POI  " << poi->getVal() << endl;
+    } else {
+        cout << "No POI - assuming background only fit" << endl;
+    }
+    int nCPU = 2;
+        const char* NCORE = getenv("NCORE");
+    if (NCORE) {
+        TString nCPU_str = NCORE;
+        nCPU = nCPU_str.Atoi();
+    }
+    RooAbsReal * m_cNLL = m_cSBModel->GetPdf()->createNLL(cData, Constrain(cConstrainParas), GlobalObservables(*glbObs), Offset(1), Optimize(2) );
+    double nllval = m_cNLL->getVal();
+    cout << "Starting NLL value " << nllval << endl;
+
+    double nllnom(0);
+    double nllup(0);
+    double nlldn(0);
+
+    cout << "Change to the LHood" << endl;
+    TIterator *nItr = m_cSBModel->GetNuisanceParameters()->createIterator();
+    RooRealVar* arg = 0;
+    while ((arg=(RooRealVar*)nItr->Next())) {
+        if (!arg) continue;
+        if(TString(arg->GetName()).Contains("ATLAS_norm")) { arg->setVal(1); continue; }
+        if(TString(arg->GetName()).Contains("gamma_stat")) { arg->setVal(1); continue; }
+        arg->setVal(5);
+        nllup = m_cNLL->getVal();
+        arg->setVal(-5);
+        nlldn = m_cNLL->getVal();
+        arg->setVal(0); // must re-set before fitting!!
+        nllnom = m_cNLL->getVal();
+        cout << "\t" << arg->GetName() << "\t" << nllup-nllnom << "\t" << nlldn-nllnom << endl;
+    }
+
+    std::cout << "initial parameters" << std::endl;
+    cConstrainParas.Print("v");
+
+    std::cout << "INITIAL NLL = " << m_cNLL->getVal() << std::endl;
+
+    RooMinimizer minim(*m_cNLL);
+    int strategy = ROOT::Math::MinimizerOptions::DefaultStrategy();
+    minim.setStrategy( strategy );
+
+    Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] Strategy [%]", __LINE__, strategy);
+
+    double tol =  ROOT::Math::MinimizerOptions::DefaultTolerance(); //currently 0.1
+    tol = std::min(tol,0.1);
+    minim.setEps( 0.01 );
+
+    Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] Tolerant [%]", __LINE__, tol);
+
+    int status = -1;
+
+    int optConstFlag = 2;
+    minim.optimizeConst(optConstFlag);
+
+    TStopwatch sw; sw.Start();
+
+    TString minimizer = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
+    minimizer = "Minuit2";
+    TString algorithm = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
+
+    Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] MINIMIZER Type [%]", __LINE__, minimizer);
+    Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] MINIMIZER Algo [%]", __LINE__, algorithm);
+
+    int maxCalls = ROOT::Math::MinimizerOptions::DefaultMaxFunctionCalls();
+    int maxIterations = ROOT::Math::MinimizerOptions::DefaultMaxIterations();
+
+    Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] max calls [%]", __LINE__, maxCalls);
+    Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] max iters [%]", __LINE__, maxIterations);
+
+    minim.setMaxFunctionCalls(maxCalls);
+    minim.setMaxIterations(maxIterations);
+
+    cout << "MAX CALLS " << maxCalls  << endl;
+    cout << "MAX Iterations " << maxIterations << endl;
+
+    cout << "FitPDF" << endl;
+    cout << "\t minimizer " << minimizer << endl;
+    cout << "\t algorithm " << algorithm << endl;
+    cout << "\t strategy  " << strategy << endl;
+    cout << "\t tolerance " << tol << endl;
+
+    // HistFitter
+    if(fancy) {
+        Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] in FANCY", __LINE__);
+        bool kickApplied(false);
+        for (int tries = 1, maxtries = 4; tries <= maxtries; ++tries) {
+            cout << "try " << tries << " " << kickApplied << endl;
+            sw.Print();
+            std::cout << "prefit values" << std::endl;
+            cConstrainParas.Print("v");
+            status = minim.minimize(minimizer, algorithm);
+            cout << "minimizer status = " << status << endl;
+            if (status%1000 == 0) {  // ignore erros from Improve
+            break;
+            } else {
+                if (tries == 1) {
+                    cout << "    ----> Doing a re-scan first" << endl;
+                    status = minim.minimize(minimizer,"Scan");
+                }
+                if (tries == 2) {
+                    if (ROOT::Math::MinimizerOptions::DefaultStrategy() == 1 ) {
+                        cout << "    ----> trying with strategy = 2" << endl;
+                        minim.setStrategy(2);
+                    }
+                    else { tries++; } // skip this trial if strategy
+                }
+                if (tries == 3) {
+                    cout << "    ----> trying with improve" << endl;
+                    minimizer = "Minuit2";
+                    algorithm = "migradimproved";
+                }
+                if (tries == 4 && !kickApplied) {
+                    cout << "    ----> trying fit with different starting values" << endl;
+                    RooFitResult* tmpResult = minim.save();
+                    const RooArgList& randList = tmpResult->randomizePars();
+                    cConstrainParas = randList;
+                    delete tmpResult;
+                    tries=0;          // reset the fit cycle
+                    kickApplied=true; // do kick only once
+                    minim.setStrategy(ROOT::Math::MinimizerOptions::DefaultStrategy());
+                }
+            }
+        }
+    } else if (retryOnHesseFailure) {
+        Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] in RETRY", __LINE__);
+        int maxtries = 3;
+        int tries = 1;
+        while (true) {
+            cout << "Starting minization, try number " << tries << " of " << maxtries << endl;
+            status = minim.minimize(minimizer, algorithm);
+            cout << "Calling Hesse ..."  << endl;
+            minim.setMinimizerType("Minuit2");
+            int statusH = minim.hesse();
+            cout << "Hesse Status : " << statusH << endl;
+            if (statusH == 0 || tries >= maxtries) {
+                break;
+            }
+            cout << "    ----> trying fit with different starting values" << endl;
+            RooFitResult* tmpResult = minim.save();
+            const RooArgList& randList = tmpResult->randomizePars();
+            cConstrainParas = randList;
+            delete tmpResult;
+            tries++;
+        }
+    } else {
+        Tools::println(">>>>>>>> DEBUG <<<<<<<< Line [%] in PLAIN", __LINE__);
+        status = minim.minimize(minimizer, algorithm);
+    }
+    cout << "Minimize Status : " << status << endl;
+    m_nStatus = status;
+
+    //cout << endl;
+    RooFitResult * tmpResult = minim.save();
+    const TMatrixDSym covarMat = tmpResult->covarianceMatrix();
+    Double_t det = covarMat.Determinant();
+    cout << "Determinant " << det << endl;
+    if(det < 0) { cout << "Determinant negative" << endl; }
+
+    // get eigenvectors and eigenvalues
+    TMatrixDSymEigen eigenValueMaker(covarMat);
+    TVectorT<double> eigenValues   = eigenValueMaker.GetEigenValues();
+    TMatrixT<double> eigenVectors  = eigenValueMaker.GetEigenVectors();
+    cout << endl << "Eigenvalues  " << endl;
+    for( int l=0; l<eigenValues.GetNrows(); l++ ) {
+        cout << "\t" << l << "\t" << eigenValues[l] << endl;
+    }
+    cout << endl;
+
+    if (status%100 == 0) { // ignore errors in Hesse or in Improve
+        if (!retryOnHesseFailure) {
+            cout << "Calling Hesse ..."  << endl;
+            minim.setMinimizerType("Minuit2");
+            status = minim.hesse();
+            cout << "Hesse Status : " << status << endl;
+        }
+        if (m_cInfo->use_minos) minim.minos();
+    } else {
+        cout << "FIT FAILED !" << endl;
+    }
+
+    sw.Print();
+
+    sw.Stop();
+
+    RooFitResult * r = minim.save();
+
+    if(poi) {
+        std::cout << "final poi parameters" << std::endl;
+        m_cSBModel->GetParametersOfInterest()->Print("v");
+    }
+
+    typedef std::numeric_limits< double > dbl;
+    cout.precision(dbl::digits10);
+    std::cout << "FINAL NLL = " << m_cNLL->getVal() << std::endl;
+    m_fNLL = m_cNLL->getVal();
+
+    if(poi) {
+        cout << "PRINTING FIT RESULT " << poi->isConstant() << "\t" << poi->getVal() << endl;
+    } else {
+        cout << "PRINTING FIT RESULT " << endl;
+    }
+    r->Print();
+
+    sw.Print();
+
+    return r;
 }
 
 void WorkSpace::Fit(RooAbsData* cData) {
@@ -181,13 +442,22 @@ void WorkSpace::Fit(RooAbsData* cData) {
     RooFitResult* cRes = nullptr;
 
     // >>> core of fitting <<< START
-    if (m_cInfo->use_oneline_fit)
+    switch (m_cInfo->fit_func)
     {
+    case FitFunction::ONELINE:
         cRes = OneLinerFit(cConstrainParas, *cData);
-    }
-    else 
-    {
+        break;
+    case FitFunction::CUSTOM:
         cRes = CustomizedFit(cConstrainParas, *cData);
+        break;
+    case FitFunction::CST:
+        cRes = CommonStatToolFit(cConstrainParas, *cData);
+        break;
+    case FitFunction::FCC:
+        cRes = FCCFit(cConstrainParas, *cData);
+        break;
+    default:
+        cRes = CommonStatToolFit(cConstrainParas, *cData);
     }
     // >>> core of fitting <<< END
 
@@ -226,9 +496,15 @@ void WorkSpace::FitWithFixedNP(const string& sPara,
             std::get<0>(tupleVal), std::get<1>(tupleVal), std::get<2>(tupleVal));
     double fFixedVal = std::get<0>(tupleVal);
     fFixedVal += nMode > 0 ? TMath::Abs(nMode) * std::get<1>(tupleVal) : TMath::Abs(nMode) * std::get<2>(tupleVal);
-    RooRealVar* cNP = (RooRealVar*)m_cNPs->find(sPara.c_str());
-    cNP->setVal(fFixedVal);
-    cNP->setConstant(true);
+    SetConstantNP(sPara, fFixedVal);
+    Fit();
+    UpdateMapNPsFinal(m_cNPs);
+    UpdateMapPOIsFitted(m_cPOIs);
+}
+
+void WorkSpace::FitWithFixedNP(const string& sPara, double fValue)
+{
+    SetConstantNP(sPara, fValue);
     Fit();
     UpdateMapNPsFinal(m_cNPs);
     UpdateMapPOIsFitted(m_cPOIs);
@@ -255,11 +531,23 @@ void WorkSpace::FitWithAllNPFixed(const map<string, tuple<double, double, double
 
 void WorkSpace::FitWithFixedMu(double mu_0)
 {
-    static_cast<RooRealVar*>(m_cPOIs->first())->setVal(mu_0);
-    static_cast<RooRealVar*>(m_cPOIs->first())->setConstant(true);
+    SetConstantPOI(mu_0);
     Fit();
     UpdateMapNPsFinal(m_cNPs);
     UpdateMapPOIsFitted(m_cPOIs);
+}
+
+void WorkSpace::SetConstantPOI(double mu)
+{
+    static_cast<RooRealVar*>(m_cPOIs->first())->setVal(mu);
+    static_cast<RooRealVar*>(m_cPOIs->first())->setConstant(true);
+}
+
+void WorkSpace::SetConstantNP(const string& sPara, double fValue)
+{
+    RooRealVar* cNP = (RooRealVar*)m_cNPs->find(sPara.c_str());
+    cNP->setVal(fValue);
+    cNP->setConstant(true);
 }
 
 void WorkSpace::SetStatOnly()

@@ -29,7 +29,7 @@ public:
     {
         m_cTool = new WorkSpace(m_cInfo);
         Tools::println(">> All: ");
-        m_cTool->FitAll();
+        m_cTool->FitWithFixedMu(0.);
         m_mapFittedNPs = m_cTool->GetFittedNPs();
     }
 

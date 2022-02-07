@@ -1,5 +1,6 @@
 #include "SystCompTool.h"
 #include "CommonInclude.h"
+#include "WSMakerBinning.h"
 
 #include <sstream>
 #include <algorithm>
@@ -110,6 +111,10 @@ void SystCompTool::run(const Config* c) const
 
     for (auto& pp : ps->front()->systematic_histograms)
     {
+
+        //////////////////////////////////////////////
+        if (pp.second->GetLineColor() == kRed) WSMakerBinning::smoothSyst(base, pp.second);
+        //////////////////////////////////////////////
         pp.second->Draw("HIST SAME");
     }
     TH1* base_copy = (TH1*)base->Clone();
