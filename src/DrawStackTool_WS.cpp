@@ -70,6 +70,9 @@ void DrawStackTool_WS::run(const Config* c) const
         lower_pad->Draw();
     }
 
+    upper_pad-> SetTicks();
+    lower_pad-> SetTicks();
+
     upper_pad->cd();
 
     
@@ -134,7 +137,7 @@ void DrawStackTool_WS::run(const Config* c) const
     cHistPostErr->Draw("E2 SAME");
 
     cHistPrefitBkg->SetLineColor(kBlue);
-    cHistPrefitBkg->SetLineStyle(3);
+    cHistPrefitBkg->SetLineStyle(7);
     cHistPrefitBkg->SetLineWidth(2);
     if (!m_info->prefit) 
         cHistPrefitBkg->Draw("HIST SAME");

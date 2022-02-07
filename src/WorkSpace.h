@@ -69,6 +69,14 @@ struct Parameter
     double err_lo;
 };
 
+enum class FitFunction
+{
+    ONELINE = 0x0,
+    CUSTOM = 0x1,
+    CST = 0x2,
+    FCC = 0x4
+};
+
 struct WorkspaceInfo
 {
     WorkspaceInfo() = default;
@@ -79,9 +87,10 @@ struct WorkspaceInfo
     string output_tag = "TAG";
     double mu_asimov = 1.0;
     double tolerance = 1e-5;
+    FitFunction fit_func = FitFunction::CST;
     int8_t logLevel = -1;
     bool use_asimov = true;
-    bool use_oneline_fit = true;
+    bool use_minos = true;
     bool use_relative_tolerance = false;
 };
 
@@ -172,6 +181,7 @@ protected:
     map<string, tuple<double, double, double>> m_mapNPsFitted; // Name, Val, Hi, Lo
     map<string, tuple<double, double, double>> m_mapPOIsFitted; // Name, Val, Hi, Lo
     set<string> m_setStrNPs;
+    double m_fNLL;
 
 // ============================================================================
 // Useful Functions
@@ -242,9 +252,17 @@ private:
 // Fitting
 // ============================================================================
 private:
+    /// title bait, can you fit bbtautau with one line of code 
     RooFitResult* OneLinerFit(RooArgSet& cConstrainParas, RooAbsData& cData);
 
+    /// still need to be improved, not stable
     RooFitResult* CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& cData);
+
+    /// from Exotic CommomStatTool
+    RooFitResult* CommonStatToolFit(RooArgSet& cConstrainParas, RooAbsData& cData);
+    
+    /// from WSMaker FitCrossCheckForLimits
+    RooFitResult* FCCFit(RooArgSet& cConstrainParas, RooAbsData& cData);
 
     void Fit(RooAbsData* cData=nullptr);
 
@@ -259,6 +277,10 @@ public:
         const string& sPara, 
         const map<string, tuple<double, double, double>>& mapNPsFromFitAll,
         double nMode);
+
+    void FitWithFixedNP(
+        const string& sPara, 
+        double fValue);
 
     /**
      * @param nDirection
@@ -275,6 +297,8 @@ public:
      */
     void FitWithFixedMu(double mu_0);
 
+    void SetConstantPOI(double mu);
+    void SetConstantNP(const string& sPara, double fValue);
     void SetStatOnly();
 
 public:
@@ -286,6 +310,8 @@ public:
     inline map<string, tuple<double, double, double>> GetFittedPOIs() { return m_mapPOIsFitted; }
 
     inline set<string> GetNPs() { return m_setStrNPs; }
+
+    inline double GetNLL() const { return m_fNLL; }
 
     inline RooWorkspace* GetRooWorkspace() { return m_cWs; }  // cannot be const limited by RooFit
 
@@ -299,8 +325,11 @@ public:
 
     inline const RooAbsReal* GetRooNLL() const { return m_cNLL; }
 
+    inline int GetMinimizationStatus() const { return m_nStatus; }
+
 public:
     bool bFitted = false;
+    int m_nStatus = -1;
 
 
 // High level usage that can go into stattools

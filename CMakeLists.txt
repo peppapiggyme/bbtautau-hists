@@ -56,6 +56,7 @@ add_library(StatsLib SHARED
     src/RankingTool.cpp
     src/WorkspaceToRoot.cpp
     ext/roofitUtils.cpp
+    ext/Minimization.cpp
     ext/RooExpandedFitResult.cpp
     ext/RooTwoSidedCBShape.cpp
     ext/LinkDef.h

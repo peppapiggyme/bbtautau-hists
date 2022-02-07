@@ -127,6 +127,9 @@ void DrawStackTool::run(const Config* c) const
         lower_pad->Draw();
     }
 
+    upper_pad-> SetTicks();
+    lower_pad-> SetTicks();
+
     upper_pad->cd();
 
     TH1* data = (*m_it_data)->histogram;

@@ -29,7 +29,7 @@ Float_t test_pseudodata_helper(const std::string& filename)
     info->path = filename;
     info->workspace_name = "combined";
     info->use_asimov = false;
-    info->use_oneline_fit = true;
+    info->fit_func = FitFunction::CST;
 
     WorkSpace* wst = new WorkSpace(info);
     // wst->Check();

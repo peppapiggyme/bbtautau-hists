@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void test_w2r(const string& filename, const string& postfit_result_file, const string& output)
+void test_morphing(const string& filename)
 {
     WorkspaceInfo* info = new WorkspaceInfo();
     info->path = filename;
@@ -15,16 +15,13 @@ void test_w2r(const string& filename, const string& postfit_result_file, const s
 
     W2RInfo* w2rInfo = new W2RInfo();
     w2rInfo->verbose = true;
-    // w2rInfo->prefit = true;
-    w2rInfo->prefit = false; 
+    w2rInfo->prefit = true;
     w2rInfo->postfit_from_file = true;
     w2rInfo->mu = 1.0;
-    w2rInfo->postfit_result_file = postfit_result_file;
-    w2rInfo->postfit_result_directory = Utils::bkgOnlyFitResultString();
 
     WorkspaceToRoot* w2r = new WorkspaceToRoot(info, w2rInfo);
     w2r->Execute();
-    w2r->WriteToRootfile(output.c_str());
+    w2r->DrawMorphing("alpha_SysFFVarrQCD", 21, -2., 2.);
 
     delete w2r;
     delete info;
