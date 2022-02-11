@@ -509,7 +509,7 @@ bool WorkspaceToRoot::IsSingleHiggs(const string& sCompName)
 bool WorkspaceToRoot::IsOthers(const string& sCompName)
 {
     const set<string> setOthers = { 
-        "W", "Wtt", "Zlf", "Zttlf", "diboson", "stop", "ttW", "ttZ"
+        "W", "Wtt", "Zlf", "Zttlf", "diboson", "stop", "ttW", "ttZ", "DY", "DYtt"
     };
 
     for (const auto& p : setOthers)
