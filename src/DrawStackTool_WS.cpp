@@ -37,6 +37,10 @@ void DrawStackTool_WS::run(const Config* c) const
     {
         cRooHistData->SetPointEXhigh(i, 0.);
         cRooHistData->SetPointEXlow(i, 0.);
+        if (cRooHistData->GetPointY(i) < 1e-5) {
+            cRooHistData->SetPointEYhigh(i, 0.);
+            cRooHistData->SetPointEYlow(i, 0.);
+        }
     }
 
     TH1F* cHistPostErr = (TH1F*)fin->Get((dirStr + "/error").c_str());
@@ -124,7 +128,7 @@ void DrawStackTool_WS::run(const Config* c) const
     if (m_info->draw_overflow) stack->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
     
     // user defined maximum x must be defined without turning on the draw_overflow option!
-    if (!m_info->draw_overflow && m_info->xmax > DBL_MAX) 
+    if (!m_info->draw_overflow && m_info->xmax < DBL_MAX) 
         stack->GetXaxis()->SetRangeUser(stack->GetXaxis()->GetXmin(), m_info->xmax);
 
     cHistPostErr->SetFillStyle(3254);

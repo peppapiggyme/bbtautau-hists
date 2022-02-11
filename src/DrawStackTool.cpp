@@ -211,7 +211,7 @@ void DrawStackTool::run(const Config* c) const
     if (m_info->draw_overflow) stack->GetXaxis()->SetRange(1, data->GetNbinsX() + 1);
     
     // user defined maximum x must be defined without turning on the draw_overflow option!
-    if (!m_info->draw_overflow && m_info->xmax > DBL_MAX) 
+    if (!m_info->draw_overflow && m_info->xmax < DBL_MAX) 
         stack->GetXaxis()->SetRangeUser(stack->GetXaxis()->GetXmin(), m_info->xmax);
 
     for (auto &pp : stacks)
