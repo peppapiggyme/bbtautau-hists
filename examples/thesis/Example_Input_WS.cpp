@@ -15,7 +15,7 @@ using std::endl;
 using std::clog;
 using BU = BinningUtils;
 
-static void thesis_sr_ws_input_helper(const std::string& filename
+static void thesis_sr_ws_input_helper(const std::string& filename,
     const std::string& varname, const std::string& varname_tex, const std::string& folder);
 
 void thesis_sr_ws_input(const std::string& filename)
