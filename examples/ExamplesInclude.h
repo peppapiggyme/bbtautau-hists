@@ -48,3 +48,5 @@ void thesis_syst_zhf_param_scale(const std::string& filename);
 void thesis_syst_ttbar(const std::string& filename);
 void thesis_syst_stop(const std::string& filename);
 void thesis_syst_stop_param_topint(const std::string& filename);
+void thesis_sr_ws_lastbin(const std::string& filename, const std::string& mass, const std::string& region);
+void thesis_sr_ws_input(const std::string& filename);
