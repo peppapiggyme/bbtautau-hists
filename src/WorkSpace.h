@@ -92,6 +92,8 @@ struct WorkspaceInfo
     bool use_asimov = true;
     bool use_minos = true;
     bool use_relative_tolerance = false;
+    double poi_range_low = -40.;
+    double poi_range_high = 40.;
 };
 
 class WorkspaceLoad

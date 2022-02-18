@@ -47,30 +47,34 @@ void thesis_sr_ws_input_helper(const std::string& filename,
     info->signal_linewidth = 3;
     info->show_scaling = true;
     info->legend_ncolumns = 1;
-    info->legend_scaling_horizontal = 1.7;
+    info->legend_scaling_horizontal = 1.5;
     info->logy = false;
     info->output_format = "pdf";
-    info->ymax_ratio_nolog = 2.5;
+    info->ymax_ratio_nolog = 1.5;
     info->draw_overflow = false;
-    info->draw_ratio = false;
-    info->ratio_high = 1.45;
-    info->ratio_low = 0.55;
+    info->draw_ratio = true;
+    info->ratio_high = 1.35;
+    info->ratio_low = 0.65;
     info->prefit = false;
 
     for (VariableInfo* v : *(vs->content()))
     {
-        // if (v->name == "mBB" || v->name == "mMMC")
-        // {
-        //     info->xmax = 600.;
-        // }
-        // else if (v->name == "mHH")
-        // {
-        //     info->xmax = 2000.;
-        // }
-        // else 
-        // {
-        //     info->xmax = 3.;
-        // }
+        if (v->name == "mBB")
+        {
+            info->xmax = 600.;
+        }
+        else if (v->name == "mMMC")
+        {
+            info->xmax = 600.;
+        }
+        else if (v->name == "mHH")
+        {
+            info->xmax = 2500.;
+        }
+        else 
+        {
+            info->xmax = 5.;
+        }
 
         Processes* ps = new Processes();
         ps->add("data",       "data",               eProcessType::DATA,     eProcess::DATA,         "Data",                             kBlack);

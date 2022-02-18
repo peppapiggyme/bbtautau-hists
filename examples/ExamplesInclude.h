@@ -36,6 +36,8 @@ void thesis_zvr_2tag(const std::string& filename);
 void thesis_sr(const std::string& filename);
 void thesis_sr_ws_bdt(const std::string& filename, bool prefit=true);
 void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass, bool prefit=true);
+void thesis_sr_lephad_ws_bdt(const std::string& filename, bool prefit=true, bool SLT=true);
+void thesis_sr_lephad_ws_pnn(const std::string& filename, const std::string& mass, bool prefit=true, bool SLT=true);
 void thesis_mjvr(const std::string& filename);
 void thesis_mjvr_2bss(const std::string& filename);
 void thesis_ttbarvr(const std::string& filename);

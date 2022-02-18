@@ -15,13 +15,13 @@ using std::endl;
 using std::clog;
 using BU = BinningUtils;
 
-void thesis_sr_ws_bdt(const std::string& filename, bool prefit)
+void thesis_sr_lephad_ws_bdt(const std::string& filename, bool prefit, bool SLT)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
     b->name_convention = Utils::NameConvention::WSMaker;
 
     Regions* rs = new Regions();
-    rs->add("2tag2pjet_0ptv_LL_OS",     "#tau_{had}#tau_{had} SR",         eRegionType::SR);
+    rs->add("2tag2pjet_0ptv_LL_OS",    "#tau_{lep}#tau_{had} " + (SLT ? string("SLT") : string("LTT")) + " SR",         eRegionType::SR);
 
     Variables* vs = new Variables();
     vs->add("SMBDT",                   "BDT score",                       1);
@@ -36,7 +36,8 @@ void thesis_sr_ws_bdt(const std::string& filename, bool prefit)
     info->signal_linewidth = 3;
     info->show_scaling = true;
     info->legend_ncolumns = 1;
-    info->legend_scaling_horizontal = 1.7;
+    info->legend_scaling_horizontal = 1.5;
+    info->legend_scaling_vertical = 1.2;
     info->logy = false;
     info->output_format = "pdf";
     info->logy = true;
@@ -49,10 +50,9 @@ void thesis_sr_ws_bdt(const std::string& filename, bool prefit)
     {
         Processes* ps = new Processes();
         ps->add("data",       "data",               eProcessType::DATA,     eProcess::DATA,         "Data",                             kBlack);
-        ps->add("Ztthf",      "Z#tau#tau + hf",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
-        ps->add("ttbar",      "t#bar{t}",           eProcessType::BKG,      eProcess::P4,           "True-#tau_{had} t#bar{t}",         bbtt_kGOLDEN);
-        ps->add("ttbarFake",  "t#bar{t} Fake",      eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
-        ps->add("Fake",       "Multi-jet",          eProcessType::BKG,      eProcess::P8,           "Multi-jet",                        bbtt_kPINK);
+        ps->add("ttbar",      "t#bar{t}",           eProcessType::BKG,      eProcess::P1,           "True-#tau_{had} t#bar{t}",         bbtt_kGOLDEN);
+        ps->add("Fake",       "Fake #tau_{had}",    eProcessType::BKG,      eProcess::P4,           "Fake #tau_{had}",                        bbtt_kPINK);
+        ps->add("Ztthf",      "Z#tau#tau + hf",     eProcessType::BKG,      eProcess::P8,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
         ps->add("Zttlf",      "Z#tau#tau + lf",     eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("stop",       "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("Zhf",        "Zll + hf",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
@@ -62,6 +62,8 @@ void thesis_sr_ws_bdt(const std::string& filename, bool prefit)
         ps->add("W",          "W+jets",             eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("ttW",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("ttZ",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("DY",         "DY",                 eProcessType::BKG,      eProcess::P10,          "Others",                     bbtt_kCYAN);
+        ps->add("DYtt",       "DYtt",               eProcessType::BKG,      eProcess::P10,          "Others",                     bbtt_kCYAN);
         ps->add("ttH",        "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
         ps->add("WHbb",       "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
         ps->add("ggZHbb",     "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
@@ -75,8 +77,9 @@ void thesis_sr_ws_bdt(const std::string& filename, bool prefit)
         ps->add("hhttbbVBFSM", "SM HH",             eProcessType::SIG,      eProcess::P101,         "SM HH",                            kRed);
 
         Config* c = new Config(b, ps, rs, vs);
-        c->load(filename, "Region_BMin0_incJet1_distSMBDT_J2_Y2015_DLLOS_T2_SpcTauHH_L0");
-        info->parameter = "BDT";
+        string folder = SLT ? "Region_BMin0_incJet1_distNN_J2_DSM_T2_SpcTauLH_Y2015_LTT0_L1" : "Region_BMin0_incJet1_distNN_J2_DSM_T2_SpcTauLH_Y2015_LTT1_L1";
+        c->load(filename, folder);
+        info->parameter = "BDT_" + (SLT ? string("SLT") : string("LTT"));
 
         c->updateHistogramPtr(rs->content()->back(), v);
         DrawStackTool* ds = new DrawStackTool_WS(info);
@@ -102,13 +105,13 @@ void thesis_sr_ws_bdt(const std::string& filename, bool prefit)
     }
 }
 
-void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass, bool prefit)
+void thesis_sr_lephad_ws_pnn(const std::string& filename, const std::string& mass, bool prefit, bool SLT)
 {
     BasicInfo* b = new BasicInfo("#sqrt{s} = 13 TeV", "L = 139 fb^{-1}");
     b->name_convention = Utils::NameConvention::WSMaker;
 
     Regions* rs = new Regions();
-    rs->add("2tag2pjet_0ptv_LL_OS",     "#tau_{had}#tau_{had} SR",         eRegionType::SR);
+    rs->add("2tag2pjet_0ptv_LL_OS",     "#tau_{lep}#tau_{had} " + (SLT ? string("SLT") : string("LTT")) + " SR",         eRegionType::SR);
 
     Variables* vs = new Variables();
     vs->add("PNN" + mass,               "PNN" + mass + " score",                1);
@@ -137,10 +140,9 @@ void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass, bool
     {
         Processes* ps = new Processes();
         ps->add("data",       "data",               eProcessType::DATA,     eProcess::DATA,         "Data",                             kBlack);
-        ps->add("Ztthf",      "Z#tau#tau + hf",     eProcessType::BKG,      eProcess::P1,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
-        ps->add("ttbar",      "t#bar{t}",           eProcessType::BKG,      eProcess::P4,           "True-#tau_{had} t#bar{t}",         bbtt_kGOLDEN);
-        ps->add("ttbarFake",  "t#bar{t} Fake",      eProcessType::BKG,      eProcess::P6,           "Fake-#tau_{had} t#bar{t}",         bbtt_kORANGE);
-        ps->add("Fake",       "Multi-jet",          eProcessType::BKG,      eProcess::P8,           "Multi-jet",                        bbtt_kPINK);
+        ps->add("ttbar",      "t#bar{t}",           eProcessType::BKG,      eProcess::P1,           "True-#tau_{had} t#bar{t}",         bbtt_kGOLDEN);
+        ps->add("Fake",       "Fake #tau_{had}",    eProcessType::BKG,      eProcess::P4,           "Fake #tau_{had}",                        bbtt_kPINK);
+        ps->add("Ztthf",      "Z#tau#tau + hf",     eProcessType::BKG,      eProcess::P8,           "Z #rightarrow #tau#tau + hf",      bbtt_kBLUE_L);
         ps->add("Zttlf",      "Z#tau#tau + lf",     eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("stop",       "single top",         eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("Zhf",        "Zll + hf",           eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
@@ -150,6 +152,8 @@ void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass, bool
         ps->add("W",          "W+jets",             eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("ttW",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
         ps->add("ttZ",        "ttV",                eProcessType::BKG,      eProcess::P10,          "Others",                           bbtt_kGREEN);
+        ps->add("DY",         "DY",                 eProcessType::BKG,      eProcess::P10,          "Others",                     bbtt_kCYAN);
+        ps->add("DYtt",       "DYtt",               eProcessType::BKG,      eProcess::P10,          "Others",                     bbtt_kCYAN);
         ps->add("ttH",        "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
         ps->add("WHbb",       "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
         ps->add("ggZHbb",     "SM Higgs",           eProcessType::BKG,      eProcess::P12,          "Single Higgs",                     bbtt_kCYAN);
@@ -162,8 +166,9 @@ void thesis_sr_ws_pnn(const std::string& filename, const std::string& mass, bool
         ps->add("Hhhbbtautau"+mass, "X("+mass+")",  eProcessType::SIG,      eProcess::P101,         "X("+mass+")",                      kRed);
 
         Config* c = new Config(b, ps, rs, vs);
-        c->load(filename, "Region_BMin0_incJet1_distPNN" + mass + "_J2_Y2015_DLLOS_T2_SpcTauHH_L0");
-        info->parameter = "PNN";
+        string folder = SLT ? "Region_BMin0_incJet1_dist" + mass + "_J2_D2HDMPNN_T2_SpcTauLH_Y2015_LTT0_L1" : "Region_BMin0_incJet1_dist" + mass + "_J2_D2HDMPNN_T2_SpcTauLH_Y2015_LTT1_L1";
+        c->load(filename, folder);
+        info->parameter = "PNN_" + (SLT ? string("SLT") : string("LTT"));
 
         c->updateHistogramPtr(rs->content()->back(), v);
         DrawStackTool* ds = new DrawStackTool_WS(info);

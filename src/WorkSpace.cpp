@@ -430,8 +430,10 @@ void WorkSpace::Fit(RooAbsData* cData) {
     }
     // Information from workspace
     RooRealVar* cPOI = static_cast<RooRealVar*>(m_cPOIs->first());
+    cPOI->setRange(m_cInfo->poi_range_low, m_cInfo->poi_range_high);
     auto sMinimizerType = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
-    Tools::println("POI [%] initial value is [%]", cPOI->GetName(), cPOI->getVal());
+    Tools::println("POI [%] initial value is [% % %]", 
+        cPOI->GetName(), cPOI->getVal(), cPOI->getErrorHi(), cPOI->getErrorLo());
     Tools::println("Set [%] as minimizer", sMinimizerType);
     // Remove constant paras
     RooArgSet cConstrainParas;
@@ -440,6 +442,7 @@ void WorkSpace::Fit(RooAbsData* cData) {
     auto timeStart = steady_clock::now();
 
     RooFitResult* cRes = nullptr;
+    // unique_ptr<RooFitResult> cRes = nullptr;
 
     // >>> core of fitting <<< START
     switch (m_cInfo->fit_func)
@@ -471,10 +474,10 @@ void WorkSpace::Fit(RooAbsData* cData) {
     Tools::println("POI [%] final value is [%  %  %]",
             cPOI->GetName(), cPOI->getVal(), cPOI->getErrorHi(), cPOI->getErrorLo());
 
-    if (cRes)
-    {
-        delete cRes;
-    }
+    // if (cRes)
+    // {
+    //     delete cRes;
+    // }
 }
 
 void WorkSpace::FitAll() {
@@ -587,7 +590,7 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     ProfileLikelihoodTestStat* cPLLTestStat = new ProfileLikelihoodTestStat(*m_cSBModel->GetPdf());
     cPLLTestStat->SetOneSided(true); // ATLAS use one-side 
     cPLLTestStat->SetMinimizer("Minuit2");
-    cPLLTestStat->SetStrategy(0);
+    cPLLTestStat->SetStrategy(1);
     double fTolerance = m_cInfo->tolerance;
     cPLLTestStat->SetTolerance(fTolerance);
 
@@ -606,8 +609,8 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     cToySampler->SetGlobalObservables(*m_cSBModel->GetGlobalObservables());
     cToySampler->SetParametersForTestStat(*m_cSBModel->GetParametersOfInterest()); // set POI value for evaluation
 
-    ProofConfig cProofConfig(*m_cWs, nWorkers, "", false);
-    cToySampler->SetProofConfig(&cProofConfig); // enable proof
+    // ProofConfig cProofConfig(*m_cWs, nWorkers, "", false);
+    // cToySampler->SetProofConfig(&cProofConfig); // enable proof
 
     RooArgSet* cAllParams = new RooArgSet();
     cAllParams->add(*m_cSBModel->GetParametersOfInterest());
@@ -621,7 +624,7 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     cCanvas->SetLogy();
     TH1F* cHistPlot = (TH1F*)cSamplingPlot.GetTH1F(cSamplingDist)->Clone("plotting");
 
-    double xmin = cHistPlot->GetXaxis()->GetXmin();
+    double xmin = std::max(cHistPlot->GetXaxis()->GetXmin(), 0.);
     double xmax = std::max(cHistPlot->GetXaxis()->GetXmax(), fTestStatData);
     TH1F* cHistDummy = new TH1F("dummy", "", 1, xmin, xmax * 1.2);
     cHistDummy->GetXaxis()->SetLabelSize(0.04);
@@ -634,19 +637,66 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     cHistDummy->GetYaxis()->SetTitle("f(-log#lambda(#mu)|#mu)");
     cHistDummy->Draw("AXIS");
     
-    cHistPlot->SetLineWidth(1);
-    cHistPlot->Draw("HIST E0 SAME");
+    cHistPlot->SetLineWidth(2);
+    cHistPlot->SetMarkerStyle(kFullCircle);
+    cHistPlot->Draw("E0 SAME");
 
-    TF1 *cChi2 = new TF1("f", "ROOT::Math::chisquared_pdf(2 * x, 1)", xmin, xmax);
+    TF1 *cChi2 = new TF1("f", "2 * ROOT::Math::chisquared_pdf(2 * x, 1)", xmin, xmax);
     cChi2->SetLineColor(kRed+1);
     cChi2->SetLineWidth(1);
-    cChi2->Draw("SAME");
+    // cChi2->Draw("SAME");
 
-    TLine* cLineObsData = new TLine(fTestStatData, cHistPlot->GetMinimum(), fTestStatData, cHistPlot->GetMaximum());
-    cLineObsData->SetLineColor(kBlue+1);
-    cLineObsData->SetLineStyle(2);
-    cLineObsData->SetLineWidth(2);
-    cLineObsData->Draw("SAME");
+    TH1F* cHistHalfChi2 = (TH1F*)cHistPlot->Clone("half_chi2");
+    for (int i = 0; i < cHistHalfChi2->GetNbinsX() + 2; ++i)
+    {
+        cHistHalfChi2->SetBinContent(i, 0);
+        cHistHalfChi2->SetBinError(i, 0);
+    }
+
+    for (int i = 0; i < nToys; ++i)
+    {
+        int binary = rand() % 2;
+        if (binary == 0)
+        {
+            cHistHalfChi2->Fill(0);
+        }
+        else
+        {
+            cHistHalfChi2->Fill(cChi2->GetRandom());
+        }
+    }
+    double fSampleDist = cHistPlot->Integral();
+    Tools::println("Integral of sampling distribution: %", fSampleDist);
+    cHistHalfChi2->Scale(1. / (cHistHalfChi2->Integral() * cHistHalfChi2->GetBinWidth(1)));
+
+    cHistHalfChi2->SetLineColor(kRed+1);
+    cHistHalfChi2->SetMarkerColor(kRed+1);
+    cHistHalfChi2->SetMarkerStyle(kOpenCircle);
+    cHistHalfChi2->SetLineWidth(2);
+    cHistHalfChi2->Draw("E0 SAME");
+
+    // TLine* cLineObsData = new TLine(fTestStatData, cHistPlot->GetMinimum(), fTestStatData, cHistPlot->GetMaximum());
+    // cLineObsData->SetLineColor(kBlue+1);
+    // cLineObsData->SetLineStyle(2);
+    // cLineObsData->SetLineWidth(2);
+    // cLineObsData->Draw("SAME");
+
+    double p = cHistHalfChi2->KolmogorovTest(cHistPlot);
+    char p_s[64];
+    sprintf(p_s, "p_{K-S test} = %.3f", p);
+    Tools::println("K-S test result: %", p);
+
+    TLegend* legend = new TLegend(0.40, 0.78, 0.90, 0.92);
+    legend->SetNColumns(2);
+    legend->SetTextFont(42);
+    legend->SetFillStyle(0);
+    legend->SetBorderSize(0);
+    legend->SetTextSize(0.036);
+    legend->SetTextAlign(12);
+    legend->AddEntry(cHistPlot, "Pseudo experiment", "lep");
+    legend->AddEntry(cHistHalfChi2, "Approximation", "lep");
+    legend->AddEntry("", p_s, "");
+    legend->Draw();
 
     cCanvas->SetLogy();
     cCanvas->Update();
@@ -654,7 +704,7 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
         "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/pll_test_stat_distribution." + m_cInfo->output_tag + ".pdf";
     cCanvas->SaveAs(sOutputPath.c_str());
 
-    delete cLineObsData;
+    // delete cLineObsData;
     delete cChi2;
     delete cAllParams;
     delete cToySampler;

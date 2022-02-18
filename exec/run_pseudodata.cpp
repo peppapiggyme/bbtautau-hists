@@ -35,6 +35,10 @@ int main(int argc, char** argv)
         }
     }
 
+    cout << "Source is: " << argv[0] << endl;
+    cout << "Input list is: " << argv[1] << endl;
+    cout << "Output is: " << argv[2] << endl;
+
     test_pseudodata(filenames, argv[2]);
 
     return 0;

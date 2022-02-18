@@ -219,8 +219,15 @@ void DrawStackTool_WS::run(const Config* c) const
         TH1* err = (TH1*)cHistPostErr->Clone();
         for (int i = 0; i < err->GetNbinsX() + 2; ++i)
         {
-            err->SetBinError(i, err->GetBinError(i) / err->GetBinContent(i));
-            err->SetBinContent(i, 1.0);
+            if (bkg->GetBinContent(i) < 1e-5) {
+                err->SetBinError(i, 0.0);
+                err->SetBinContent(i, 1.0);
+            }
+            else
+            {
+                err->SetBinError(i, err->GetBinError(i) / err->GetBinContent(i));
+                err->SetBinContent(i, 1.0);
+            }
         }
         err->SetFillStyle(3254);
         err->SetFillColor(kGray+2);
