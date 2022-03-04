@@ -18,3 +18,6 @@
 
 #define bbtt_kBLUE4COMP                 TColor::GetColor(36, 146, 224)  // for binary comparison
 #define bbtt_kRED4COMP                  TColor::GetColor(224, 61, 59)   // for binary comparison
+
+#define bbtt_kSIG_RED                   TColor::GetColor(250, 20, 92)
+#define bbtt_kSIG_ORANGE                TColor::GetColor(255, 151, 60)

@@ -219,15 +219,17 @@ int main(/*int argc, char *argv[]*/)
     // thesis_sr_ws_lastbin("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_2HDM_Input_LastBin_1000.root", "1000", "SR PNN1000 > 0.993");
     // thesis_sr_ws_input("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_2HDM_Input_SMBDT.root");
 
-    thesis_sr_ws_bdt("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_SMggFVBF_MVA_0.root", false);
-    thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_2HDM_MVA_500.root", "500", false);
-    thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_2HDM_MVA_1000.root", "1000", false);
-    thesis_sr_lephad_ws_bdt("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_SMggFVBF_MVA_0.root", false, true);
-    thesis_sr_lephad_ws_bdt("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_SMggFVBF_MVA_0.root", false, false);
-    thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_500.root", "500", false, true);
-    thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_500.root", "500", false, false);
-    thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_1000.root", "1000", false, true);
-    thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_1000.root", "1000", false, false);
+    // thesis_sr_ws_bdt("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_SMggFVBF_MVA_0.root", false);
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_2HDM_MVA_500.root", "500", false);
+    // thesis_sr_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/MVAOutput-Postfit/Systs_hadhad_2HDM_MVA_1000.root", "1000", false);
+    // thesis_sr_lephad_ws_bdt("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_SMggFVBF_MVA_0.root", false, true);
+    // thesis_sr_lephad_ws_bdt("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_SMggFVBF_MVA_0.root", false, false);
+    // thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_500.root", "500", false, true);
+    // thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_500.root", "500", false, false);
+    // thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_1000.root", "1000", false, true);
+    // thesis_sr_lephad_ws_pnn("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R_LepHad/MVAOutput-Postfit/Systs_lephad_2HDM_MVA_1000.root", "1000", false, false);
+
+    // thesis_sr_ws_bdt_klam("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/Systs_hadhad_SM_MVA_0.klam.root", false);
 
     cout << "Ciao!" << endl;
 
