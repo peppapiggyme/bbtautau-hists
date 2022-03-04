@@ -1,6 +1,8 @@
 #include "WorkSpace.h"
 #include "Minimization.h"
 
+#include <set>
+
 void WorkSpace::Check() {
     Tools::println("%", m_cWs);
     Tools::println("%", m_cSBModel->GetName());
@@ -474,10 +476,24 @@ void WorkSpace::Fit(RooAbsData* cData) {
     Tools::println("POI [%] final value is [%  %  %]",
             cPOI->GetName(), cPOI->getVal(), cPOI->getErrorHi(), cPOI->getErrorLo());
 
-    // if (cRes)
-    // {
-    //     delete cRes;
-    // }
+    const vector<double> vecScale = {1., 2.5, 2.};
+    int nReTry = 3;
+
+    if (nReTry != 0 && GetMinimizationStatus() != 0)
+    {
+        if (cRes) delete cRes;
+        Tools::println("================= Retry % =================", 3 - nReTry);
+        m_cWs->loadSnapshot("snapshot_paramsVals_initial");
+        cPOI->setRange(m_cInfo->poi_range_low*vecScale[3 - nReTry], 
+            m_cInfo->poi_range_high*vecScale[3 - nReTry]);
+        cRes = FCCFit(cConstrainParas, *cData);
+        nReTry--;
+    }
+
+    if (cRes)
+    { 
+        delete cRes;
+    }
 }
 
 void WorkSpace::FitAll() {
@@ -563,6 +579,31 @@ void WorkSpace::SetStatOnly()
     }
 }
 
+void WorkSpace::SetFloatOnly(const set<string>& setNormFactorStr)
+{
+    SetStatOnly();
+    for (auto& np : *m_cNPs)
+    {
+        string sNameNP{np->GetName()};
+        Tools::println("Init NP value and errors are [%] = [%] +- [%]",
+            sNameNP, ((RooRealVar*)np)->getVal(), ((RooRealVar*)np)->getError());
+    }
+
+    for (const string& sNormFactor : setNormFactorStr)
+    {
+        Tools::println("Switching on [%]", sNormFactor);
+        RooRealVar* cNP = (RooRealVar*)m_cNPs->find(sNormFactor.c_str());
+        if (cNP)
+        {
+            cNP->setConstant(false);
+        }
+        else
+        {
+            throw std::runtime_error("norm factor does not exist!");
+        }
+    }
+}
+
 map<WorkSpace::ePOI, double> WorkSpace::GetCache(const string& nm)
 {
     tuple<double, double, double> tupleVals;
@@ -623,15 +664,16 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     TCanvas *cCanvas = new TCanvas("Sampling", "", 1200, 900);
     cCanvas->SetLogy();
     TH1F* cHistPlot = (TH1F*)cSamplingPlot.GetTH1F(cSamplingDist)->Clone("plotting");
+    cHistPlot->SetDirectory(0);
 
     double xmin = std::max(cHistPlot->GetXaxis()->GetXmin(), 0.);
     double xmax = std::max(cHistPlot->GetXaxis()->GetXmax(), fTestStatData);
-    TH1F* cHistDummy = new TH1F("dummy", "", 1, xmin, xmax * 1.2);
+    TH1F* cHistDummy = new TH1F("dummy", "", 1, xmin, xmax);
     cHistDummy->GetXaxis()->SetLabelSize(0.04);
     cHistDummy->GetXaxis()->SetTitleSize(0.045);
     cHistDummy->GetXaxis()->SetTitleOffset(1.2);
     cHistDummy->GetXaxis()->SetTitle(Form("-log#lambda(#mu=%.2f)", fMu));
-    cHistDummy->GetXaxis()->SetRangeUser(xmin, xmax * 1.2);
+    cHistDummy->GetXaxis()->SetRangeUser(xmin, xmax);
     cHistDummy->GetYaxis()->SetLabelSize(0.04);
     cHistDummy->GetYaxis()->SetTitleSize(0.045);
     cHistDummy->GetYaxis()->SetTitle("f(-log#lambda(#mu)|#mu)");
@@ -647,13 +689,14 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     // cChi2->Draw("SAME");
 
     TH1F* cHistHalfChi2 = (TH1F*)cHistPlot->Clone("half_chi2");
+    cHistHalfChi2->SetDirectory(0);
     for (int i = 0; i < cHistHalfChi2->GetNbinsX() + 2; ++i)
     {
         cHistHalfChi2->SetBinContent(i, 0);
         cHistHalfChi2->SetBinError(i, 0);
     }
 
-    for (int i = 0; i < nToys; ++i)
+    for (int i = 0; i < nToys * 100; ++i)
     {
         int binary = rand() % 2;
         if (binary == 0)
@@ -681,10 +724,8 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     // cLineObsData->SetLineWidth(2);
     // cLineObsData->Draw("SAME");
 
-    double p = cHistHalfChi2->KolmogorovTest(cHistPlot);
     char p_s[64];
-    sprintf(p_s, "p_{K-S test} = %.3f", p);
-    Tools::println("K-S test result: %", p);
+    sprintf(p_s, "Number of toys = %d", nToys);
 
     TLegend* legend = new TLegend(0.40, 0.78, 0.90, 0.92);
     legend->SetNColumns(2);
@@ -700,9 +741,14 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
 
     cCanvas->SetLogy();
     cCanvas->Update();
-    string sOutputPath = \
-        "/scratchfs/atlas/bowenzhang/bbtautau-hists/output/pll_test_stat_distribution." + m_cInfo->output_tag + ".pdf";
+    string sOutputPath = m_cInfo->output_path + "/pll_test_stat_distribution." + m_cInfo->output_tag + ".pdf";
     cCanvas->SaveAs(sOutputPath.c_str());
+
+    TFile *cFileOut = TFile::Open((sOutputPath+".root").c_str(), "recreate");
+    cFileOut->cd();
+    cHistPlot->Write();
+    cHistHalfChi2->Write();
+    cFileOut->Close();
 
     // delete cLineObsData;
     delete cChi2;

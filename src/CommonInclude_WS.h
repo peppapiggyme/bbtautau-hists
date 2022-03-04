@@ -45,6 +45,7 @@
 #include "RooStats/SamplingDistribution.h"
 #include "RooStats/SamplingDistPlot.h"
 #include "RooStats/ToyMCSampler.h"
+#include "RooStats/ToyMCImportanceSampler.h"
 #include "RooStats/RooStatsUtils.h"
 #include "RooStats/MinNLLTestStat.h"
 #include "RooStats/AsymptoticCalculator.h"

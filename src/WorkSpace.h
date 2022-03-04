@@ -74,7 +74,8 @@ enum class FitFunction
     ONELINE = 0x0,
     CUSTOM = 0x1,
     CST = 0x2,
-    FCC = 0x4
+    FCC = 0x4,
+    NONE = 0xFF
 };
 
 struct WorkspaceInfo
@@ -85,6 +86,7 @@ struct WorkspaceInfo
     string config_name = "ModelConfig";
     string data_name = "obsData";
     string output_tag = "TAG";
+    string output_path = "";
     double mu_asimov = 1.0;
     double tolerance = 1e-5;
     FitFunction fit_func = FitFunction::CST;
@@ -302,6 +304,7 @@ public:
     void SetConstantPOI(double mu);
     void SetConstantNP(const string& sPara, double fValue);
     void SetStatOnly();
+    void SetFloatOnly(const set<string>& setNormFactorStr);
 
 public:
     map<WorkSpace::ePOI, double> GetCache(const string& nm);
