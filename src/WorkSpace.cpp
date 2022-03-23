@@ -122,29 +122,6 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     Tools::println("Minimize status = [%]", nStatus);
     m_nStatus = nStatus;
 
-    // // Save the fit result pre
-    // RooFitResult* cResPre = cMinimizer.save();
-
-    // // Covariant matrix
-    // const TMatrixDSym cCovMatrix = cResPre->covarianceMatrix();
-    // double fDeterminant = cCovMatrix.Determinant();
-    // if (m_cInfo->logLevel > 0)
-    // {
-    //     Tools::println("Covariant matrix determinant = [%]", fDeterminant);
-    // }
-
-    // // Eigen value maker
-    // TMatrixDSymEigen cEigenValueMaker(cCovMatrix);
-    // TVectorT<double> cEigenValues = cEigenValueMaker.GetEigenValues();
-    // // TMatrixT<double> cEigenVectors = cEigenValueMaker.GetEigenVectors();
-    // if (m_cInfo->logLevel > 0)
-    // {
-    //     for (int i = 0; i < cEigenValues.GetNrows(); ++i) 
-    //     {
-    //         Tools::println("Eigen values -> %", cEigenValues[i]);
-    //     }
-    // }
-
     // Improve fit result
     if (nStatus % 100 == 0) 
     {
@@ -372,35 +349,6 @@ RooFitResult* WorkSpace::FCCFit(RooArgSet& cConstrainParas, RooAbsData& cData)
     }
     cout << "Minimize Status : " << status << endl;
     m_nStatus = status;
-
-    // //cout << endl;
-    // RooFitResult * tmpResult = minim.save();
-    // const TMatrixDSym covarMat = tmpResult->covarianceMatrix();
-    // Double_t det = covarMat.Determinant();
-    // cout << "Determinant " << det << endl;
-    // if(det < 0) { cout << "Determinant negative" << endl; }
-
-    // // get eigenvectors and eigenvalues
-    // TMatrixDSymEigen eigenValueMaker(covarMat);
-    // TVectorT<double> eigenValues   = eigenValueMaker.GetEigenValues();
-    // TMatrixT<double> eigenVectors  = eigenValueMaker.GetEigenVectors();
-    // cout << endl << "Eigenvalues  " << endl;
-    // for( int l=0; l<eigenValues.GetNrows(); l++ ) {
-    //     cout << "\t" << l << "\t" << eigenValues[l] << endl;
-    // }
-    // cout << endl;
-
-    // if (status%100 == 0) { // ignore errors in Hesse or in Improve
-    //     if (!retryOnHesseFailure) {
-    //         cout << "Calling Hesse ..."  << endl;
-    //         minim.setMinimizerType("Minuit2");
-    //         status = minim.hesse();
-    //         cout << "Hesse Status : " << status << endl;
-    //     }
-    //     if (m_cInfo->use_minos) minim.minos();
-    // } else {
-    //     cout << "FIT FAILED !" << endl;
-    // }
 
     sw.Print();
 
