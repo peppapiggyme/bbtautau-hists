@@ -4,7 +4,7 @@ TARFILE=$1
 LIST_OF_INPUT=$2
 OUTPUT_ROOTFILE=$3
 
-INPUT_PATH=/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/bootstrap_output/
+INPUT_PATH=/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/Workspaces/bootstrap_output_v2/
 echo "======================="
 echo "UNTAR WITH ${LIST_OF_INPUT}"
 echo "======================="

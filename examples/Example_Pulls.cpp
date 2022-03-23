@@ -13,6 +13,7 @@ int test_pulls(const std::string& filename, const std::string& outname)
     // info->workspace_name = "combWS";
     // info->data_name = "asimovData_SB_SM";
     info->use_asimov = false;
+    info->use_minos = true;
     info->fit_func = FitFunction::CST;
     info->use_relative_tolerance = false;
     info->tolerance = 1e-8;

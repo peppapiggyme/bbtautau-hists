@@ -16,7 +16,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
 set(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
 
-find_package(ROOT REQUIRED COMPONENTS Core Hist Tree RIO Net 
+find_package(ROOT REQUIRED COMPONENTS Core Hist Tree RIO Net ROOTVecOps ROOTDataFrame
     Matrix Physics MathCore HistFactory RooFit RooFitCore RooFitMore RooStats)
 
 find_package(Threads REQUIRED)

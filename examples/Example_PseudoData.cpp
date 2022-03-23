@@ -4,12 +4,11 @@
 #include <vector>
 #include <regex>
 
-static void test_pseudodata_helper(const std::string& filename,
+static void test_pseudodata_helper(const std::string& filename, const std::string& mass_point, 
     double& obs_q0, double& obs_sig, double& mu_hat_uncon, int& status_con, int& status_uncon, int& sign);
 
 void test_pseudodata(const std::vector<std::string>& filenames, const std::string& outfile)
 {
-    TFile* fout = TFile::Open(outfile.c_str(), "RECREATE");
     TTree* t = new TTree("params", "params");
     t->SetDirectory(0);
 
@@ -21,6 +20,8 @@ void test_pseudodata(const std::vector<std::string>& filenames, const std::strin
     int status_uncon = -1;
     int sign = 0;
     int pseudo_data_idx = -1;
+
+    std::string mass_point = "";
 
     t->Branch("obs_q0", &obs_q0, "obs_q0/D");
     t->Branch("obs_sig", &obs_sig, "obs_sig/D");
@@ -37,6 +38,7 @@ void test_pseudodata(const std::vector<std::string>& filenames, const std::strin
         std::smatch match;
         if (std::regex_search(filename, match, re)) 
         {
+            mass_point = match[2];
             pseudo_data_idx = std::stoi(match[3]);
         }
         else 
@@ -44,11 +46,13 @@ void test_pseudodata(const std::vector<std::string>& filenames, const std::strin
             throw std::runtime_error("no match!");
         }
 
-        test_pseudodata_helper(filename, obs_q0, obs_sig, mu_hat_uncon, status_con, status_uncon, sign);
+        test_pseudodata_helper(filename, mass_point, 
+            obs_q0, obs_sig, mu_hat_uncon, status_con, status_uncon, sign);
         obs_pvalue = Utils_WS::significanceToPvalue(obs_sig);
         t->Fill();
     }
 
+    TFile* fout = TFile::Open(outfile.c_str(), "RECREATE");
     fout->cd();
     t->Write();
     fout->ls();
@@ -57,7 +61,7 @@ void test_pseudodata(const std::vector<std::string>& filenames, const std::strin
     fout = nullptr;
 }
 
-void test_pseudodata_helper(const std::string& filename, 
+void test_pseudodata_helper(const std::string& filename, const std::string& mass_point, 
     double& obs_q0, double& obs_sig, double& mu_hat_uncon, int& status_con, int& status_uncon, int& sign)
 {
     const int doUncap = 1;
@@ -66,7 +70,7 @@ void test_pseudodata_helper(const std::string& filename,
     info->path = filename;
     info->workspace_name = "combined";
     info->use_asimov = false;
-    info->fit_func = FitFunction::CST;
+    info->fit_func = FitFunction::FCC;
     info->tolerance = 1e-6;
     info->logLevel = -1;
     info->use_minos = false;
@@ -74,6 +78,17 @@ void test_pseudodata_helper(const std::string& filename,
     info->poi_range_high = 40.;
     
     WorkSpace* wst = new WorkSpace(info);
+
+    std::vector<std::pair<std::string, std::string>> tn_and_prefix = {
+        {"globs_hadhad", "nom_gamma_stat_Region_BMin0_incJet1_distPNN"+mass_point+"_J2_Y2015_DLLOS_T2_SpcTauHH_L0_bin_"},
+        {"globs_ZCR", "nom_gamma_stat_Region_BMin0_incJet1_Y2015_DZllbbCR_T2_L2_distmLL_J2_bin_"},
+    };
+    wst->SetAlphaGlobalObservablesByFile(
+        "/scratchfs/atlas/bowenzhang/ext/bbtt_toy_generation/ws_inputs/toy_globs_"+mass_point+".root", 
+        "globs_alphas", 0);
+    wst->SetGammaGlobalObservablesByFile(
+        "/scratchfs/atlas/bowenzhang/ext/bbtt_toy_generation/ws_inputs/toy_globs_"+mass_point+".root", 
+        tn_and_prefix, 0);
 
     // wst->GetRooWorkspace()->loadSnapshot("snapshot_paramsVals_initial");
 
