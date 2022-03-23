@@ -305,6 +305,8 @@ public:
     void SetConstantNP(const string& sPara, double fValue);
     void SetStatOnly();
     void SetFloatOnly(const set<string>& setNormFactorStr);
+    void SetAlphaGlobalObservablesByFile(const std::string& fn, const std::string& tn, const long idx);
+    void SetGammaGlobalObservablesByFile(const std::string& fn, const std::vector<std::pair<std::string, std::string>>& tn_and_prefix, const long idx);
 
 public:
     map<WorkSpace::ePOI, double> GetCache(const string& nm);

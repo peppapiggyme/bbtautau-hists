@@ -1,5 +1,6 @@
 #include "WorkSpace.h"
 #include "Minimization.h"
+#include <ROOT/RDataFrame.hxx>
 
 #include <set>
 
@@ -10,6 +11,9 @@ void WorkSpace::Check() {
     const RooArgSet* observables = static_cast<const RooArgSet*>(m_cSBModel->GetObservables());
     Tools::println("Observables:");
     PrintObservables(observables);
+    const RooArgSet* globObs = static_cast<const RooArgSet*>(m_cSBModel->GetGlobalObservables());
+    Tools::println("Global Observables:");
+    PrintObservables(globObs);
     Tools::println("POIs:");
     PrintParametersOfInterest();
     Tools::println("NPs:");
@@ -84,7 +88,7 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     m_cNLL = m_cSBModel->GetPdf()->createNLL(cData, 
         Constrain(cConstrainParas), 
         GlobalObservables(*(m_cSBModel->GetGlobalObservables())), 
-        Offset(true), NumCPU(4));
+        Offset(true));
 
     // Staring NLL value
     Tools::println("Starting NLL value = %", m_cNLL->getVal());
@@ -118,28 +122,28 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     Tools::println("Minimize status = [%]", nStatus);
     m_nStatus = nStatus;
 
-    // Save the fit result pre
-    RooFitResult* cResPre = cMinimizer.save();
+    // // Save the fit result pre
+    // RooFitResult* cResPre = cMinimizer.save();
 
-    // Covariant matrix
-    const TMatrixDSym cCovMatrix = cResPre->covarianceMatrix();
-    double fDeterminant = cCovMatrix.Determinant();
-    if (m_cInfo->logLevel > 0)
-    {
-        Tools::println("Covariant matrix determinant = [%]", fDeterminant);
-    }
+    // // Covariant matrix
+    // const TMatrixDSym cCovMatrix = cResPre->covarianceMatrix();
+    // double fDeterminant = cCovMatrix.Determinant();
+    // if (m_cInfo->logLevel > 0)
+    // {
+    //     Tools::println("Covariant matrix determinant = [%]", fDeterminant);
+    // }
 
-    // Eigen value maker
-    TMatrixDSymEigen cEigenValueMaker(cCovMatrix);
-    TVectorT<double> cEigenValues = cEigenValueMaker.GetEigenValues();
-    // TMatrixT<double> cEigenVectors = cEigenValueMaker.GetEigenVectors();
-    if (m_cInfo->logLevel > 0)
-    {
-        for (int i = 0; i < cEigenValues.GetNrows(); ++i) 
-        {
-            Tools::println("Eigen values -> %", cEigenValues[i]);
-        }
-    }
+    // // Eigen value maker
+    // TMatrixDSymEigen cEigenValueMaker(cCovMatrix);
+    // TVectorT<double> cEigenValues = cEigenValueMaker.GetEigenValues();
+    // // TMatrixT<double> cEigenVectors = cEigenValueMaker.GetEigenVectors();
+    // if (m_cInfo->logLevel > 0)
+    // {
+    //     for (int i = 0; i < cEigenValues.GetNrows(); ++i) 
+    //     {
+    //         Tools::println("Eigen values -> %", cEigenValues[i]);
+    //     }
+    // }
 
     // Improve fit result
     if (nStatus % 100 == 0) 
@@ -165,7 +169,7 @@ RooFitResult* WorkSpace::CustomizedFit(RooArgSet& cConstrainParas, RooAbsData& c
     RooFitResult* cRes = cMinimizer.save();
     m_fNLL = m_cNLL->getVal();
 
-    delete cResPre;
+    // delete cResPre;
 
     return cRes;
 }
@@ -201,7 +205,7 @@ RooFitResult* WorkSpace::FCCFit(RooArgSet& cConstrainParas, RooAbsData& cData)
     "| Default is HESSE, can choose MINOS                         |\n"
     "o------------------------------------------------------------o\n";
     
-    bool fancy(false);
+    bool fancy(true);
     bool retryOnHesseFailure(false); // a bit less fancy
 
     // RooMsgService::instance().getStream(1).removeTopic(NumIntegration);
@@ -220,12 +224,13 @@ RooFitResult* WorkSpace::FCCFit(RooArgSet& cConstrainParas, RooAbsData& cData)
         cout << "No POI - assuming background only fit" << endl;
     }
     int nCPU = 2;
+    (void)nCPU;
         const char* NCORE = getenv("NCORE");
     if (NCORE) {
         TString nCPU_str = NCORE;
         nCPU = nCPU_str.Atoi();
     }
-    RooAbsReal * m_cNLL = m_cSBModel->GetPdf()->createNLL(cData, Constrain(cConstrainParas), GlobalObservables(*glbObs), Offset(1), Optimize(2) );
+    m_cNLL = m_cSBModel->GetPdf()->createNLL(cData, Constrain(cConstrainParas), GlobalObservables(*glbObs), Offset(1), Optimize(2) );
     double nllval = m_cNLL->getVal();
     cout << "Starting NLL value " << nllval << endl;
 
@@ -368,34 +373,34 @@ RooFitResult* WorkSpace::FCCFit(RooArgSet& cConstrainParas, RooAbsData& cData)
     cout << "Minimize Status : " << status << endl;
     m_nStatus = status;
 
-    //cout << endl;
-    RooFitResult * tmpResult = minim.save();
-    const TMatrixDSym covarMat = tmpResult->covarianceMatrix();
-    Double_t det = covarMat.Determinant();
-    cout << "Determinant " << det << endl;
-    if(det < 0) { cout << "Determinant negative" << endl; }
+    // //cout << endl;
+    // RooFitResult * tmpResult = minim.save();
+    // const TMatrixDSym covarMat = tmpResult->covarianceMatrix();
+    // Double_t det = covarMat.Determinant();
+    // cout << "Determinant " << det << endl;
+    // if(det < 0) { cout << "Determinant negative" << endl; }
 
-    // get eigenvectors and eigenvalues
-    TMatrixDSymEigen eigenValueMaker(covarMat);
-    TVectorT<double> eigenValues   = eigenValueMaker.GetEigenValues();
-    TMatrixT<double> eigenVectors  = eigenValueMaker.GetEigenVectors();
-    cout << endl << "Eigenvalues  " << endl;
-    for( int l=0; l<eigenValues.GetNrows(); l++ ) {
-        cout << "\t" << l << "\t" << eigenValues[l] << endl;
-    }
-    cout << endl;
+    // // get eigenvectors and eigenvalues
+    // TMatrixDSymEigen eigenValueMaker(covarMat);
+    // TVectorT<double> eigenValues   = eigenValueMaker.GetEigenValues();
+    // TMatrixT<double> eigenVectors  = eigenValueMaker.GetEigenVectors();
+    // cout << endl << "Eigenvalues  " << endl;
+    // for( int l=0; l<eigenValues.GetNrows(); l++ ) {
+    //     cout << "\t" << l << "\t" << eigenValues[l] << endl;
+    // }
+    // cout << endl;
 
-    if (status%100 == 0) { // ignore errors in Hesse or in Improve
-        if (!retryOnHesseFailure) {
-            cout << "Calling Hesse ..."  << endl;
-            minim.setMinimizerType("Minuit2");
-            status = minim.hesse();
-            cout << "Hesse Status : " << status << endl;
-        }
-        if (m_cInfo->use_minos) minim.minos();
-    } else {
-        cout << "FIT FAILED !" << endl;
-    }
+    // if (status%100 == 0) { // ignore errors in Hesse or in Improve
+    //     if (!retryOnHesseFailure) {
+    //         cout << "Calling Hesse ..."  << endl;
+    //         minim.setMinimizerType("Minuit2");
+    //         status = minim.hesse();
+    //         cout << "Hesse Status : " << status << endl;
+    //     }
+    //     if (m_cInfo->use_minos) minim.minos();
+    // } else {
+    //     cout << "FIT FAILED !" << endl;
+    // }
 
     sw.Print();
 
@@ -604,6 +609,56 @@ void WorkSpace::SetFloatOnly(const set<string>& setNormFactorStr)
     }
 }
 
+void WorkSpace::SetAlphaGlobalObservablesByFile(const std::string& fn, const std::string& tn, const long idx)
+{
+    ROOT::RDataFrame df(tn.c_str(), fn.c_str());
+    auto names = df.GetColumnNames();
+    for (auto && colName : names)
+    {
+        RooRealVar* globObs = (RooRealVar*)m_cSBModel->GetGlobalObservables()->find(colName.c_str());
+        if (!globObs) 
+        {
+            Tools::println("glob [%] not found! skipping..", colName);
+        }
+        else
+        {
+            auto val = df.Range(idx, idx+1, 1).Take<float>(colName)->at(0);
+            globObs->setVal(val);
+            Tools::println("glob [%] value set to [%]", globObs->GetName(), globObs->getVal());
+        }
+    }
+}
+
+void WorkSpace::SetGammaGlobalObservablesByFile(const std::string& fn, 
+    const std::vector<std::pair<std::string, std::string>>& tn_and_prefix, const long idx)
+{
+    for (const auto& p : tn_and_prefix)
+    {
+        const std::string& tn = p.first;
+        const std::string& prefix = p.second;
+        ROOT::RDataFrame df(tn.c_str(), fn.c_str());
+        // hardcoded branch name "globs"
+        // val is a vector
+        auto val = df.Range(idx, idx+1, 1).Take<ROOT::RVec<float>>("globs")->at(0);
+        Tools::println("size of globs [%] [%] is [%]", tn, prefix, val.size());
+
+        for (size_t i = 0; i < val.size(); i++)
+        {
+            std::string sGlobName{prefix + std::to_string(i)};
+            RooRealVar* globObs = (RooRealVar*)m_cSBModel->GetGlobalObservables()->find(sGlobName.c_str());
+            if (!globObs) 
+            {
+                Tools::println("glob [%] not found! skipping..", sGlobName);
+            }
+            else
+            {
+                globObs->setVal(val.at(i));
+                Tools::println("glob [%] value set to [%]", globObs->GetName(), globObs->getVal());
+            }
+        }        
+    }
+}
+
 map<WorkSpace::ePOI, double> WorkSpace::GetCache(const string& nm)
 {
     tuple<double, double, double> tupleVals;
@@ -650,6 +705,7 @@ void WorkSpace::DrawProfiledLikelihoodTestStatDist(double fMu, int nToys, int nW
     cToySampler->SetGlobalObservables(*m_cSBModel->GetGlobalObservables());
     cToySampler->SetParametersForTestStat(*m_cSBModel->GetParametersOfInterest()); // set POI value for evaluation
 
+    (void)nWorkers;
     // ProofConfig cProofConfig(*m_cWs, nWorkers, "", false);
     // cToySampler->SetProofConfig(&cProofConfig); // enable proof
 

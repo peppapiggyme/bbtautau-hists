@@ -74,7 +74,7 @@ public:
                 istringstream iss(sLine);
                 Parameter par;
                 iss >> par.name >> par.val >> par.err_hi >> par.err_lo;
-                if (par.name.find("gamma") == std::string::npos)
+                if (par.name.find("gamma") == std::string::npos && par.name.find("norm") == std::string::npos)
                 {
                     vLabels.push_back(par.name);
                     vX.push_back(m_fCounter + offset);
@@ -102,7 +102,7 @@ public:
         TH1* h = new TH1D("h", "", vLabels.size(), 0, vLabels.size());
         TH1* h2 = new TH1D("h2", "", vLabels.size(), 0, vLabels.size());
 
-        h2->GetYaxis()->SetTitle("Pull");
+        h2->GetYaxis()->SetTitle("Post-fit value and interval");
         h2->GetYaxis()->SetTitleOffset(0.5);
         h2->GetYaxis()->SetTitleSize(0.025);
         h2->GetYaxis()->SetLabelSize(0.025);
@@ -160,12 +160,12 @@ public:
         text->SetNDC();
         text->SetTextFont(72);
         text->SetTextSize(0.040);
-        text->DrawLatex(0.10, 0.96, "ATLAS");
+        // text->DrawLatex(0.10, 0.96, "ATLAS");
         text->SetTextFont(42);
-        text->DrawLatex(0.10 + 0.08, 0.96, "Internal");
+        text->DrawLatex(0.10 + 0.08, 0.96, "Non-resonant HH BDT");
         text->SetTextSize(0.035);
         text->SetTextSize(0.030);
-        text->DrawLatex(0.85, 0.96, "Fit to Data");
+        text->DrawLatex(0.80, 0.96, "Background-only hypothesis");
 
         c1->SaveAs(output.c_str());
 
