@@ -85,7 +85,7 @@ static void PlotFF_DTT(const pair<string, string>& p, const char* folder)
     TH1* h_barrel = (TH1*)f->Get(ss_barrel.str().c_str());        
     TH1* h_endcap = (TH1*)f->Get(ss_endcap.str().c_str());
 
-    string xtitle = prong + "-prong #tau_{had} p_T";
+    string xtitle = prong + "-prong #tau_{had} p_{T}";
     h_barrel->GetXaxis()->SetTitle(xtitle.c_str());
     h_barrel->GetXaxis()->SetTitleOffset(1.4);
     h_barrel->GetXaxis()->SetTitleSize(0.055);
@@ -292,14 +292,14 @@ static void PlotTF(const pair<string, string>& p, const char* folder)
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
     legend->SetTextSize(0.040);
-    string str_barrel{"FF(STT)"};
+    string str_barrel{"TF"};
     legend->AddEntry(h_out, str_barrel.c_str(), "lp");
     legend->Draw();
 
     TLatex *text = new TLatex();
     text->SetNDC();
     text->SetTextSize(0.040);
-    text->DrawLatex(0.20, 0.86, "1-b-tagged SS");
+    text->DrawLatex(0.20, 0.86, "2-b-tagged and 1-b-tagged SS");
     text->DrawLatex(0.20, 0.96, string("Data in " + p.first + ", " + lumis[p.first]).c_str());
 
     stringstream output;
