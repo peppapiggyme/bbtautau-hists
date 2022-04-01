@@ -88,7 +88,7 @@ public:
      *   -> enough stats to show systematic variation of major bkg components
      */
     bool passCaseTwoFromXtoY(double fBkg, double fBkgErr, double fEffErr, double fReqFactor, std::size_t x, std::size_t y) const;
-
+    bool passCaseThreeFromXtoY(double fBkgErr,std::size_t x, std::size_t y) const;
 public:
     std::map<std::pair<eProcessType, eProcess>, std::pair<double*, double*>> data;
     // two pointers -> current interval
@@ -106,7 +106,8 @@ enum class BinningCriteria
 {
     None,
     CaseOne,
-    CaseTwo
+    CaseTwo,
+    CaseThree
 };
 
 

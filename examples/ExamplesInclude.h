@@ -53,3 +53,4 @@ void thesis_syst_stop_param_topint(const std::string& filename);
 void thesis_sr_ws_lastbin(const std::string& filename, const std::string& mass, const std::string& region);
 void thesis_sr_ws_input(const std::string& filename);
 void thesis_sr_ws_bdt_klam(const std::string& filename, bool prefit);
+void test_bukin_binning(const std::string& filename);

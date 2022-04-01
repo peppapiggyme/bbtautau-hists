@@ -267,12 +267,19 @@ bool BinContent::passCaseTwoFromXtoY(double fBkg, double fBkgErr, double fEffErr
     return true;
 }
 
+bool BinContent::passCaseThreeFromXtoY(double fBkgErr, std::size_t x, std::size_t y) const
+{
+    double fTotalBkgErr = sumFromXtoY(data.at(BKGBKG).first, x, y) == 0 ? 1 : errSumFromXtoY(data.at(BKGBKG).second, x, y) / sumFromXtoY(data.at(BKGBKG).first, x, y);
+
+    return fTotalBkgErr < fBkgErr;
+}
+
 // ----------------------------------------------------------------------------
 // AutoBinningTool
 // ----------------------------------------------------------------------------
 
 AutoBinningTool::AutoBinningTool(const AutoBinningInfo* info)
-    : m_info(info), m_binEdges(new std::vector<double>(m_info->n_bins + 1, 0.))
+    : m_info(info), m_binEdges(new std::vector<double>())
 {
 }
 
@@ -336,9 +343,6 @@ bool AutoBinningTool_v1::check(const Config* c) const
 
 void AutoBinningTool_v1::run(const Config* c) const
 {
-    m_binEdges->at(m_info->n_bins) = 1.;
-    m_binEdges->at(0) = m_info->for_bdt ? -1. : 0.; // 0 for PNN, -1 for BDT
-
     vector<std::size_t> curXs;
 
     BinContent* bc = new BinContent(c);
@@ -361,6 +365,9 @@ void AutoBinningTool_v1::run(const Config* c) const
             break;
         case BinningCriteria::CaseTwo:
             bPass = bc->passCaseTwoFromXtoY(m_info->min_bkg, m_info->min_mcstats, m_info->eff_factor, m_info->required_mcstats, bc->curX, bc->curY);
+            break;
+        case BinningCriteria::CaseThree:
+            bPass = bc->passCaseThreeFromXtoY(m_info->min_mcstats, bc->curX, bc->curY);
             break;
         default: // e.g. None
             bPass = bc->passCaseTwoFromXtoY(m_info->min_bkg, m_info->min_mcstats, m_info->eff_factor, m_info->required_mcstats, bc->curX, bc->curY);
@@ -435,48 +442,19 @@ void AutoBinningTool_v1::run(const Config* c) const
 
     Tools::printQueue(pq);
 
-    size_t i = 1;
-    auto pq_forBinEdges = pq;
-    pq_forBinEdges.pop(); // pop 0
-    while(!pq_forBinEdges.empty() && i < m_info->n_bins)
-    {
-        m_binEdges->at(i++) = (m_info->for_bdt ? -1. : 0.) + (m_info->for_bdt ? 0.002 : 0.001) * (pq_forBinEdges.top() + 1); // for PNN
-        pq_forBinEdges.pop();
-    }
-
     vector<ProcessInfo*>* ps = c->processes->content();
-
-    ostringstream oss;
-    oss << output_path << "/" 
-        << "Binning_" 
-        << ps->front()->current_variable->name << ".txt";
-    ofstream fout(oss.str());
-
-    // Em.. WSMaker wants the opposite so
-    std::priority_queue<size_t> pq_bin;
-    auto pq_forBin = pq;
-    while(!pq_forBin.empty())
+    TH1* h = (*ps->begin())->histogram;
+    while (!pq.empty())
     {
-        int offset = 1;
-        if (pq_forBin.size() == 1)
-        {
-            offset = 2; // WSMaker also wants overflow bin
-        }
-        pq_bin.push(pq_forBin.top() + offset); // bin number
-        pq_forBin.pop();
+        double edge = h->GetBinCenter(pq.top() + 1);
+        edge -= h->GetBinWidth(1) * 0.5;
+        m_binEdges->push_back(edge);
+        pq.pop();
     }
-
-    Tools::printQueue(pq_bin);
-
-    while(!pq_bin.empty())
-    {
-        fout << pq_bin.top();
-        fout << " ";
-        pq_bin.pop();
-    }
+    (*m_binEdges)[m_binEdges->size()-1] += h->GetBinWidth(1);
 
     Tools::printVector(*m_binEdges);
-    clog << "INFO: Binning saved in " << oss.str() << " for WSMaker" << '\n';
+
 }
 
 // ----------------------------------------------------------------------------

@@ -233,7 +233,7 @@ int main(/*int argc, char *argv[]*/)
 
     // thesis_sr_ws_bdt_klam("/scratchfs/atlas/bowenzhang/bbtautau-hists/output/W2R/Systs_hadhad_SM_MVA_0.klam.root", false);
 
-
+    test_bukin_binning("/publicfs/atlas/atlasnew/higgs/hh2X/zhangbw/Hists/hist-bukinValue-semiboost.root");
 
     cout << "Ciao!" << endl;
 
