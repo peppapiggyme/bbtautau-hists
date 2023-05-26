@@ -171,7 +171,7 @@ void WorkspaceToRoot::FetchContents()
     Tools::println("Channel [%]", sChannel);
     for (auto cat : cCategories)
     {
-        string sCategory{cat->GetName()};
+        string sCategory{cat.first};
         Tools::println("find category: %", sCategory);
 
         m_mapContent[sCategory];

@@ -1,7 +1,6 @@
 /// \file
 /// Tools to perform likelihood minimization
 #include <Math/MinimizerOptions.h>
-#include <RooMinimizerFcn.h>
 #include <RooMinimizer.h>
 #include <RooWorkspace.h>
 #include <RooNLLVar.h>

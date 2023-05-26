@@ -2,6 +2,7 @@
 .vscode
 output/
 html/
+build/
 data/*txt
 data/*root
 data/*/*txt
